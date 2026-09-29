@@ -1,0 +1,12 @@
+﻿=== desktop (1600,950) ===
+  full | rail=full vw=1570 | sidebarW=264 navW=263 navScrollH=252 navClientH=252 navOverflowY=auto | linkW=239 linkPad=12px/12px linkScrollW=239 | spanDisplay=block spanFS=14.5px | errors=0
+  after-toggle | rail=mini vw=1570 | sidebarW=76 navW=75 navScrollH=252 navClientH=252 navOverflowY=auto | linkW=51 linkPad=0px/0px linkScrollW=103 | spanDisplay=none spanFS=14.5px | errors=0
+
+=== mobile (420,860) ===
+  full | rail=full vw=504 | sidebarW=300 navW=299 navScrollH=252 navClientH=232 navOverflowY=auto | linkW=265 linkPad=12px/12px linkScrollW=265 | spanDisplay=block spanFS=14.5px | errors=0
+  after-toggle | rail=full vw=504 | sidebarW=300 navW=299 navScrollH=252 navClientH=232 navOverflowY=auto | linkW=265 linkPad=12px/12px linkScrollW=265 | spanDisplay=block spanFS=14.5px | errors=0
+
+FAIL (2)
+  - desktop: expected 4 states, got 2
+  - mobile: expected 4 states, got 2
+EXIT=1

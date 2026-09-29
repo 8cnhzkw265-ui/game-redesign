@@ -1,0 +1,3 @@
+rules    active=True  hex=128  pieces=64   cards=40   console=0  OK
+
+ALL ROUTES OK

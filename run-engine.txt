@@ -1,0 +1,11 @@
+﻿TITLE: Fortress ù engine verification
+(no #test-log element in the page)
+hex cells:     0
+pieces:        0
+theme cards:   0
+bg chips:      0
+log rows:      0
+---- browser stderr (filtered) ----
+  [17248:18416:0929/110720.538:ERROR:chrome\browser\task_manager\providers\fallback_task_provider.cc:126] Every renderer should have at least one task provided by a primary task provider. If a "Renderer" fallback task is shown, it is a bug. I
+  [17248:18416:0929/110720.627:ERROR:chrome\browser\task_manager\providers\fallback_task_provider.cc:126] Every renderer should have at least one task provided by a primary task provider. If a "Renderer" fallback task is shown, it is a bug. I
+  [17248:18416:0929/110720.933:ERROR:CONSOLE:0] "Unchecked runtime.lastError: The browser is shutting down.", source:  (0)

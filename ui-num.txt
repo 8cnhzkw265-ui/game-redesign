@@ -1,0 +1,455 @@
+1:/* ==========================================================================
+2:   FT.ui — shell behaviour shared by every page
+3:   Preferences live in localStorage, the look is applied as data-attributes on
+4:   <html> so the CSS layers do the painting, and every picker in the app is
+5:   generated from js/catalog.js rather than hand-written markup — one source of
+6:   truth for the 20 boards and 20 backgrounds.
+7:   ========================================================================== */
+8:(function (global) {
+9:  'use strict';
+10:  var FT = global.FT = global.FT || {};
+11:  var C = FT.catalog, H = FT.hex;
+12:  var doc = global.document;
+13:
+14:  var VIEWS = ['play', 'themes', 'system', 'rules', 'mobile'];
+15:  var TITLES = {
+16:    play: 'Arena · Fortress', themes: 'Arena library · Fortress',
+17:    system: 'The Forged system · Fortress', rules: 'Rules of Fortress · Fortress',
+18:    mobile: 'Mobile layout · Fortress'
+19:  };
+20:
+21:  /* ------------------------------------------------------------ preferences */
+22:  function defaults() {
+23:    var out = {};
+24:    Object.keys(C.DEFAULTS).forEach(function (k) { out[k] = C.DEFAULTS[k]; });
+25:    return out;
+26:  }
+27:
+28:  function loadPrefs() {
+29:    var prefs = defaults();
+30:    try {
+31:      var raw = global.localStorage && global.localStorage.getItem(C.PREF_KEY);
+32:      if (raw) {
+33:        var saved = JSON.parse(raw);
+34:        Object.keys(prefs).forEach(function (k) { if (saved[k] !== undefined) { prefs[k] = saved[k]; } });
+35:      } else if (global.matchMedia && global.matchMedia('(prefers-color-scheme: light)').matches) {
+36:        prefs.mode = 'light';
+37:      }
+38:    } catch (err) { /* storage blocked — defaults are perfectly usable */ }
+39:    return prefs;
+40:  }
+41:
+42:  function savePrefs(prefs) {
+43:    try { global.localStorage.setItem(C.PREF_KEY, JSON.stringify(prefs)); }
+44:    catch (err) { /* ignore: private browsing, file://, quota */ }
+45:    return prefs;
+46:  }
+47:
+48:  function applyLook(prefs) {
+49:    var html = doc.documentElement;
+50:    html.setAttribute('data-mode', prefs.mode === 'light' ? 'light' : 'dark');
+51:    html.setAttribute('data-board', C.board(prefs.board).id);
+52:    html.setAttribute('data-bg', C.background(prefs.background).id);
+53:    /* The menu rail is part of the look: set it here so a saved "mini"
+54:       preference never flashes a full-width sidebar on first paint. */
+55:    html.setAttribute('data-rail', prefs.rail === 'mini' ? 'mini' : 'full');
+56:    renderTokens(doc.getElementById('token-grid'));
+57:    renderContrastTable(doc.getElementById('contrast-body'));
+58:    return prefs;
+59:  }
+60:
+61:  /* ------------------------------------------------------------------ views */
+62:  function setView(id, opts) {
+63:    if (VIEWS.indexOf(id) < 0) { id = 'play'; }
+64:    VIEWS.forEach(function (v) {
+65:      var el = doc.getElementById('view-' + v);
+66:      if (el) { el.classList.toggle('is-active', v === id); }
+67:    });
+68:    var navs = doc.querySelectorAll('[data-nav]');
+69:    for (var i = 0; i < navs.length; i++) {
+70:      var on = navs[i].getAttribute('data-nav') === id;
+71:      if (on) { navs[i].setAttribute('aria-current', 'page'); }
+72:      else { navs[i].removeAttribute('aria-current'); }
+73:    }
+74:    if (TITLES[id]) { doc.title = TITLES[id]; }
+75:    if (!opts || opts.scroll !== false) { global.scrollTo(0, 0); }
+76:    return id;
+77:  }
+78:
+79:  function route() { return setView(String(global.location.hash || '#play').replace('#', '')); }
+80:
+81:  function linkNav() {
+82:    global.addEventListener('hashchange', function () { route(); });
+83:    var navs = doc.querySelectorAll('[data-nav]');
+84:    for (var i = 0; i < navs.length; i++) {
+85:      navs[i].addEventListener('click', function (evt) {
+86:        var id = this.getAttribute('data-nav');
+87:        evt.preventDefault();
+88:        if (global.location.hash === '#' + id) { route(); }
+89:        else { global.location.hash = '#' + id; }
+90:      });
+91:    }
+92:    return VIEWS;
+93:  }
+94:
+95:  /* ---------------------------------------------------------------- toasts */
+96:  function toast(title, body, kind) {
+97:    var host = doc.getElementById('toasts');
+98:    if (!host) { return null; }
+99:    var el = doc.createElement('div');
+100:    el.className = 'toast' + (kind ? ' is-' + kind : '');
+101:    el.setAttribute('role', 'status');
+102:    var strong = doc.createElement('b');
+103:    strong.textContent = title;
+104:    el.appendChild(strong);
+105:    if (body) {
+106:      var span = doc.createElement('span');
+107:      span.textContent = body;
+108:      el.appendChild(span);
+109:    }
+110:    host.appendChild(el);
+111:    while (host.children.length > 3) { host.removeChild(host.firstChild); }
+112:    global.setTimeout(function () {
+113:      if (el.parentNode) { el.parentNode.removeChild(el); }
+114:    }, 4600);
+115:    return el;
+116:  }
+117:
+118:
+119:  /* ----------------------------------------------------------------- modal */
+120:  var openOverlay = null;
+121:
+122:  function closeModal() {
+123:    if (openOverlay && openOverlay.parentNode) { openOverlay.parentNode.removeChild(openOverlay); }
+124:    openOverlay = null;
+125:  }
+126:
+127:  function openModal(cfg) {
+128:    var o = cfg || {};
+129:    closeModal();
+130:    var overlay = doc.createElement('div');
+131:    overlay.className = 'overlay';
+132:    overlay.setAttribute('role', 'dialog');
+133:    overlay.setAttribute('aria-modal', 'true');
+134:    overlay.setAttribute('aria-label', o.title || 'Dialog');
+135:
+136:    var modal = doc.createElement('div');
+137:    modal.className = 'modal' + (o.wide ? ' modal-lg' : '');
+138:
+139:    var head = doc.createElement('div');
+140:    head.className = 'modal-head';
+141:    var title = doc.createElement('h3');
+142:    title.textContent = o.title || '';
+143:    head.appendChild(title);
+144:    var close = doc.createElement('button');
+145:    close.type = 'button';
+146:    close.className = 'btn btn-ghost btn-icon modal-close';
+147:    close.setAttribute('aria-label', 'Close dialog');
+148:    close.textContent = '\u00d7';
+149:    close.addEventListener('click', closeModal);
+150:    head.appendChild(close);
+151:
+152:    var body = doc.createElement('div');
+153:    body.className = 'modal-body';
+154:    if (typeof o.body === 'string') { body.innerHTML = o.body; }
+155:    else if (o.body) { body.appendChild(o.body); }
+156:
+157:    var foot = doc.createElement('div');
+158:    foot.className = 'modal-foot';
+159:    (o.actions || []).forEach(function (a) {
+160:      var b = doc.createElement('button');
+161:      b.type = 'button';
+162:      b.className = 'btn ' + (a.kind || 'btn-secondary');
+163:      b.textContent = a.label;
+164:      b.addEventListener('click', function () {
+165:        if (a.close !== false) { closeModal(); }
+166:        if (a.onClick) { a.onClick(); }
+167:      });
+168:      foot.appendChild(b);
+169:    });
+170:
+171:    modal.appendChild(head);
+172:    modal.appendChild(body);
+173:    if (foot.children.length) { modal.appendChild(foot); }
+174:    overlay.appendChild(modal);
+175:    overlay.addEventListener('click', function (evt) {
+176:      if (evt.target === overlay && !o.sticky) { closeModal(); }
+177:    });
+178:    doc.body.appendChild(overlay);
+179:    openOverlay = overlay;
+180:    try { (foot.querySelector('.btn') || close).focus(); } catch (err) { /* best effort */ }
+181:    return overlay;
+182:  }
+183:
+184:  doc.addEventListener('keydown', function (evt) {
+185:    if (evt.key === 'Escape' && openOverlay) { closeModal(); }
+186:  });
+187:
+188:  /* ---------------------------------------------------------------- helpers */
+189:  function el(tag, cls, text) {
+190:    var e = doc.createElement(tag);
+191:    if (cls) { e.className = cls; }
+192:    if (text !== undefined && text !== null) { e.textContent = text; }
+193:    return e;
+194:  }
+195:
+196:  function clear(node) {
+197:    if (!node) { return null; }
+198:    while (node.firstChild) { node.removeChild(node.firstChild); }
+199:    return node;
+200:  }
+201:
+202:  /* The clock is the one number that must read from across the room. */
+203:  function fmtClock(sec) {
+204:    if (sec === null || sec === undefined || !isFinite(sec)) { return '--:--'; }
+205:    var s = Math.max(0, Math.floor(sec));
+206:    var m = Math.floor(s / 60), rest = s % 60;
+207:    if (m >= 60) {
+208:      var h = Math.floor(m / 60);
+209:      return h + ':' + String(m % 60).padStart(2, '0') + ':' + String(rest).padStart(2, '0');
+210:    }
+211:    return m + ':' + String(rest).padStart(2, '0');
+212:  }
+213:
+214:  var NS = 'http://www.w3.org/2000/svg';
+215:
+216:  function svgPath(d, cls, fill, stroke, width) {
+217:    var p = doc.createElementNS(NS, 'path');
+218:    p.setAttribute('d', d);
+219:    if (cls) { p.setAttribute('class', cls); }
+220:    if (fill) { p.setAttribute('fill', fill); }
+221:    if (stroke) { p.setAttribute('stroke', stroke); }
+222:    if (width) { p.setAttribute('stroke-width', width); }
+223:    return p;
+224:  }
+225:
+226:  function polygon(radius, scale) {
+227:    var pts = H.points(radius, scale).split(' ');
+228:    var d = 'M' + pts[0];
+229:    for (var i = 1; i < pts.length; i++) { d += 'L' + pts[i]; }
+230:    return d + 'Z';
+231:  }
+232:
+233:  /* Two hexes and a plate: enough to read a material at a glance. */
+234:  function miniBoard() {
+235:    var R = 10, dx = R * Math.sqrt(3) / 2;
+236:    var svg = doc.createElementNS(NS, 'svg');
+237:    svg.setAttribute('aria-hidden', 'true');
+238:    svg.setAttribute('viewBox',
+239:      (-dx - R).toFixed(1) + ' ' + (-R - 1).toFixed(1) + ' ' +
+240:      (2 * (dx + R)).toFixed(1) + ' ' + (2 * R + 2).toFixed(1));
+241:    [-dx, dx].forEach(function (x) {
+242:      var g = doc.createElementNS(NS, 'g');
+243:      g.setAttribute('transform', 'translate(' + x.toFixed(2) + ',0)');
+244:      g.appendChild(svgPath(polygon(R, 1), 'cell', 'var(--cell-a)', 'var(--cell-line)', 1));
+245:      g.appendChild(svgPath(polygon(R, 0.78), 'cell-inner', 'var(--cell-b)', null, null));
+246:      g.appendChild(svgPath(polygon(R * 0.62, 1), 'p-plate', 'var(--p-w-a)', 'var(--p-w-line)', 1));
+247:      g.appendChild(svgPath(polygon(R * 0.62, 0.7), 'p-inner', 'var(--p-w-b)', null, null));
+248:      svg.appendChild(g);
+249:    });
+250:    return svg;
+251:  }
+252:
+253:  /* ---------------------------------------------------------------- pickers */
+254:  function fillThemeGrid(host, prefs, onPick, group) {
+255:    if (!host) { return null; }
+256:    clear(host);
+257:    C.BOARDS.forEach(function (b) {
+258:      if (group && group !== 'all' && b.group !== group) { return; }
+259:      var card = el('button', 'theme-card');
+260:      card.type = 'button';
+261:      card.setAttribute('data-board', b.id);
+262:      card.setAttribute('aria-pressed', b.id === prefs.board ? 'true' : 'false');
+263:      card.setAttribute('aria-label', b.name + ' board theme');
+264:      if (b.id === C.DEFAULTS.board) { card.classList.add('is-default'); }
+265:      var swatch = el('span', 'swatch');
+266:      var face = el('span', 'swatch-board');
+267:      face.appendChild(miniBoard());
+268:      swatch.appendChild(face);
+269:      card.appendChild(swatch);
+270:      card.appendChild(el('span', 'name', b.name));
+271:      card.appendChild(el('span', 'sub', b.group + ' · ' + b.sub));
+272:      card.addEventListener('click', function () { onPick(b.id); });
+273:      host.appendChild(card);
+274:    });
+275:    return host;
+276:  }
+277:
+278:  function fillBackgroundGrid(host, prefs, onPick, group) {
+279:    if (!host) { return null; }
+280:    clear(host);
+281:    C.BACKGROUNDS.forEach(function (b) {
+282:      if (group && group !== 'all' && b.group !== group) { return; }
+283:      var card = el('button', 'choice-card');
+284:      card.type = 'button';
+285:      card.setAttribute('aria-pressed', b.id === prefs.background ? 'true' : 'false');
+286:      card.setAttribute('aria-label', b.name + ' background');
+287:      var chip = el('span', 'bg-chip');
+288:      chip.setAttribute('data-bg', b.id);
+289:      card.appendChild(chip);
+290:      card.appendChild(el('b', null, b.name));
+291:      card.appendChild(el('span', 'meta', b.group + ' · ' + b.sub));
+292:      card.addEventListener('click', function () { onPick(b.id); });
+293:      host.appendChild(card);
+294:    });
+295:    return host;
+296:  }
+297:
+298:  function fillSegmented(host, options, current, onPick) {
+299:    if (!host) { return null; }
+300:    clear(host);
+301:    options.forEach(function (o) {
+302:      var b = el('button', null, o.label);
+303:      b.type = 'button';
+304:      b.setAttribute('aria-pressed', o.id === current ? 'true' : 'false');
+305:      b.addEventListener('click', function () { onPick(o.id); });
+306:      host.appendChild(b);
+307:    });
+308:    return host;
+309:  }
+310:
+311:
+312:  /* --------------------------------------------------- design-system readouts */
+313:  var TOKENS = [
+314:    ['--text-1', 'Body text and headings'],
+315:    ['--text-2', 'Secondary copy'],
+316:    ['--text-3', 'Meta labels only — never body copy'],
+317:    ['--accent', 'Primary accent: the action the game awaits'],
+318:    ['--move', 'Legal move / destination'],
+319:    ['--danger', 'Threat, capture, resign'],
+320:    ['--success', 'Confirmed, survived'],
+321:    ['--warning', 'Collapse, stagnation risk'],
+322:    ['--info', 'Neutral information'],
+323:    ['--promo', 'Promotion square'],
+324:    ['--surface-1', 'Panel surface'],
+325:    ['--surface-2', 'Panel header, chrome'],
+326:    ['--surface-inset', 'Inset well: inputs, meters, board stage'],
+327:    ['--line', 'Hairline border'],
+328:    ['--cell-a', 'Board cell (board theme)'],
+329:    ['--cell-b', 'Board cell inner (board theme)'],
+330:    ['--cell-line', 'Cell inlay line (board theme)'],
+331:    ['--p-w-a', 'White piece plate'],
+332:    ['--p-b-a', 'Black piece plate']
+333:  ];
+334:
+335:  var PAIRS = [
+336:    ['--text-1', '--surface-1', 'Body text on a panel', 4.5],
+337:    ['--text-2', '--surface-1', 'Secondary copy on a panel', 4.5],
+338:    ['--text-3', '--surface-1', 'Meta labels on a panel', 4.5],
+339:    ['--accent', '--surface-1', 'Accent text on a panel', 3],
+340:    ['--on-accent', '--accent', 'Button label on the accent fill', 4.5],
+341:    ['--move', '--surface-1', 'Move colour on a panel', 3],
+342:    ['--danger', '--surface-1', 'Threat colour on a panel', 3],
+343:    ['--cell-coord', '--cell-a', 'Coordinates on a cell', 3],
+344:    ['--p-w-ink', '--p-w-a', 'White glyph on its plate', 4.5],
+345:    ['--p-b-ink', '--p-b-a', 'Black glyph on its plate', 4.5]
+346:  ];
+347:
+348:  function probe() {
+349:    var p = doc.getElementById('ft-color-probe');
+350:    if (!p) {
+351:      p = el('span', null, '');
+352:      p.id = 'ft-color-probe';
+353:      p.setAttribute('aria-hidden', 'true');
+354:      p.style.position = 'absolute';
+355:      p.style.left = '-9999px';
+356:      p.style.top = '0';
+357:      p.style.width = '1px';
+358:      p.style.height = '1px';
+359:      doc.body.appendChild(p);
+360:    }
+361:    return p;
+362:  }
+363:
+364:  /* Resolve any token (even color-mix()) to rgb by asking the browser. */
+365:  function resolveColor(varName) {
+366:    var p = probe();
+367:    p.style.color = 'var(' + varName + ')';
+368:    var nums = String(global.getComputedStyle(p).color).match(/-?\d*\.?\d+/g) || [];
+369:    return [+nums[0] || 0, +nums[1] || 0, +nums[2] || 0];
+370:  }
+371:
+372:  function luminance(rgb) {
+373:    var ch = rgb.map(function (v) {
+374:      var s = Math.min(1, Math.max(0, v / 255));
+375:      return s <= 0.03928 ? s / 12.92 : Math.pow((s + 0.055) / 1.055, 2.4);
+376:    });
+377:    return 0.2126 * ch[0] + 0.7152 * ch[1] + 0.0722 * ch[2];
+378:  }
+379:
+380:  function contrast(a, b) {
+381:    var l1 = luminance(a), l2 = luminance(b);
+382:    return (Math.max(l1, l2) + 0.05) / (Math.min(l1, l2) + 0.05);
+383:  }
+384:
+385:  function renderTokens(host) {
+386:    if (!host) { return null; }
+387:    var cs = global.getComputedStyle(doc.documentElement), rows = [];
+388:    TOKENS.forEach(function (row) {
+389:      var value = String(cs.getPropertyValue(row[0])).trim();
+390:      var wrap = el('div', 'row-3');
+391:      var chip = el('span');
+392:      chip.setAttribute('aria-hidden', 'true');
+393:      chip.style.width = '34px';
+394:      chip.style.height = '22px';
+395:      chip.style.flex = '0 0 auto';
+396:      chip.style.borderRadius = 'var(--r-xs)';
+397:      chip.style.border = '1px solid var(--line-strong)';
+398:      chip.style.background = 'var(' + row[0] + ')';
+399:      var text = el('div', 'grow');
+400:      text.appendChild(el('div', 'mono', row[0] + '  ' + (value || 'resolved by the browser')));
+401:      text.appendChild(el('div', 'meta', row[1]));
+402:      wrap.appendChild(chip);
+403:      wrap.appendChild(text);
+404:      rows.push(wrap);
+405:    });
+406:    clear(host);
+407:    rows.forEach(function (r) { host.appendChild(r); });
+408:    return host;
+409:  }
+410:
+411:  function renderContrastTable(tbody) {
+412:    if (!tbody) { return null; }
+413:    clear(tbody);
+414:    PAIRS.forEach(function (row) {
+415:      var ratio = contrast(resolveColor(row[0]), resolveColor(row[1]));
+416:      var tr = el('tr');
+417:      tr.appendChild(el('td', null, row[0] + ' on ' + row[1]));
+418:      var td = el('td', 'num', ratio.toFixed(2) + ':1');
+419:      td.className = 'num ' + (ratio >= row[3] ? 'text-success' : 'text-danger');
+420:      tr.appendChild(td);
+421:      tr.appendChild(el('td', null, ratio >= 7 ? 'AAA' : ratio >= 4.5 ? 'AA' : ratio >= 3 ? 'AA large / UI' : 'below 3'));
+422:      tr.appendChild(el('td', 'meta', row[2]));
+423:      tbody.appendChild(tr);
+424:    });
+425:    return tbody;
+426:  }
+427:
+428:  FT.ui = {
+429:    VIEWS: VIEWS,
+430:    defaults: defaults,
+431:    loadPrefs: loadPrefs,
+432:    savePrefs: savePrefs,
+433:    applyLook: applyLook,
+434:    setView: setView,
+435:    route: route,
+436:    linkNav: linkNav,
+437:    toast: toast,
+438:    openModal: openModal,
+439:    closeModal: closeModal,
+440:    el: el,
+441:    clear: clear,
+442:    fmtClock: fmtClock,
+443:    polygon: polygon,
+444:    svgPath: svgPath,
+445:    miniBoard: miniBoard,
+446:    fillThemeGrid: fillThemeGrid,
+447:    fillBackgroundGrid: fillBackgroundGrid,
+448:    fillSegmented: fillSegmented,
+449:    renderTokens: renderTokens,
+450:    renderContrastTable: renderContrastTable,
+451:    resolveColor: resolveColor,
+452:    contrast: contrast
+453:  };
+454:})(window);
+455:

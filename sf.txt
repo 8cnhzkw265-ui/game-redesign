@@ -1,0 +1,21 @@
+﻿py : Traceback (most recent call last):
+At line:1 char:24
++ ... tegy game'; py _ref\shot2.py '#play' 1000 820 
+_ref\shot-full3.png non ...
++                 
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (Traceback (most r 
+   ecent call last)::String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+  File "C:\strategy game\_ref\shot2.py", line 21, in <module>
+    SETUP = {
+            ~
+    ...<5 lines>...
+                    "document.querySelector('[data-action=\"sid
+ebar\"]').click();"),
+                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~
+    }[mode]
+    ~^^^^^^
+KeyError: 'none'

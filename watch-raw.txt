@@ -1,0 +1,32 @@
+index of id: 104518
+
+ked</button>
+            <button type="button" data-action="watch-filter" data-watch-filter="casual" aria-pressed="false">Casual</button>
+          </div>
+          <p class="meta grow" id="watch-count" aria-live="polite">No matches in progress</p>
+        </div>
+
+        <div class="list panel" id="watch-list" role="list" aria-label="Live games" hidden=""></div>
+
+        <div class="empty-panel" id="watch-empty">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><path d="M2.5 12S6 5.8 12 5.8 21.5 12 21.5 12 18 18.2 12 18.2 2.5 12 2.5 12Z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+          <strong id="watch-empty-title">Nothing live right now</strong>
+          <p class="meta" id="watch-empty-body">Check back during peak hours, or start a game yourself.</p>
+          <a class="btn btn-primary" href="#play" data-nav="play">Start a game</a>
+        </div>
+      </div>
+    </section>
+
+    <!-- =====================================================================
+         RANKS — the ladder. One panel, one row per player: place, avatar,
+         name, rating, record. Podium places are gold; the rest are neutral, so
+         the colour always means "top three" and never just "a row".
+         ===================================================================== -->
+    <section class="view" id="view-ranks" aria-label="Leaderboard">
+      <div class="wrap-tight">
+        <div class="page-head">
+          <h1>Leaderboard</h1>
+          <p class="lede">Top rated players</p>
+        </div>
+
+        <div class="list

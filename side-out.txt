@@ -1,0 +1,14 @@
+﻿=== desktop (1600,950) ===
+  boot | rail=full | drawerOpen=false | labelDisplay=block | labelText=Reference | linkText=Library | linkWidth=239 | underline=none | errors=0
+  mini | rail=mini | drawerOpen=false | labelDisplay=none | labelText=hidden | linkText=Library | linkWidth=51 | underline=none | errors=0
+  full | rail=full | drawerOpen=false | labelDisplay=block | labelText=Reference | linkText=Library | linkWidth=239 | underline=none | errors=0
+  forced-mini-drawer | rail=mini | drawerOpen=false | labelDisplay=none | labelText=hidden | linkText=Library | linkWidth=51 | underline=none | errors=0
+
+=== mobile (420,860) ===
+  boot | rail=full | drawerOpen=false | labelDisplay=block | labelText=Reference | linkText=Library | linkWidth=275 | underline=none | errors=0
+  mini | rail=full | drawerOpen=true | labelDisplay=block | labelText=Reference | linkText=Library | linkWidth=275 | underline=none | errors=0
+  full | rail=full | drawerOpen=false | labelDisplay=block | labelText=Reference | linkText=Library | linkWidth=275 | underline=none | errors=0
+  forced-mini-drawer | rail=mini | drawerOpen=true | labelDisplay=block | labelText=Reference | linkText=Library | linkWidth=275 | underline=none | errors=0
+
+RESPONSIVE SIDEBAR OK
+EXIT=0

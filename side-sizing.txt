@@ -1,0 +1,9 @@
+=== desktop (1600,950) ===
+  full | rail=full vw=1570x855 | railW=264 navW=263 navScrollW=263 navClientW=263 hScroll=false vScroll=false navOverflowX=auto | linkBox=239x44 icon=19px footIcon=18px toggle=44 | spanDisplay=block tipW=41.875 tipRight=303 navRight=263 | tipClipped=true | errors=0
+  mini | rail=mini vw=1570x855 | railW=88 navW=87 navScrollW=145 navClientW=87 hScroll=true vScroll=false navOverflowX=visible | linkBox=71x48 icon=23px footIcon=22px toggle=52 | spanDisplay=none tipW=41.875 tipRight=131 navRight=87 | tipClipped=true | errors=0
+
+=== mobile (420,860) ===
+  full | rail=full vw=504x765 | railW=300 navW=299 navScrollW=289 navClientW=289 hScroll=false vScroll=true navOverflowX=auto | linkBox=265x44 icon=19px footIcon=18px toggle=44 | spanDisplay=block tipW=41.875 tipRight=23 navRight=-7 | tipClipped=true | errors=0
+  mini | rail=full vw=504x765 | railW=300 navW=299 navScrollW=289 navClientW=289 hScroll=false vScroll=true navOverflowX=auto | linkBox=265x44 icon=19px footIcon=18px toggle=44 | spanDisplay=block tipW=41.875 tipRight=23 navRight=-7 | tipClipped=true | errors=0
+
+SIDEBAR SIZING OK

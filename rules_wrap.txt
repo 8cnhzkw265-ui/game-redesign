@@ -1,0 +1,129 @@
+﻿import{bM as a,bz as e,aX as f,ay as w,a9 as b,aP as N,aH as T,z as k}from"./vendor-BA_cXUCe.js";import{am as 
+S,b6 as n,b3 as c,bj as M,H as q}from"./index-DLgvZ6aj.js";import{b as R,a as K,c as x,T as d}from"./Tabs-Daa5
+Zp8H.js";import"./vendor-query-Ch8bSqHy.js";import"./vendor-io-BUprIMoy.js";import"./vendor-motion-lj64RWlY.js
+";function r({state:m,selected:o=null,legalTargets:i=[],combat:p=null,caption:l}){return e.jsxs("figure",{clas
+sName:"my-4",children:[e.jsx("div",{className:"max-w-xs sm:max-w-sm mx-auto opacity-95 pointer-events-none",ch
+ildren:e.jsx(q,{state:m,selectedHex:o,legalTargets:i,combatPreview:p,onHexClick:()=>{}})}),l&&e.jsx("figcaptio
+n",{className:"text-center text-xs text-[var(--text-muted)] mt-2 px-4",children:l})]})}function h({children:m}
+){return e.jsx("h2",{className:"font-display text-lg font-semibold text-[var(--text)] mt-6 mb-2",children:m})}
+const s={q:-3,r:5};function B(){const m=a.useMemo(()=>S(),[]),o=a.useMemo(()=>{const t={q:-5,r:4},v=n([{id:"p"
+,kind:"wall",color:"white",...t}]);return{state:v,selected:t,targets:c(v,"p")}},[]),i=a.useMemo(()=>{const t=n
+([{id:"n",kind:"turret",color:"white",...s}]);return{state:t,selected:s,targets:c(t,"n")}},[]),p=a.useMemo(()=
+>{const t=n([{id:"q",kind:"tower",color:"white",...s}]);return{state:t,selected:s,targets:c(t,"q")}},[]),l=a.u
+seMemo(()=>{const t=n([{id:"k",kind:"keep",color:"white",...s}]);return{state:t,selected:s,targets:c(t,"k")}},
+[]),u=a.useMemo(()=>{const t=n([{id:"b",kind:"bastion",color:"white",...s},{id:"p",kind:"wall",color:"white",q
+:s.q+1,r:s.r}]);return{state:t,selected:s,targets:c(t,"b")}},[]),g=a.useMemo(()=>{const t=n([{id:"wn",kind:"tu
+rret",color:"white",q:-3,r:5},{id:"bn",kind:"turret",color:"black",q:-2,r:5}]);return{state:t,combat:M(t)}},[]
+),y=a.useMemo(()=>n([{id:"wq",kind:"tower",color:"white",q:-3,r:5},{id:"wk",kind:"keep",color:"white",q:-3,r:6
+},{id:"wn",kind:"turret",color:"white",q:-4,r:5}]),[]),j=a.useMemo(()=>{const t=n([{id:"p",kind:"wall",color:"
+white",q:1,r:3}]);return{state:t,selected:{q:1,r:3},targets:c(t,"p")}},[]);return e.jsxs("div",{className:"max
+-w-3xl mx-auto px-4 py-page-y pb-24 md:pb-12",children:[e.jsx("h1",{className:"font-display text-display-md fo
+nt-bold mb-2",children:"How to Play"}),e.jsx("p",{className:"text-sm text-[var(--text-muted)] mb-6",children:"
+Fortress in six short sections â€” read straight through or jump to a topic."}),e.jsxs(R,{defaultValue:"goal",
+children:[e.jsxs(K,{className:`mb-6 grid w-full grid-cols-3 gap-1 sm:inline-flex sm:w-auto sm:flex-wrap
+
+
+                     [&>button]:justify-center [&>button]:min-h-[44px] sm:[&>button]:min-h-0`,children:[e.jsx(
+x,{value:"goal",icon:e.jsx(f,{size:14}),children:"Goal"}),e.jsx(x,{value:"turn",icon:e.jsx(w,{size:14}),childr
+en:"Turn"}),e.jsx(x,{value:"move",icon:e.jsx(b,{size:14}),children:"Movement"}),e.jsx(x,{value:"combat",icon:e
+.jsx(N,{size:14}),children:"Combat"}),e.jsx(x,{value:"reinforce",icon:e.jsx(T,{size:14}),children:"Reinforce"}
+),e.jsx(x,{value:"promo",icon:e.jsx(k,{size:14}),children:"Promotion"})]}),e.jsxs(d,{value:"goal",className:"s
+pace-y-4 text-[var(--text)]",children:[e.jsxs("p",{children:[e.jsx("strong",{children:"Destroy your opponent's
+ Keep."})," Both sides start with 16 pieces on an 85-hex board:"," ",e.jsx("span",{className:"font-mono text-x
+s whitespace-nowrap",children:"1 Keep Â· 2 Towers Â· 2 Bastions Â· 2 Turrets Â· 9 Walls"})," ","each."]}),e.js
+x(r,{state:m,caption:"Starting position. White (bottom) moves first."}),e.jsx(h,{children:"Other ways the game
+ can end"}),e.jsxs("ul",{className:"list-disc pl-6 space-y-1 text-sm text-[var(--text-muted)]",children:[e.jsx
+s("li",{children:[e.jsx("strong",{className:"text-[var(--text)]",children:"Mutual destruction"})," â€” if both
+ Keeps die in the same combat, the game is a draw."]}),e.jsxs("li",{children:[e.jsx("strong",{className:"text-
+[var(--text)]",children:"Resignation"})," â€” a player gives up."]}),e.jsxs("li",{children:[e.jsx("strong",{cl
+assName:"text-[var(--text)]",children:"Stalemate"})," â€” the side to move has no legal moves."]}),e.jsxs("li"
+,{children:[e.jsx("strong",{className:"text-[var(--text)]",children:"Agreement"})," â€” both players accept a 
+draw offer."]}),e.jsxs("li",{children:[e.jsx("strong",{className:"text-[var(--text)]",children:"Timeout"})," â
+€” a player's clock runs out."]})]})]}),e.jsxs(d,{value:"turn",className:"space-y-4 text-[var(--text)]",childr
+en:[e.jsx("p",{children:"Each turn runs through up to four phases:"}),e.jsxs("ol",{className:"list-decimal pl-
+6 space-y-2 text-sm text-[var(--text-muted)]",children:[e.jsxs("li",{children:[e.jsx("strong",{className:"text
+-[var(--text)]",children:"Move 1"})," â€” move any one of your pieces to an empty hex."]}),e.jsxs("li",{childr
+en:[e.jsx("strong",{className:"text-[var(--text)]",children:"Move 2"})," â€” move a ",e.jsx("em",{children:"di
+fferent"})," ","piece (or move the Keep a second time)."]}),e.jsxs("li",{children:[e.jsx("strong",{className:"
+text-[var(--text)]",children:"Preview"})," â€” the board shows incoming damage; you can ",e.jsx("em",{children
+:"Undo"})," either move."]}),e.jsxs("li",{children:[e.jsx("strong",{className:"text-[var(--text)]",children:"A
+ccept"})," â€” combat resolves and your turn ends."]})]}),e.jsxs("div",{className:"rounded-xl border border-ha
+irline bg-surface-raised p-3 text-sm space-y-2",children:[e.jsx("p",{children:e.jsx("strong",{children:"Two im
+portant exceptions:"})}),e.jsxs("ul",{className:"list-disc pl-5 space-y-1 text-[var(--text-muted)]",children:[
+e.jsxs("li",{children:["White's ",e.jsx("strong",{className:"text-[var(--text)]",children:"very first turn"}),
+" is a single move â€” a small handicap to balance the first-move advantage."]}),e.jsxs("li",{children:["The "
+,e.jsx("strong",{className:"text-[var(--text)]",children:"Keep may move twice"})," in a single turn. Any other
+ piece can only move once per turn."]})]})]}),e.jsxs("p",{className:"text-sm text-[var(--text-muted)]",childre
+n:["Combat only happens at ",e.jsx("strong",{className:"text-[var(--text)]",children:"Accept"})," â€” nothing 
+dies during Preview, so you're always free to undo and try a different idea."]})]}),e.jsxs(d,{value:"move",cla
+ssName:"space-y-4 text-[var(--text)]",children:[e.jsxs("p",{children:["All pieces move to ",e.jsx("strong",{ch
+ildren:"empty hexes only"}),". You cannot capture by moving onto an enemy â€” captures happen ",e.jsx("strong"
+,{children:"only"})," through combat (see the next tab)."]}),e.jsx(h,{children:"Wall"}),e.jsxs("p",{className:
+"text-sm text-[var(--text-muted)]",children:["Steps one hex forward â€” straight up its column or diagonally o
+ne rank. On its"," ",e.jsx("strong",{children:"first move"}),", a wall may instead slide ",e.jsx("strong",{chi
+ldren:"two hexes in a straight line"})," along any one forward direction (straight or diagonal), as long as bo
+th hexes on that line are empty."]}),e.jsx(r,{state:o.state,selected:o.selected,legalTargets:o.targets,caption
+:`An unmoved wall: ${o.targets.length} destinations within 1â€“2 steps along its forward lines.`}),e.jsx(h,{ch
+ildren:"Turret"}),e.jsx("p",{className:"text-sm text-[var(--text-muted)]",children:"Jumps to any hex at distan
+ce exactly 2 â€” the â€œring 2â€ around it. Turrets jump over anything in between."}),e.jsx(r,{state:i.state,
+selected:i.selected,legalTargets:i.targets,caption:`Up to 12 squares â€” every hex exactly two steps away (${i
+.targets.length} on this part of the board).`}),e.jsx(h,{children:"Bastion"}),e.jsxs("p",{className:"text-sm t
+ext-[var(--text-muted)]",children:["Vaults in a straight line over a ",e.jsx("strong",{children:"solid run of 
+pieces"})," that starts on an adjacent hex â€” at least one of them must be friendly â€” and lands on the firs
+t empty hex beyond. With nothing to vault, it may simply step one hex like the Keep."]}),e.jsx(r,{state:u.stat
+e,selected:u.selected,legalTargets:u.targets,caption:`Vaulting the wall beside it plus single steps: ${u.targe
+ts.length} destinations.`}),e.jsx(h,{children:"Tower"}),e.jsx("p",{className:"text-sm text-[var(--text-muted)]
+",children:"Slides any number of hexes along one of the six hex directions until it hits a piece or the edge o
+f the board."}),e.jsx(r,{state:p.state,selected:p.selected,legalTargets:p.targets,caption:"The tower rays out 
+in six straight directions."}),e.jsx(h,{children:"Keep"}),e.jsx("p",{className:"text-sm text-[var(--text-muted
+)]",children:"Steps one hex in any direction. The only piece that may move twice per turn."}),e.jsx(r,{state:l
+.state,selected:l.selected,legalTargets:l.targets,caption:"Keep: any of the six neighbouring hexes."})]}),e.js
+xs(d,{value:"combat",className:"space-y-4 text-[var(--text)]",children:[e.jsxs("p",{children:["When you press 
+",e.jsx("strong",{children:"Accept"}),", every piece ",e.jsx("strong",{children:"simultaneously"})," ","deals 
+damage equal to its current STR to ",e.jsx("em",{children:"every"})," adjacent enemy. A hex has up to"," ",e.j
+sx("strong",{children:"six neighbours"}),"."]}),e.jsxs("ul",{className:"list-disc pl-6 space-y-1 text-sm text-
+[var(--text-muted)]",children:[e.jsxs("li",{children:[e.jsx("strong",{className:"text-[var(--text)]",children:
+"Damage stacks."})," If three enemies touch the same piece, it takes each of their full STR values."]}),e.jsx(
+"li",{children:"A piece dies if total incoming damage â‰¥ its STR."}),e.jsxs("li",{children:[e.jsx("strong",{c
+lassName:"text-[var(--text)]",children:"Mutual destruction:"})," a piece deals its full damage even on the tur
+n it dies."]}),e.jsxs("li",{children:[e.jsx("strong",{className:"text-[var(--text)]",children:"Wall collapse:"
+})," a wall whose STR is 0 after combat (no friendly support) is removed even if it took no damage."]})]}),e.j
+sx(r,{state:g.state,combat:g.combat,caption:"Two lone turrets at STR 1 facing off. Each deals 1 damage â€” bot
+h die at the same instant."})]}),e.jsxs(d,{value:"reinforce",className:"space-y-4 text-[var(--text)]",children
+:[e.jsxs("p",{children:["Every piece has a ",e.jsx("strong",{children:"Core STR"}),", and every piece"," ",e.j
+sx("strong",{children:"boosts nearby allies"}),". Allies stack their support â€” that's the heart of Fortress:
+ strength through proximity."]}),e.jsx("div",{className:"rounded-xl border border-hairline bg-surface-raised o
+verflow-hidden",children:e.jsxs("table",{className:"w-full text-sm",children:[e.jsx("thead",{className:"bg-sur
+face-raised text-xs uppercase tracking-wider text-[var(--text-muted)]",children:e.jsxs("tr",{children:[e.jsx("
+th",{className:"text-left px-3 py-2",children:"Piece"}),e.jsx("th",{className:"text-center px-3 py-2",children
+:"Core STR"}),e.jsx("th",{className:"text-center px-3 py-2",children:"Supports adjacent"}),e.jsx("th",{classNa
+me:"text-center px-3 py-2",children:"Supports 2 away"})]})}),e.jsxs("tbody",{className:"divide-y divide-hairli
+ne",children:[e.jsxs("tr",{children:[e.jsx("td",{className:"px-3 py-2 font-medium",children:"Keep"}),e.jsx("td
+",{className:"text-center font-mono",children:"3"}),e.jsx("td",{className:"text-center font-mono text-success"
+,children:"+2"}),e.jsx("td",{className:"text-center font-mono text-success",children:"+1"})]}),e.jsxs("tr",{ch
+ildren:[e.jsx("td",{className:"px-3 py-2 font-medium",children:"Tower"}),e.jsx("td",{className:"text-center fo
+nt-mono",children:"2"}),e.jsx("td",{className:"text-center font-mono text-success",children:"+2"}),e.jsx("td",
+{className:"text-center font-mono text-[var(--text-muted)]",children:"â€”"})]}),e.jsxs("tr",{children:[e.jsx("
+td",{className:"px-3 py-2 font-medium",children:"Bastion"}),e.jsx("td",{className:"text-center font-mono",chil
+dren:"2"}),e.jsx("td",{className:"text-center font-mono text-success",children:"+1"}),e.jsx("td",{className:"t
+ext-center font-mono text-[var(--text-muted)]",children:"â€”"})]}),e.jsxs("tr",{children:[e.jsx("td",{classNam
+e:"px-3 py-2 font-medium",children:"Turret"}),e.jsx("td",{className:"text-center font-mono",children:"1"}),e.j
+sx("td",{className:"text-center font-mono text-success",children:"+2"}),e.jsx("td",{className:"text-center fon
+t-mono text-[var(--text-muted)]",children:"â€”"})]}),e.jsxs("tr",{children:[e.jsx("td",{className:"px-3 py-2 f
+ont-medium",children:"Wall"}),e.jsx("td",{className:"text-center font-mono",children:"0"}),e.jsx("td",{classNa
+me:"text-center font-mono text-success",children:"+1"}),e.jsx("td",{className:"text-center font-mono text-[var
+(--text-muted)]",children:"â€”"})]})]})]})}),e.jsxs("p",{className:"text-sm text-[var(--text-muted)]",children
+:["Only the ",e.jsx("strong",{className:"text-[var(--text)]",children:"Keep"})," projects support at distance 
+2 â€” that's what makes the Keep both your most precious target"," ",e.jsx("em",{children:"and"})," the anchor
+ of a strong formation."]}),e.jsx(r,{state:y,caption:"A white Tower flanked by a Keep (adjacent) and a Turret 
+(adjacent) has STR 2 + 2 + 2 = 6."})]}),e.jsxs(d,{value:"promo",className:"space-y-4 text-[var(--text)]",child
+ren:[e.jsxs("p",{children:["Move a wall onto any of the ",e.jsx("strong",{children:"three back-rank hexes"}),"
+ on the far side of the board â€” the same hexes where the enemy's"," ",e.jsx("em",{children:"Tower Â· Keep Â·
+ Tower"})," started â€” and it promotes immediately."]}),e.jsxs("p",{className:"text-sm text-[var(--text-muted
+)]",children:["You choose ",e.jsx("strong",{className:"text-[var(--text)]",children:"Tower"})," or"," ",e.jsx(
+"strong",{className:"text-[var(--text)]",children:"Turret"})," â€” a wall never becomes a Bastion or a Keep. T
+he choice happens during the Preview phase, before you Accept."]}),e.jsx(r,{state:j.state,selected:j.selected,
+legalTargets:j.targets,caption:"The three highlighted hexes are White's promotion squares. This wall can step 
+to two of them next turn."})]})]})]})}export{B as default};
+
+

@@ -1,0 +1,17 @@
+viewport=1890x985 rail=full
+docScrollW=1899 bodyScrollW=1899
+.shell L0 R1880 W1880 H985
+.shell-main L0 R1584 W1584 H985
+#view-play .wrap L0 R1584 W1584 H985
+.play-layout L16 R1568 W1552 H915
+.cockpit L16 R1172 W1156 H915
+.board-frame L16 R1172 W1156 H777
+.stage L16 R1172 W1156 H777
+.stage-svg L16 R1172 W1156 H559
+.rail-right L1196 R1568 W372 H915
+#sidebar L1584 R1880 W296 H985
+rail clientW=362 scrollW=362
+RAIL_OVERFLOW: none
+DEEP_OVERFLOW(0): 
+PAGE_OVERFLOW(0): 
+errors=0

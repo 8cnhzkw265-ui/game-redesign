@@ -1,0 +1,42 @@
+﻿OK    app.js            33331 bytes
+OK    board.js          14602 bytes
+OK    bot.js             6521 bytes
+OK    catalog.js         7967 bytes
+OK    hex.js             4605 bytes
+OK    rules.js          28382 bytes
+OK    social.js          5494 bytes
+OK    ui.js             16871 bytes
+OK    backgrounds.css     10087 bytes
+OK    base.css             5163 bytes
+OK    board.css            5303 bytes
+OK    components.css      21839 bytes
+OK    layout.css          10863 bytes
+OK    mobile.css           6338 bytes
+OK    themes.css           4292 bytes
+OK    tokens.css           3938 bytes
+WARN  index.html         unclosed: []
+OK    tests\app-test.html tags balanced
+OK    tests\engine-test.html tags balanced
+
+TOTAL FAILURES: 1
+RANKS  rows=8 podium=3 elos=1487,1442,1401,1366,1310,1274,1231,1200
+WATCH  list hidden=True  empty hidden=False  watch-row=0
+NAV    watch-link=True ranks-link=True
+
+ALL CHECKS PASSED
+avatarW=40px avatarH=40px radius=999px isCircle=true | rowCols=34px 40px minmax(0px, 1fr) 64px 78px | emptyPanelW=716 textW=298 textLines=1 | errors=0
+GEOMETRY + CONSOLE OK
+sections: 15
+  view-play     present
+  view-watch    present
+  view-ranks    present
+  view-themes   present
+  view-system   present
+  view-rules    present
+  view-mobile   present
+  #rank-list    present
+  #watch-list   present
+  #watch-empty  present
+  #watch-count  present
+rank-row markup in html: 0 (0 is correct: JS renders it)
+NESTING OK

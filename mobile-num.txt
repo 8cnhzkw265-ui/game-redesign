@@ -1,0 +1,180 @@
+1:/* ==========================================================================
+2:   07 · Mobile layer — bottom tab bar, thumb-zone actions, sheets, safe areas
+3:   Mobile is not a shrunk desktop: navigation moves to the thumb, the game
+4:   keeps a permanent primary action under the board, and panels become sheets.
+5:   ========================================================================== */
+6:
+7:/* Desktop: none of this exists. */
+8:.tabbar{ display:none; }
+9:.mobile-actions{ display:none; }
+10:.mobile-only{ display:none !important; }
+11:
+12:@media (max-width:860px){
+13:  .desktop-only{ display:none !important; }
+14:  .mobile-only{ display:initial !important; }
+15:
+16:  /* --- the menu leaves the flow and becomes a drawer ---------------------
+17:     A permanent rail would eat a third of a phone, so below 860px the
+18:     sidebar detaches, slides in from the left, and traps nothing: the tab
+19:     bar below is still the fastest way between the five destinations. */
+20:  .shell,
+21:  html[data-rail="mini"] .shell{ grid-template-columns:minmax(0,1fr); }
+22:  .sidebar{
+23:    position:fixed; inset:0 auto 0 0; z-index:60;
+24:    width:min(82vw,300px); height:100dvh;
+25:    visibility:hidden; transform:translateX(-102%);
+26:    background:color-mix(in srgb, var(--bg-app) 96%, transparent);
+27:    box-shadow:var(--e3);
+28:    transition:transform var(--t-mid) var(--ease-out),
+29:               visibility 0s linear var(--t-mid);
+30:  }
+31:  html.is-drawer-open{ overflow:hidden; }
+32:  html.is-drawer-open .sidebar{
+33:    visibility:visible; transform:translateX(0);
+34:    transition:transform var(--t-mid) var(--ease-out), visibility 0s;
+35:  }
+36:  /* A collapsed rail is a desktop idea: inside a drawer the labels always
+37:     come back, so undo the html[data-rail="mini"] hiding rules. */
+38:  html[data-rail="mini"] .sidebar{ width:min(82vw,300px); }
+39:  html[data-rail="mini"] .sidebar-head{
+40:    flex-direction:row; gap:var(--s-2);
+41:    padding:12px var(--s-3) 12px var(--s-4); min-height:64px;
+42:  }
+43:  html[data-rail="mini"] .sidebar-head .brand{ flex:1 1 auto; }
+44:  html[data-rail="mini"] .sidebar .brand-name{ display:inline; }
+45:  html[data-rail="mini"] .sidebar .side-nav a span,
+46:  html[data-rail="mini"] .sidebar .side-link span{ display:inline; }
+47:  html[data-rail="mini"] .sidebar .side-user-text{ display:flex; }
+48:  html[data-rail="mini"] .sidebar .side-user-caret{ display:block; }
+49:  html[data-rail="mini"] .sidebar .side-nav a,
+50:  html[data-rail="mini"] .sidebar .side-link,
+51:  html[data-rail="mini"] .sidebar .side-user{ justify-content:flex-start; }
+52:  html[data-rail="mini"] .sidebar .side-nav a{ padding:0 12px; }
+53:  html[data-rail="mini"] .sidebar .side-link{ padding:0 12px; }
+54:  html[data-rail="mini"] .sidebar .side-user{ padding:10px; }
+55:  html[data-rail="mini"] .side-toggle svg{ transform:none; }
+56:  /* The visible label is the tooltip's job done already. */
+57:  html[data-rail="mini"] .sidebar .tip::after{ display:none; }
+58:
+59:  /* --- compact bar: the handle, the wordmark, the two global controls --- */
+60:  .topbar{
+61:    display:grid; grid-template-columns:auto 1fr auto; align-items:center;
+62:    gap:var(--s-2); padding:8px var(--s-3); min-height:54px;
+63:    position:sticky; top:0; z-index:40;
+64:    background:color-mix(in srgb, var(--bg-app) 88%, transparent);
+65:    backdrop-filter:blur(var(--panel-blur)) saturate(140%);
+66:    -webkit-backdrop-filter:blur(var(--panel-blur)) saturate(140%);
+67:    border-bottom:1px solid var(--line);
+68:  }
+69:  .topbar .btn-icon{ min-height:40px; width:40px; }
+70:  .topbar .btn-icon svg{ width:20px; height:20px; }
+71:  .topbar .topbar-actions .btn span:not(.badge){ display:none; }
+72:  .topbar .topbar-actions .btn{ width:40px; padding:0; }
+73:  .topbar .topbar-actions .btn:last-child{ font-size:12.5px; width:auto; padding:0 12px; }
+74:
+75:  /* --- bottom tab bar: 5 destinations, 56px tall, safe-area aware ------- */
+76:  .tabbar{
+77:    display:grid; grid-auto-flow:column; grid-auto-columns:1fr;
+78:    position:fixed; left:0; right:0; bottom:0; z-index:50;
+79:    padding:6px 4px calc(6px + env(safe-area-inset-bottom));
+80:    background:color-mix(in srgb,var(--bg-app) 88%,transparent);
+81:    backdrop-filter:blur(var(--panel-blur)) saturate(140%);
+82:    -webkit-backdrop-filter:blur(var(--panel-blur)) saturate(140%);
+83:    border-top:1px solid var(--line);
+84:    box-shadow:0 -12px 30px -20px rgb(0 0 0 / .7);
+85:  }
+86:  .tabbar button{
+87:    display:grid; justify-items:center; gap:3px;
+88:    min-height:var(--tap); padding:6px 2px;
+89:    background:transparent; border:0; cursor:pointer;
+90:    color:var(--text-3); font-size:10.5px; font-weight:600; letter-spacing:.02em;
+91:  }
+92:  .tabbar svg{ width:20px; height:20px; }
+93:  .tabbar button[aria-current="page"]{ color:var(--accent); }
+94:  .tabbar button[aria-current="page"]::before{
+95:    content:""; position:absolute; margin-top:-8px; width:20px; height:2px;
+96:    border-radius:2px; background:var(--accent);
+97:  }
+98:
+99:  /* --- game action bar: always reachable by the right thumb ------------- */
+100:  .mobile-actions{
+101:    display:grid; grid-auto-flow:column; grid-auto-columns:1fr; gap:var(--s-2);
+102:    position:sticky; bottom:calc(64px + env(safe-area-inset-bottom)); z-index:30;
+103:    margin-top:var(--s-3); padding:10px;
+104:    border:1px solid var(--line); border-radius:var(--r-md);
+105:    background:color-mix(in srgb,var(--surface-1) 92%,transparent);
+106:    backdrop-filter:blur(10px);
+107:    box-shadow:var(--e2);
+108:  }
+109:  /* The awaited action spans the whole bar. */
+110:  .mobile-actions .primary-span{ grid-column:span 2; }
+111:  .mobile-actions .btn{ min-height:var(--tap-lg); }
+112:
+113:  /* Panels collapse to compact rows so the board keeps the viewport. */
+114:  .panel-body{ padding:var(--s-3) var(--s-3); }
+115:  .panel-head{ min-height:var(--tap); }
+116:  .rail-right{ gap:var(--s-3); }
+117:  .action-bar{ position:sticky; top:54px; z-index:20; }
+118:
+119:  /* Wide board on phones too: full column width, board scrolls with page. */
+120:  .cockpit{ gap:8px; }
+121:  .stage{ max-width:100%; margin:8px 0; }
+122:  .stage-svg{ min-height:340px; max-height:none; }
+123:  @media (max-height:699px){ .stage-svg{ max-height:82vh; } }
+124:
+125:  /* Board chrome gets denser: only the phase hint survives. */
+126:  .board-chrome{ padding:6px 10px; }
+127:  .board-chrome .meta{ display:none; }
+128:
+129:  /* Sheets replace long panels on small screens. */
+130:  .sheet-trigger-row{ display:flex; gap:var(--s-2); }
+131:}
+132:@media (max-width:420px){
+133:  .tabbar button{ font-size:9.5px; }
+134:  .brand-name{ font-size:15px; letter-spacing:.1em; }
+135:}
+136:
+137:/* ------------------------------------------------- device frame (docs only) --
+138:   Used on the Mobile page so the mobile layout can be inspected on desktop.
+139:   It hosts a real, live board instance — not a screenshot.               */
+140:.device{
+141:  width:392px; max-width:100%; margin:0 auto;
+142:  border:10px solid var(--n-800); border-radius:44px;
+143:  background:var(--n-950);
+144:  box-shadow:var(--e3), inset 0 0 0 1px var(--line);
+145:  position:relative; overflow:hidden;
+146:}
+147:.device::before{
+148:  content:""; position:absolute; top:8px; left:50%; transform:translateX(-50%);
+149:  width:104px; height:22px; border-radius:var(--r-pill); background:var(--n-950);
+150:  border:1px solid var(--line); z-index:5;
+151:}
+152:.device-screen{
+153:  background:var(--bg-app); min-height:640px; display:flex; flex-direction:column;
+154:  padding-top:38px;
+155:}
+156:.device-screen .mini-head{
+157:  display:flex; align-items:center; gap:var(--s-2);
+158:  padding:8px 12px; border-bottom:1px solid var(--line);
+159:  background:color-mix(in srgb,var(--bg-app) 88%,transparent);
+160:}
+161:.device-screen .mini-body{ padding:10px 12px; display:grid; gap:10px; }
+162:.device-screen .mini-tabbar{
+163:  margin-top:auto; display:grid; grid-auto-flow:column; grid-auto-columns:1fr;
+164:  padding:6px 4px; border-top:1px solid var(--line); background:var(--surface-2);
+165:}
+166:.device-screen .mini-tabbar span{
+167:  display:grid; justify-items:center; gap:3px; font-size:9.5px; color:var(--text-3);
+168:  padding-top:4px;
+169:}
+170:.device-screen .mini-tabbar span.is-on{ color:var(--accent); }
+171:.device-scale-note{
+172:  font-size:11.5px; color:var(--text-3); text-align:center; margin-top:var(--s-3);
+173:}
+174:
+175:/* Landscape phones: the board is short, so the rails move to one column. */
+176:@media (max-height:520px) and (orientation:landscape){
+177:  .tabbar{ position:static; }
+178:  .play-layout{ grid-template-columns:minmax(0,1fr) 260px; }
+179:  .wrap{ padding-bottom:var(--s-4); }
+180:}

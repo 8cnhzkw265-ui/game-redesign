@@ -1,0 +1,6 @@
+﻿RANKS  rows=8 podium=3 elos=1487,1442,1401,1366,1310,1274,1231,1200
+WATCH  list hidden=True  empty hidden=False  watch-row=0
+NAV    watch-link=True ranks-link=True
+
+ALL CHECKS PASSED
+EXIT=0

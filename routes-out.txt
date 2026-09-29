@@ -1,0 +1,11 @@
+play     active=True  hexCells=0    cards=40   console=0  OK
+watch    active=True  hexCells=0    cards=40   console=0  OK
+ranks    active=True  hexCells=0    cards=40   console=0  OK
+themes   active=True  hexCells=0    cards=40   console=0  OK
+system   active=True  hexCells=0    cards=40   console=0  OK
+rules    active=True  hexCells=0    cards=40   console=0  OK
+mobile   active=True  hexCells=0    cards=40   console=0  OK
+
+FAIL (2)
+  - play: only 0 board cells painted
+  - mobile: only 0 board cells painted

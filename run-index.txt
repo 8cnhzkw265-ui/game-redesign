@@ -1,0 +1,9 @@
+﻿TITLE: Arena ╖ Fortress
+(no #test-log element in the page)
+hex cells:     128
+pieces:        64
+theme cards:   40
+bg chips:      40
+log rows:      17
+---- browser stderr (filtered) ----
+  [12840:14268:0929/110659.340:ERROR:chrome\browser\task_manager\providers\fallback_task_provider.cc:126] Every renderer should have at least one task provided by a primary task provider. If a "Renderer" fallback task is shown, it is a bug. I

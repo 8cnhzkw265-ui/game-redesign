@@ -1,0 +1,5 @@
+play     active=True  hex=128  pieces=64   cards=40   console=0  OK
+ranks    active=True  hex=128  pieces=64   cards=40   console=0  OK
+watch    active=True  hex=128  pieces=64   cards=40   console=0  OK
+
+ALL ROUTES OK

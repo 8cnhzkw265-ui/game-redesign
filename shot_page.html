@@ -1,0 +1,26 @@
+<!doctype html>
+<meta charset="utf-8">
+<title>signin shot</title>
+<body style="margin:0">
+<iframe id="f" src="../index.html" style="width:1280px;height:860px;border:0;display:block"></iframe>
+<script>
+// Open the create-account dialog and leave it on screen for the screenshot.
+var f = document.getElementById('f');
+f.addEventListener('load', function () {
+  var d = f.contentDocument;
+  setTimeout(function () {
+    d.querySelector('.side-user').click();
+    setTimeout(function () {
+      var ov = d.querySelector('.overlay');
+      if (ov) {
+        ov.querySelector('#auth-name').value = 'Ada Lovelace';
+        ov.querySelector('#auth-email').value = 'ada@fortress.dev';
+        ov.querySelector('#auth-pass').value = 'short';
+        // Show a live validation message in the shot.
+        ov.querySelector('.modal-foot .btn-primary').click();
+      }
+    }, 200);
+  }, 800);
+});
+</script>
+</body>

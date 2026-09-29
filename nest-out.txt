@@ -1,0 +1,15 @@
+﻿sections: 15
+  view-play     present
+  view-watch    present
+  view-ranks    present
+  view-themes   present
+  view-system   present
+  view-rules    present
+  view-mobile   present
+  #rank-list    present
+  #watch-list   present
+  #watch-empty  present
+  #watch-count  present
+rank-row markup in html: 0 (0 is correct: JS renders it)
+NESTING OK
+EXIT=0

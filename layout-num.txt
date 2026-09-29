@@ -1,0 +1,286 @@
+1:/* ==========================================================================
+2:   03 · Layout — app shell, navigation, view system, play cockpit
+3:   Breakpoints:  >=1400 desktop cockpit · 1101-1399 desktop · 861-1100 tablet
+4:                 <=860 compact/mobile (see 07-mobile.css)
+5:   ========================================================================== */
+6:
+7:.skip{
+8:  position:absolute; left:-9999px; top:var(--s-2); z-index:100;
+9:  background:var(--accent); color:var(--on-accent); padding:10px 14px;
+10:  border-radius:var(--r-sm); font-weight:600;
+11:}
+12:.skip:focus{ left:var(--s-4); }
+13:
+14:/* ------------------------------------------------------------------ app shell
+15:   The menu is a column, not a bar. One fixed rail on the left owns the
+16:   navigation for every view; the content sits in the column beside it. The
+17:   rail collapses to icons (html[data-rail="mini"]) and leaves the flow
+18:   entirely below 860px, where it becomes an off-canvas drawer. */
+19:.shell{
+20:  display:grid;
+21:  grid-template-columns:var(--rail-w) minmax(0,1fr);
+22:  min-height:100dvh;
+23:}
+24:html[data-rail="mini"] .shell{ grid-template-columns:var(--rail-mini) minmax(0,1fr); }
+25:.shell-main{ min-width:0; display:flex; flex-direction:column; }
+26:
+27:.sidebar{
+28:  position:sticky; top:0; align-self:start; z-index:45;
+29:  display:flex; flex-direction:column; min-width:0;
+30:  height:100dvh;
+31:  border-right:1px solid var(--line);
+32:  background:color-mix(in srgb, var(--bg-app) 86%, transparent);
+33:  backdrop-filter:blur(var(--panel-blur)) saturate(140%);
+34:  -webkit-backdrop-filter:blur(var(--panel-blur)) saturate(140%);
+35:  box-shadow:1px 0 0 var(--line-top);
+36:}
+37:.brand{ display:flex; align-items:center; gap:10px; min-width:0; }
+38:.brand-mark{ width:30px; height:30px; flex:0 0 auto; }
+39:.brand-name{
+40:  font-family:var(--font-display); font-weight:700; font-size:17px;
+41:  letter-spacing:.14em; text-transform:uppercase;
+42:}
+43:
+44:/* --- head: wordmark + the collapse chevron ------------------------------- */
+45:.sidebar-head{
+46:  display:flex; align-items:center; gap:var(--s-2);
+47:  padding:12px var(--s-3) 12px var(--s-4);
+48:  min-height:64px; flex:0 0 auto;
+49:  border-bottom:1px solid var(--line);
+50:}
+51:.sidebar-head .brand{ flex:1 1 auto; }
+52:.side-toggle{
+53:  display:grid; place-items:center; flex:0 0 auto;
+54:  width:36px; height:36px; padding:0;
+55:  border:1px solid var(--line); border-radius:var(--r-pill);
+56:  background:var(--surface-2); color:var(--text-2); cursor:pointer;
+57:  transition:background-color var(--t-fast) var(--ease),
+58:             color var(--t-fast) var(--ease),
+59:             transform var(--t-mid) var(--ease);
+60:}
+61:.side-toggle svg{ width:17px; height:17px; }
+62:.side-toggle:hover{ background:var(--surface-3); color:var(--text-1); }
+63:html[data-rail="mini"] .side-toggle svg{ transform:rotate(180deg); }
+64:
+65:/* --- primary destinations ------------------------------------------------ */
+66:.side-nav{
+67:  display:flex; flex-direction:column; gap:2px;
+68:  padding:var(--s-3); overflow-y:auto;
+69:}
+70:.side-nav a{
+71:  position:relative;
+72:  display:flex; align-items:center; gap:12px;
+73:  min-height:var(--tap); padding:0 12px;
+74:  border-radius:var(--r-sm);
+75:  color:var(--text-2); font-size:14.5px; font-weight:500;
+76:  text-decoration:none; white-space:nowrap;
+77:  transition:color var(--t-fast) var(--ease),background-color var(--t-fast) var(--ease);
+78:}
+79:.side-nav a svg{ width:19px; height:19px; flex:0 0 auto; }
+80:.side-nav a:hover{ color:var(--text-1); background:var(--line-soft); text-decoration:none; }
+81:.side-nav a[aria-current="page"]{
+82:  color:var(--text-1); font-weight:600;
+83:  background:var(--surface-2); box-shadow:var(--e1);
+84:}
+85:/* The active destination is marked by a shape as well as by colour. */
+86:.side-nav a[aria-current="page"]::before{
+87:  content:""; position:absolute; left:-12px; top:50%;
+88:  transform:translateY(-50%);
+89:  width:3px; height:22px; border-radius:0 3px 3px 0;
+90:  background:var(--accent); box-shadow:0 0 12px var(--accent-glow);
+91:}
+92:.side-nav a[aria-current="page"] svg{ opacity:1; color:var(--accent); }
+93:.topbar-actions{ display:flex; align-items:center; gap:var(--s-2); justify-self:end; }
+94:
+95:/* --- foot: global controls, then the session block pinned to the bottom --- */
+96:.sidebar-foot{
+97:  margin-top:auto; flex:0 0 auto;
+98:  display:flex; flex-direction:column; gap:2px;
+99:  padding:var(--s-3); border-top:1px solid var(--line);
+100:}
+101:.sidebar-foot .hairline{ margin:var(--s-2) 2px; }
+102:.side-link{
+103:  display:flex; align-items:center; gap:12px; width:100%;
+104:  min-height:var(--tap); padding:0 12px;
+105:  border:0; border-radius:var(--r-sm);
+106:  background:transparent; color:var(--text-2);
+107:  font-size:14px; font-weight:500; text-align:left; cursor:pointer;
+108:  transition:color var(--t-fast) var(--ease),background-color var(--t-fast) var(--ease);
+109:}
+110:.side-link svg{ width:18px; height:18px; flex:0 0 auto; }
+111:.side-link:hover{ color:var(--text-1); background:var(--line-soft); }
+112:.side-user{
+113:  display:flex; align-items:center; gap:10px; width:100%;
+114:  margin-top:var(--s-2); padding:10px;
+115:  border:1px solid var(--line); border-radius:var(--r-md);
+116:  background:var(--surface-2); color:inherit;
+117:  font:inherit; text-align:left; cursor:pointer;
+118:  box-shadow:var(--e1);
+119:  transition:background-color var(--t-fast) var(--ease),border-color var(--t-fast) var(--ease);
+120:}
+121:.side-user:hover{ background:var(--surface-3); border-color:var(--line-strong); }
+122:.side-user-text{
+123:  display:flex; flex-direction:column; align-items:flex-start; gap:3px;
+124:  min-width:0; flex:1 1 auto;
+125:}
+126:.side-user-caret{ width:16px; height:16px; flex:0 0 auto; color:var(--text-3); }
+127:
+128:/* Drawer scrim: inert until the mobile layer sets .is-drawer-open. */
+129:.scrim{
+130:  position:fixed; inset:0; z-index:55;
+131:  background:var(--scrim);
+132:  opacity:0; pointer-events:none;
+133:  transition:opacity var(--t-mid) var(--ease);
+134:}
+135:html.is-drawer-open .scrim{ opacity:1; pointer-events:auto; }
+136:
+137:/* The compact bar only exists once the sidebar has left the flow. */
+138:.topbar{ display:none; }
+139:
+140:/* --- collapsed rail: icons carry the menu, tooltips carry the names ------- */
+141:html[data-rail="mini"] .sidebar-head{
+142:  flex-direction:column; gap:6px; padding:10px 0; min-height:0;
+143:}
+144:html[data-rail="mini"] .sidebar-head .brand{ flex:0 0 auto; }
+145:html[data-rail="mini"] .brand-name,
+146:html[data-rail="mini"] .side-nav a span,
+147:html[data-rail="mini"] .side-link span,
+148:html[data-rail="mini"] .side-user-text,
+149:html[data-rail="mini"] .side-user-caret{ display:none; }
+150:html[data-rail="mini"] .side-nav a,
+151:html[data-rail="mini"] .side-link,
+152:html[data-rail="mini"] .side-user{ justify-content:center; padding:0; }
+153:html[data-rail="mini"] .side-user{ padding:8px; }
+154:/* With no label to read, the tooltip becomes the label. */
+155:html[data-rail="mini"] .side-nav a.tip::after,
+156:html[data-rail="mini"] .side-link.tip::after,
+157:html[data-rail="mini"] .side-user.tip::after{
+158:  bottom:auto; top:50%; left:calc(100% + 10px);
+159:  transform:translateY(-50%);
+160:}
+161:
+162:/* ------------------------------------------------------------------- content */
+163:main{ position:relative; z-index:1; }
+164:.wrap{ width:100%; max-width:1560px; margin:0 auto; padding:var(--s-6) var(--s-5) var(--s-8); }
+165:.wrap-tight{ width:100%; max-width:1080px; margin:0 auto; padding:var(--s-6) var(--s-5) var(--s-8); }
+166:
+167:.page-head{ margin-bottom:var(--s-5); }
+168:.page-head h1{ margin-bottom:6px; }
+169:.title-rule{
+170:  display:flex; align-items:center; gap:var(--s-3); margin-top:var(--s-3);
+171:  color:var(--text-3); font-size:12px; letter-spacing:.1em; text-transform:uppercase;
+172:}
+173:.title-rule::after{ content:""; flex:1; height:1px; background:var(--line); }
+174:
+175:.view{ display:none; }
+176:.view.is-active{ display:block; animation:ft-rise var(--t-slow) var(--ease-out) both; }
+177:
+178:/* ------------------------------------------------------------ play cockpit
+179:   The menu rail owns navigation, so the cockpit itself is only two columns:
+180:   the board, and the rail that holds everything a turn needs. */
+181:.play-layout{
+182:  display:grid;
+183:  grid-template-columns:minmax(0,1fr) 340px;
+184:  gap:var(--s-5);
+185:  align-items:start;
+186:}
+187:#view-play .wrap{ max-width:1680px; }
+188:#view-play .page-head{ margin-bottom:var(--s-4); }
+189:#view-play .page-head .lede{ max-width:110ch; }
+190:@media (min-width:1400px){
+191:  .play-layout{ grid-template-columns:minmax(0,1fr) 372px; }
+192:}
+193:.rail-right{ display:flex; flex-direction:column; gap:var(--s-4); min-width:0; }
+194:
+195:/* Match header: who is playing, and the one menu the turn needs. */
+196:.match-bar{ display:flex; align-items:center; gap:var(--s-3); padding:10px var(--s-3); }
+197:.match-meta{ min-width:0; }
+198:.match-meta strong{ display:block; font-size:14px; line-height:1.25; }
+199:
+200:/* Player strip — one identity block, two changeable numbers. */
+201:.player-strip{
+202:  display:flex; align-items:center; gap:var(--s-3);
+203:  padding:12px var(--s-4);
+204:  border:1px solid var(--line);
+205:  border-radius:var(--r-md);
+206:  background:linear-gradient(180deg,var(--surface-2),var(--surface-1));
+207:  box-shadow:var(--e1);
+208:  min-height:64px;
+209:}
+210:.player-strip.is-turn{ border-color:var(--accent-line); box-shadow:0 0 0 1px var(--accent-soft),var(--e2); }
+211:.player-strip.is-turn .turn-dot{ background:var(--accent); box-shadow:0 0 10px var(--accent-glow); }
+212:.turn-dot{
+213:  width:8px; height:8px; border-radius:50%; flex:0 0 auto;
+214:  background:var(--n-500); transition:background var(--t-fast) var(--ease);
+215:}
+216:.player-strip .avatar{ width:34px; height:34px; border-radius:9px; flex:0 0 auto; }
+217:.player-name{ font-weight:600; font-size:14px; }
+218:.player-sub{ font-size:11.5px; color:var(--text-3); }
+219:.captured{ display:flex; align-items:center; gap:3px; min-height:18px; flex-wrap:wrap; }
+220:.captured .chip{
+221:  width:17px; height:17px; border-radius:4px; flex:0 0 auto;
+222:  background:var(--surface-3); border:1px solid var(--line);
+223:  display:grid; place-items:center; font-size:9px; font-weight:700;
+224:  color:var(--text-2); font-family:var(--font-mono);
+225:}
+226:
+227:/* Board stage: the arena the whole system is built around.
+228:   Wide and touch-first: the stage fills the cockpit column, hexes stay
+229:   >=44px touch targets, and the svg scales to the column width. */
+230:.cockpit{ min-width:0; display:flex; flex-direction:column; gap:10px; }
+231:.stage{
+232:  position:relative; margin:0; width:100%; max-width:100%;
+233:  border:1px solid var(--line);
+234:  border-radius:var(--r-lg);
+235:  background:var(--surface-inset);
+236:  box-shadow:var(--e2), inset 0 1px 0 var(--line-top);
+237:  overflow:hidden;
+238:}
+239:.stage-svg{ display:block; width:100%; height:auto; min-height:420px; touch-action:manipulation; }
+240:@media (min-width:1000px){ .stage{ margin:0 auto; } }
+241:/* Cap height so the full board + action bar stay usable on short screens;
+242:   the svg letterboxes (meet) instead of pushing the cockpit off-screen. */
+243:.stage{ max-width:min(100%, 760px); }
+244:.stage-svg{ max-height:74vh; }
+245:@media (max-height:699px){ .stage-svg{ max-height:82vh; } }
+246:
+247:/* Status rail under the board: phase + prompt + primary action, one line. */
+248:.action-bar{
+249:  display:grid; grid-template-columns:1fr auto; align-items:center;
+250:  gap:var(--s-3); padding:14px var(--s-4);
+251:  border:1px solid var(--line);
+252:  border-radius:var(--r-md);
+253:  background:linear-gradient(180deg,var(--surface-2),var(--surface-1));
+254:  box-shadow:var(--e1);
+255:  min-height:72px;
+256:}
+257:.action-bar .row .btn{ min-height:var(--tap-lg); padding:0 22px; }
+258:.phase-pill{
+259:  display:inline-flex; align-items:center; gap:8px;
+260:  font-size:12px; font-weight:600; letter-spacing:.08em; text-transform:uppercase;
+261:  color:var(--text-2);
+262:}
+263:
+264:/* Tablet: the right rail drops under the board, two-up. */
+265:@media (max-width:1120px){
+266:  .play-layout{ grid-template-columns:minmax(0,1fr); }
+267:  .rail-right{ display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); align-items:start; }
+268:  .rail-right > .panel-span{ grid-column:1 / -1; }
+269:}
+270:@media (max-width:860px){
+271:  .wrap,.wrap-tight{ padding:var(--s-4) var(--s-3) 96px; }
+272:  .rail-right{ grid-template-columns:minmax(0,1fr); }
+273:}
+274:
+275:/* Two-column documentation pages (system, rules, mobile). */
+276:.doc-grid{ display:grid; gap:var(--s-4); grid-template-columns:repeat(auto-fit,minmax(280px,1fr)); }
+277:.doc-grid-wide{ display:grid; gap:var(--s-4); grid-template-columns:minmax(0,1fr) minmax(0,1fr); }
+278:@media (max-width:980px){ .doc-grid-wide{ grid-template-columns:minmax(0,1fr); } }
+279:
+280:/* Sticky section nav used on long documentation pages. */
+281:.section-nav{
+282:  display:flex; gap:var(--s-1); flex-wrap:wrap; padding:var(--s-1);
+283:  border:1px solid var(--line); border-radius:var(--r-pill);
+284:  background:var(--surface-2); width:max-content; max-width:100%;
+285:}
+286:
