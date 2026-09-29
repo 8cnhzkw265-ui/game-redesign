@@ -1,0 +1,58 @@
+# Publish the site to GitHub Pages on every push to `main`.
+#
+# Why a workflow at all: the Settings-pages "deploy from a branch" option only
+# works if a human has already turned Pages on and picked a branch. Until that
+# is done the repository serves nothing at all, which is the "my site does not
+# show up" case. This workflow makes the publish an automatic, visible step
+# instead of a setting someone has to remember.
+#
+# `actions/configure-pages` is what switches Pages to the "GitHub Actions"
+# source, so the first run is enough — no manual Settings change required.
+name: Deploy to GitHub Pages
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:            # allows a manual re-run from the Actions tab
+
+# Never let two deploys race; cancel the older one if a newer push lands.
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+permissions:
+  contents: read                # the job only reads the repo…
+  pages: write                  # …and writes the deployed site
+  id-token: write               # required by configure-pages to mint the token
+
+# One job, two steps, both official actions.
+jobs:
+  deploy:
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out the repository
+        uses: actions/checkout@v4
+
+      - name: Configure Pages
+        id: deployment
+        uses: actions/configure-pages@v5
+
+      # The site is plain HTML/CSS/JS with relative paths, so there is nothing
+      # to compile — the sources ARE the artefact. The paths are listed
+      # explicitly rather than uploading '.', because that would also publish
+      # tests/, the QA probe pages and _ref/ scratch dumps.
+      - name: Upload the site
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: |
+            index.html
+            404.html
+            css
+            js
+
+      - name: Deploy to GitHub Pages
+        id: deploy
+        uses: actions/deploy-pages@v4

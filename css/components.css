@@ -1,0 +1,662 @@
+/* ==========================================================================
+   04 · Components — buttons, badges, cards/panels, forms, menus, modals,
+        tabs, tables, stats, empty states, toasts.
+   Rule: every control defines default / hover / active / focus-visible /
+   disabled, and every state is signalled by more than colour alone.
+   ========================================================================== */
+
+/* ------------------------------------------------------------------ buttons */
+.btn{
+  --btn-bg:var(--surface-3);
+  --btn-fg:var(--text-1);
+  --btn-line:var(--line-strong);
+  position:relative;
+  display:inline-flex; align-items:center; justify-content:center; gap:8px;
+  min-height:var(--tap); padding:0 16px;
+  border:1px solid var(--btn-line);
+  border-radius:var(--r-sm);
+  background:var(--btn-bg); color:var(--btn-fg);
+  font-size:13.5px; font-weight:600; letter-spacing:.01em;
+  cursor:pointer; white-space:nowrap;
+  box-shadow:var(--e1), inset 0 1px 0 var(--line-top);
+  transition:transform var(--t-fast) var(--ease), background-color var(--t-fast) var(--ease),
+             border-color var(--t-fast) var(--ease), color var(--t-fast) var(--ease),
+             box-shadow var(--t-fast) var(--ease);
+  -webkit-tap-highlight-color:transparent;
+}
+.btn svg{ width:15px; height:15px; flex:0 0 auto; }
+.btn:hover{ transform:translateY(-1px); }
+.btn:active{ transform:translateY(1px); box-shadow:inset 0 2px 6px rgb(0 0 0 / .35); }
+.btn:disabled,.btn[aria-disabled="true"]{
+  opacity:.45; cursor:not-allowed; transform:none; box-shadow:none; filter:saturate(.6);
+}
+
+/* Primary = the single action the game is waiting on. */
+.btn-primary{
+  --btn-bg:linear-gradient(180deg,var(--accent-hi),var(--accent));
+  --btn-fg:var(--on-accent);
+  --btn-line:var(--accent-lo);
+  font-weight:700;
+  box-shadow:var(--e1), 0 8px 22px -12px var(--accent-glow), inset 0 1px 0 rgb(255 255 255 / .35);
+}
+.btn-primary:hover{ box-shadow:var(--e2), 0 10px 26px -10px var(--accent-glow), inset 0 1px 0 rgb(255 255 255 / .45); }
+.btn-secondary{ --btn-bg:linear-gradient(180deg,var(--surface-3),var(--surface-2)); }
+.btn-secondary:hover{ --btn-bg:var(--surface-3); }
+.btn-outline{ --btn-bg:transparent; --btn-fg:var(--text-1); box-shadow:none; }
+.btn-outline:hover{ --btn-bg:var(--line-soft); }
+.btn-ghost{ --btn-bg:transparent; --btn-line:transparent; --btn-fg:var(--text-2); box-shadow:none; }
+.btn-ghost:hover{ --btn-bg:var(--line-soft); --btn-fg:var(--text-1); }
+.btn-danger{
+  --btn-bg:linear-gradient(180deg,var(--danger-hi),var(--danger));
+  --btn-fg:#fff; --btn-line:var(--danger);
+  box-shadow:var(--e1), 0 8px 22px -14px var(--danger-soft);
+}
+.btn-danger:hover{ --btn-bg:var(--danger-hi); }
+.btn-success{ --btn-bg:var(--success-soft); --btn-fg:var(--success); --btn-line:var(--success); }
+/* Accent = the amber outline treatment. Used where an action belongs to the
+   page's story (create an account) but must not outrank the one primary. */
+.btn-accent{
+  --btn-bg:transparent; --btn-fg:var(--accent); --btn-line:var(--accent-line);
+  box-shadow:none;
+}
+.btn-accent:hover{ --btn-bg:var(--accent-soft); --btn-line:var(--accent); }
+.btn-sm{ min-height:36px; padding:0 12px; font-size:12.5px; border-radius:var(--r-xs); }
+.btn-sm svg{ width:13px; height:13px; }
+.btn-lg{ min-height:var(--tap-lg); padding:0 22px; font-size:15px; border-radius:var(--r-md); }
+.btn-block{ width:100%; }
+.btn-icon{ min-height:var(--tap); width:var(--tap); padding:0; }
+
+/* Pulse is reserved for the awaited action — never decorative. */
+.btn-pulse::after{
+  content:""; position:absolute; inset:-3px; border-radius:inherit;
+  border:1.5px solid var(--accent); opacity:.5;
+  animation:ft-pulse 1.9s var(--ease) infinite; pointer-events:none;
+}
+
+/* Segmented control ------------------------------------------------------- */
+.segmented{
+  display:inline-flex; gap:2px; padding:3px;
+  background:var(--surface-inset); border:1px solid var(--line);
+  border-radius:var(--r-sm); box-shadow:inset 0 2px 5px rgb(0 0 0 / .28);
+}
+html[data-mode="light"] .segmented{ box-shadow:inset 0 1px 3px rgb(27 28 30 / .1); }
+.segmented > button{
+  min-height:34px; padding:0 14px; border:0; border-radius:var(--r-xs);
+  background:transparent; color:var(--text-2); cursor:pointer;
+  font-size:12.5px; font-weight:600;
+  transition:color var(--t-fast) var(--ease), background-color var(--t-fast) var(--ease);
+}
+.segmented > button:hover{ color:var(--text-1); background:var(--line-soft); }
+.segmented > button[aria-pressed="true"]{
+  background:linear-gradient(180deg,var(--surface-3),var(--surface-2));
+  color:var(--text-1); box-shadow:var(--e1), inset 0 1px 0 var(--line-top);
+}
+
+/* ------------------------------------------------------------ badges, pills */
+.badge{
+  display:inline-flex; align-items:center; gap:6px;
+  padding:3px 9px; border-radius:var(--r-pill);
+  font-size:10.5px; font-weight:700; letter-spacing:.09em; text-transform:uppercase;
+  border:1px solid var(--line-strong); background:var(--surface-3); color:var(--text-2);
+  white-space:nowrap;
+}
+.badge-accent{ border-color:var(--accent-line); background:var(--accent-soft); color:var(--accent); }
+.badge-move{ border-color:var(--move); background:var(--move-soft); color:var(--move); }
+.badge-danger{ border-color:var(--danger); background:var(--danger-soft); color:var(--danger); }
+.badge-success{ border-color:var(--success); background:var(--success-soft); color:var(--success); }
+.badge-warn{ border-color:var(--warning); background:var(--warning-soft); color:var(--warning); }
+.badge-live::before{
+  content:""; width:6px; height:6px; border-radius:50%; background:currentColor;
+  animation:ft-pulse 1.6s var(--ease) infinite;
+}
+.count{
+  min-width:19px; height:19px; padding:0 5px; border-radius:var(--r-pill);
+  background:var(--danger); color:#fff; font-size:11px; font-weight:700;
+  display:inline-grid; place-items:center; line-height:1;
+}
+.kbd{
+  font-family:var(--font-mono); font-size:11px; padding:2px 6px;
+  border:1px solid var(--line-strong); border-bottom-width:2px;
+  border-radius:var(--r-xs); background:var(--surface-3); color:var(--text-2);
+}
+
+/* ------------------------------------------------------------------- avatar */
+.avatar{
+  display:grid; place-items:center; border-radius:var(--r-sm);
+  background:linear-gradient(160deg,var(--surface-3),var(--surface-1));
+  border:1px solid var(--line-strong);
+  font-family:var(--font-display); font-weight:700; color:var(--text-1);
+  overflow:hidden; flex:0 0 auto;
+}
+.avatar-sm{ width:30px; height:30px; font-size:13px; }
+.avatar-md{ width:44px; height:44px; font-size:16px; }
+.avatar-lg{ width:64px; height:64px; font-size:24px; border-radius:var(--r-md); }
+
+/* ------------------------------------------------------------- panels/cards */
+.panel{
+  position:relative;
+  border:1px solid var(--line);
+  border-radius:var(--r-md);
+  background:linear-gradient(180deg,var(--surface-1),color-mix(in srgb,var(--surface-1) 88%,var(--surface-3)));
+  box-shadow:var(--e1);
+  overflow:hidden;
+}
+.panel::before{
+  content:""; position:absolute; inset:0 0 auto; height:1px;
+  background:linear-gradient(90deg,transparent,var(--line-top) 35%,var(--line-top) 65%,transparent);
+}
+.panel-head{
+  display:flex; align-items:center; gap:var(--s-2);
+  padding:10px var(--s-3); min-height:44px;
+  border-bottom:1px solid var(--line);
+  background:color-mix(in srgb,var(--surface-2) 70%,transparent);
+}
+.panel-head h3{ font-size:13px; letter-spacing:.06em; text-transform:uppercase; color:var(--text-2); font-weight:700; }
+.panel-body{ padding:var(--s-3); }
+.panel-body-lg{ padding:var(--s-4); }
+.panel-foot{
+  display:flex; align-items:center; gap:var(--s-2); justify-content:flex-end;
+  padding:var(--s-2) var(--s-3); border-top:1px solid var(--line); background:var(--surface-2);
+}
+
+/* Elevation ladder, so surfaces never argue about depth. */
+.elev-1{ box-shadow:var(--e1); }
+.elev-2{ box-shadow:var(--e2); }
+.elev-3{ box-shadow:var(--e3); }
+
+/* Stat card — label, big tabular number, delta. */
+.stat{
+  padding:var(--s-3); border:1px solid var(--line); border-radius:var(--r-md);
+  background:linear-gradient(180deg,var(--surface-2),var(--surface-1));
+  box-shadow:var(--e1); min-width:0;
+}
+.stat-label{
+  font-size:10.5px; letter-spacing:.12em; text-transform:uppercase;
+  color:var(--text-3); font-weight:700; margin-bottom:4px;
+}
+.stat-value{
+  font-family:var(--font-display); font-size:26px; font-weight:700;
+  font-variant-numeric:tabular-nums; letter-spacing:-.02em; line-height:1.1;
+}
+.stat-sub{ font-size:11.5px; color:var(--text-3); margin-top:2px; }
+.stat-accent .stat-value{ color:var(--accent); }
+.stat-danger .stat-value{ color:var(--danger); }
+/* Row list — move history, rosters, leaderboards ------------------------- */
+.list{ display:flex; flex-direction:column; }
+.list-row{
+  display:flex; align-items:center; gap:var(--s-3);
+  padding:9px var(--s-3); border-bottom:1px solid var(--line);
+  font-size:13px; min-height:var(--tap);
+}
+.list-row:last-child{ border-bottom:0; }
+.list-row:hover{ background:var(--line-soft); }
+.list-row.is-active{ background:var(--accent-soft); box-shadow:inset 2px 0 0 var(--accent); }
+.list-rank{
+  width:24px; text-align:right; font-family:var(--font-mono);
+  font-size:12px; color:var(--text-3); flex:0 0 auto;
+}
+.list-main{ flex:1 1 auto; min-width:0; }
+
+/* Tables ----------------------------------------------------------------- */
+.table{ width:100%; border-collapse:collapse; font-size:13px; }
+.table th{
+  text-align:left; padding:8px var(--s-3); font-size:10.5px; letter-spacing:.1em;
+  text-transform:uppercase; color:var(--text-3); font-weight:700;
+  border-bottom:1px solid var(--line); background:var(--surface-2); white-space:nowrap;
+}
+.table td{ padding:9px var(--s-3); border-bottom:1px solid var(--line); }
+.table tbody tr:last-child td{ border-bottom:0; }
+.table tbody tr:hover{ background:var(--line-soft); }
+.table .num{ text-align:right; font-family:var(--font-mono); font-variant-numeric:tabular-nums; }
+
+/* Tabs -------------------------------------------------------------------- */
+.tabs{ display:flex; gap:2px; border-bottom:1px solid var(--line); overflow-x:auto; }
+.tab{
+  position:relative; padding:10px 14px; min-height:var(--tap);
+  background:transparent; border:0; cursor:pointer; color:var(--text-2);
+  font-size:13px; font-weight:600; white-space:nowrap;
+}
+.tab:hover{ color:var(--text-1); }
+.tab[aria-selected="true"]{ color:var(--text-1); }
+.tab[aria-selected="true"]::after{
+  content:""; position:absolute; left:10px; right:10px; bottom:-1px; height:2px;
+  background:var(--accent); border-radius:2px;
+}
+
+/* ------------------------------------------------------ lobby (play view)
+   The mode chooser that sits at the top of the right rail. It is a tab strip
+   over a stack of cards, and it earns its place by answering one question —
+   bot or another human — before any board is on screen. */
+.lobby{
+  display:flex; flex-direction:column; gap:var(--s-3);
+  padding-bottom:var(--s-4);
+}
+/* The turn rail below is flat hairlines with no plates, so the lobby needs a
+   rule of its own to separate the two grammars rather than one card edge
+   running into another. */
+@media (min-width:1121px){
+  .lobby{ border-bottom:1px solid var(--line); margin-bottom:var(--s-4); padding-bottom:var(--s-4); }
+}
+.lobby-tabs{
+  border-bottom:1px solid var(--line);
+  border-radius:0; gap:var(--s-1);
+  background:none; overflow:visible;
+}
+.lobby-tabs .tab{
+  display:flex; align-items:center; justify-content:center; gap:7px;
+  flex:1 1 0; min-width:0;
+  padding:0 var(--s-2); font-size:12.5px;
+}
+.lobby-tabs .tab svg{ width:17px; height:17px; flex:0 0 auto; }
+.lobby-tabs .tab[aria-selected="true"]{ color:var(--accent); }
+.lobby-tabs .tab[aria-selected="true"]::after{ left:6px; right:6px; }
+
+.lobby-panel{ display:flex; flex-direction:column; gap:var(--s-3); }
+.lobby-panel[hidden]{ display:none; }
+
+/* The cards keep their plates inside the lobby: the turn rail below is flat
+   hairlines, but these are choices, and a choice you cannot point at is a
+   choice nobody makes. */
+.lobby-card .panel-head{ gap:var(--s-2); }
+.lobby-card-head .lobby-tag{ margin-left:auto; }
+.lobby-card-icon{ width:19px; height:19px; color:var(--text-3); flex:0 0 auto; }
+.panel-body-tight{ padding:var(--s-3) var(--s-3) var(--s-3); }
+
+/* A lobby row: icon plate, name + one line of copy, chevron. The whole card is
+   the hit target, so the row is a real <button> rather than a div with a
+   click handler on the title. */
+.lobby-row{
+  display:grid; grid-template-columns:auto minmax(0,1fr) auto;
+  align-items:center; gap:var(--s-3); width:100%;
+  padding:var(--s-3); border:0; background:transparent;
+  color:inherit; font:inherit; text-align:left; cursor:pointer;
+  transition:background-color var(--t-fast) var(--ease);
+}
+.lobby-row:hover{ background:var(--line-soft); }
+.lobby-row:focus-visible{ outline:2px solid var(--accent); outline-offset:-2px; }
+.lobby-row-icon{
+  display:grid; place-items:center; width:38px; height:38px;
+  border-radius:var(--r-md);
+  background:var(--accent-soft); color:var(--accent);
+  box-shadow:inset 0 0 0 1px var(--accent-line);
+}
+.lobby-row-icon svg{ width:20px; height:20px; }
+.lobby-row-text{ display:flex; flex-direction:column; gap:2px; min-width:0; }
+.lobby-row-text b{ font-size:14.5px; font-weight:600; color:var(--text-1); }
+.lobby-row-text .meta{ font-size:12.5px; }
+.lobby-row-chevron{ width:17px; height:17px; color:var(--text-3); flex:0 0 auto; }
+.lobby-split{ height:1px; margin:0 var(--s-3); background:var(--line); }
+
+/* Empty state ------------------------------------------------------------- */
+.empty{
+  display:grid; gap:var(--s-2); place-items:center; text-align:center;
+  padding:var(--s-6) var(--s-4); color:var(--text-3);
+  border:1px dashed var(--line-strong); border-radius:var(--r-md);
+  background:color-mix(in srgb,var(--surface-2) 50%,transparent);
+}
+.empty svg{ width:26px; height:26px; opacity:.6; }
+
+/* Page-scale empty state — the Watch page has nothing smaller to show, so it
+   gets the roomy version: one icon, one line, one way out of the page. */
+.empty-panel{
+  display:grid; gap:var(--s-3); justify-items:center; text-align:center;
+  padding:var(--s-7) var(--s-4);
+  border:1px solid var(--line); border-radius:var(--r-lg);
+  background:linear-gradient(180deg,var(--surface-1),color-mix(in srgb,var(--surface-1) 86%,var(--surface-3)));
+  box-shadow:var(--e1);
+}
+.empty-panel svg{ width:30px; height:30px; color:var(--accent); opacity:1; }
+.empty-panel strong{
+  font-family:var(--font-display); font-size:19px; font-weight:600;
+  letter-spacing:-.01em;
+}
+.empty-panel p{ margin:0; max-width:52ch; }
+.empty-panel .btn{ margin-top:var(--s-2); }
+.empty-panel[hidden]{ display:none; }
+
+/* ------------------------------------------------- filter bar (Watch, Ranks)
+   The segmented control sits on its own line with the result count pushed to
+   the far side, so the count never shifts the control when it changes. */
+.filter-bar{
+  display:flex; align-items:center; gap:var(--s-3);
+  margin-bottom:var(--s-4); flex-wrap:wrap;
+}
+.filter-bar .meta{ margin:0; }
+
+/* Rounded pill variant used where the control is the page's only affordance. */
+.segmented-pill{ border-radius:var(--r-pill); padding:4px; }
+.segmented-pill > button{
+  min-height:38px; padding:0 20px; border-radius:var(--r-pill);
+  font-size:13.5px;
+}
+.segmented-pill > button[aria-pressed="true"]{
+  background:linear-gradient(180deg,var(--accent-hi),var(--accent));
+  color:var(--on-accent);
+  box-shadow:var(--e1), 0 6px 16px -10px var(--accent-glow);
+}
+
+/* ------------------------------------------------------------- leaderboard
+   Grid rather than flex so the two numeric columns stay aligned down the
+   page: place and avatar are fixed, the name takes the slack, rating and
+   record are right-aligned and fixed-width. */
+.rank-row{
+  display:grid;
+  grid-template-columns:34px 40px minmax(0,1fr) 64px 78px;
+  align-items:center; gap:var(--s-3);
+  padding:var(--s-3) var(--s-4);
+  min-height:64px;
+  border-bottom:1px solid var(--line);
+}
+.rank-row:last-child{ border-bottom:0; }
+.rank-row:hover{ background:var(--line-soft); }
+.rank-no{
+  font-family:var(--font-display); font-size:15px; font-weight:600;
+  text-align:center; color:var(--text-3);
+}
+.rank-row.is-podium .rank-no{ color:var(--accent); }
+/* .avatar ships with no intrinsic size (only the sm/md/lg variants do), so the
+   leaderboard sizes its own to match the 40px grid column exactly. */
+.rank-row .avatar{ width:40px; height:40px; }
+.rank-who{ display:flex; align-items:center; gap:var(--s-2); min-width:0; }
+.rank-name{ overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.rank-elo{
+  font-family:var(--font-display); font-size:19px; font-weight:700;
+  text-align:right; letter-spacing:-.01em;
+}
+.rank-record{ font-size:12.5px; color:var(--text-3); text-align:right; }
+.rank-foot{ margin-top:var(--s-3); }
+
+/* The round avatar is the leaderboard's one new shape; the rest of the app
+   uses rounded squares, so a circle here reads as "person", not "piece". */
+.avatar-round{ border-radius:var(--r-pill); }
+
+/* ------------------------------------------------------------- live games */
+.watch-row{
+  display:grid;
+  grid-template-columns:minmax(0,1fr) auto auto minmax(0,1fr) auto;
+  align-items:center; gap:var(--s-3);
+  padding:var(--s-3) var(--s-4);
+  border-bottom:1px solid var(--line);
+}
+.watch-row:last-child{ border-bottom:0; }
+.watch-row:hover{ background:var(--line-soft); }
+.watch-side{ display:flex; align-items:center; gap:var(--s-2); min-width:0; }
+.watch-side-right{ justify-content:flex-end; }
+.watch-name{ font-size:13.5px; font-weight:600; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.watch-move{ white-space:nowrap; }
+@media (max-width:640px){
+  .watch-row{ grid-template-columns:minmax(0,1fr) auto; row-gap:var(--s-2); }
+  .watch-row > .badge, .watch-row > .watch-move{ grid-row:2; }
+  .watch-row > .watch-side-right{ grid-column:1; }
+  .watch-row > .btn{ grid-column:2; grid-row:1 / span 2; }
+}
+@media (max-width:560px){
+  .rank-row{ grid-template-columns:26px 34px minmax(0,1fr) 58px; row-gap:2px; }
+  .rank-elo{ font-size:17px; }
+  .rank-record{ display:none; }   /* the rating is the ranking; the record is the detail */
+}
+
+/* Progress / meter -------------------------------------------------------- */
+.meter{ height:6px; border-radius:var(--r-pill); background:var(--surface-inset); overflow:hidden; }
+.meter > span{ display:block; height:100%; background:var(--accent); border-radius:inherit; }
+.meter-move > span{ background:var(--move); }
+.meter-danger > span{ background:var(--danger); }
+
+/* Clock — the one number that must be readable at a glance --------------- */
+.clock{
+  font-family:var(--font-display); font-size:22px; font-weight:700;
+  font-variant-numeric:tabular-nums; letter-spacing:-.01em;
+  padding:4px 10px; border-radius:var(--r-sm);
+  border:1px solid var(--line); background:var(--surface-inset);
+  color:var(--text-2); min-width:84px; text-align:center;
+}
+.clock.is-active{ color:var(--text-1); border-color:var(--accent-line); background:var(--accent-soft); }
+.clock.is-low{ color:var(--danger); border-color:var(--danger); animation:ft-pulse 1.4s var(--ease) infinite; }
+
+/* ------------------------------------------------------------------- forms */
+.field{ display:flex; flex-direction:column; gap:6px; }
+.label{ font-size:12px; font-weight:600; color:var(--text-2); }
+.hint{ font-size:11.5px; color:var(--text-3); }
+.input,.select,.textarea{
+  width:100%; min-height:var(--tap); padding:10px 12px;
+  border:1px solid var(--line-strong); border-radius:var(--r-sm);
+  background:var(--surface-inset); color:var(--text-1);
+  box-shadow:inset 0 1px 3px rgb(0 0 0 / .25);
+  transition:border-color var(--t-fast) var(--ease), box-shadow var(--t-fast) var(--ease);
+}
+html[data-mode="light"] .input,
+html[data-mode="light"] .select,
+html[data-mode="light"] .textarea{ background:var(--surface-1); box-shadow:inset 0 1px 2px rgb(27 28 30 / .06); }
+.textarea{ min-height:88px; resize:vertical; }
+.input:hover,.select:hover,.textarea:hover{ border-color:var(--n-500); }
+.input:focus,.select:focus,.textarea:focus{
+  outline:none; border-color:var(--accent);
+  box-shadow:0 0 0 3px var(--accent-soft), inset 0 1px 3px rgb(0 0 0 / .25);
+}
+.input::placeholder{ color:var(--text-3); }
+/* Inline validation for the sign-in form — announced, not just coloured. */
+.auth-error{
+  margin:0; padding:var(--s-2) var(--s-3);
+  border:1px solid var(--danger); border-radius:var(--r-sm);
+  background:var(--danger-soft); color:var(--danger);
+  font-size:12px; line-height:1.45;
+}
+.auth-error[hidden]{ display:none; }
+/* Identity stays round everywhere it appears, sidebar and dialog alike. */
+.auth-avatar{ border-radius:50%; }
+.select{
+  appearance:none; cursor:pointer; padding-right:34px;
+  background-image:linear-gradient(45deg,transparent 50%,currentColor 50%),
+                   linear-gradient(135deg,currentColor 50%,transparent 50%);
+  background-position:calc(100% - 18px) 50%, calc(100% - 13px) 50%;
+  background-size:5px 5px,5px 5px; background-repeat:no-repeat;
+}
+.field-error .input,.field-error .select{ border-color:var(--danger); }
+.field-error .hint{ color:var(--danger); }
+
+/* Toggle switch ------------------------------------------------------------ */
+.switch{ display:flex; align-items:center; gap:var(--s-3); cursor:pointer; min-height:var(--tap); }
+.switch input{ position:absolute; opacity:0; width:1px; height:1px; }
+.switch-track{
+  position:relative; width:46px; height:26px; flex:0 0 auto;
+  border-radius:var(--r-pill); background:var(--surface-inset);
+  border:1px solid var(--line-strong);
+  box-shadow:inset 0 2px 4px rgb(0 0 0 / .3);
+  transition:background var(--t-mid) var(--ease);
+}
+.switch-track::after{
+  content:""; position:absolute; top:2px; left:2px; width:20px; height:20px;
+  border-radius:50%; background:linear-gradient(180deg,var(--n-100),var(--n-300));
+  box-shadow:0 1px 3px rgb(0 0 0 / .5);
+  transition:transform var(--t-mid) var(--ease);
+}
+.switch input:checked + .switch-track{ background:var(--accent); border-color:var(--accent-lo); }
+.switch input:checked + .switch-track::after{ transform:translateX(20px); background:linear-gradient(180deg,#fff,#e8dcc2); }
+.switch input:focus-visible + .switch-track{ outline:2px solid var(--accent); outline-offset:2px; }
+.switch-text{ display:flex; flex-direction:column; }
+
+/* Radio "cards" — board themes, backgrounds, difficulty, time control ----- */
+.choice{ display:grid; gap:var(--s-2); grid-template-columns:repeat(auto-fit,minmax(140px,1fr)); }
+.choice-card{
+  position:relative; padding:var(--s-3); text-align:left; cursor:pointer;
+  border:1px solid var(--line); border-radius:var(--r-md);
+  background:var(--surface-2); color:var(--text-2); font-size:12.5px;
+  transition:border-color var(--t-fast) var(--ease), color var(--t-fast) var(--ease),
+             background-color var(--t-fast) var(--ease), box-shadow var(--t-fast) var(--ease);
+  min-height:var(--tap);
+}
+.choice-card:hover{ border-color:var(--line-strong); color:var(--text-1); }
+.choice-card[aria-pressed="true"]{
+  border-color:var(--accent); color:var(--text-1);
+  background:linear-gradient(180deg,var(--accent-soft),transparent);
+  box-shadow:0 0 0 1px var(--accent-line);
+}
+.choice-card b{ display:block; color:var(--text-1); font-size:13px; margin-bottom:2px; }
+
+/* The seven-level ladder. Cards, not a segmented bar: seven labels cannot share
+   one row inside the 372px turn rail without becoming unreadable and hard to
+   hit. The rung number is a badge rather than part of the name, so the ladder
+   reads as an ordered scale at a glance and "Sovereign" still says where it
+   sits when quoted on its own (in a toast, in the match bar, in the lobby). */
+.level-grid{ grid-template-columns:repeat(auto-fit,minmax(150px,1fr)); }
+.level-card{ display:flex; flex-direction:column; gap:4px; }
+.level-head{ display:flex; align-items:center; gap:8px; }
+.level-head b{ margin:0; }
+.level-no{
+  flex:0 0 auto; display:grid; place-items:center;
+  width:20px; height:20px; border-radius:var(--r-xs);
+  background:var(--surface-inset); border:1px solid var(--line);
+  color:var(--text-3);
+  font-family:var(--font-mono); font-size:11px; font-weight:700;
+  line-height:1;
+}
+.level-card[aria-pressed="true"] .level-no{
+  background:var(--accent); border-color:var(--accent); color:var(--on-accent);
+}
+/* A picker that lives in the turn rail is a bounded well: all twenty cards stay
+   one scroll away, but the grid can never push the rest of the panel off screen.
+   js/app.js keeps the well's scroll position and focus across a pick. */
+.quick-grid{
+  max-height:340px; padding:4px;
+  border:1px solid var(--line); border-radius:var(--r-md);
+  background:var(--surface-inset); box-shadow:inset 0 1px 0 var(--line-top);
+  overflow-y:auto; scrollbar-gutter:stable;
+}
+.range{ width:100%; accent-color:var(--accent); height:var(--tap); }
+
+/* ------------------------------------------------- overlays: modal & sheet */
+.overlay{
+  position:fixed; inset:0; z-index:80;
+  display:grid; place-items:center; padding:var(--s-4);
+  background:var(--scrim);
+  backdrop-filter:blur(6px) saturate(120%);
+  -webkit-backdrop-filter:blur(6px) saturate(120%);
+  animation:ft-rise var(--t-mid) var(--ease-out) both;
+}
+.modal{
+  width:min(520px,100%); max-height:min(86dvh,760px); overflow:auto;
+  border:1px solid var(--line-strong); border-radius:var(--r-lg);
+  background:linear-gradient(180deg,var(--surface-1),color-mix(in srgb,var(--surface-1) 90%,var(--surface-3)));
+  box-shadow:var(--e3);
+  animation:ft-sheet-in var(--t-mid) var(--ease-out) both;
+}
+.modal-lg{ width:min(760px,100%); }
+.modal-head{
+  display:flex; align-items:center; gap:var(--s-3);
+  padding:var(--s-4) var(--s-4) var(--s-3);
+  border-bottom:1px solid var(--line);
+}
+.modal-head h2{ font-size:19px; }
+.modal-body{ padding:var(--s-4); }
+.modal-foot{
+  display:flex; align-items:center; gap:var(--s-2); justify-content:flex-end;
+  padding:var(--s-3) var(--s-4); border-top:1px solid var(--line);
+  background:color-mix(in srgb,var(--surface-2) 60%,transparent);
+  position:sticky; bottom:0;
+}
+.modal-close{
+  margin-left:auto; border:1px solid transparent; background:transparent;
+  color:var(--text-3); width:36px; height:36px; border-radius:var(--r-sm);
+  display:grid; place-items:center; cursor:pointer;
+}
+.modal-close:hover{ color:var(--text-1); background:var(--line-soft); }
+.modal-close svg{ width:16px; height:16px; }
+
+/* Bottom sheet — the mobile-native presentation of the same content. */
+.sheet-grab{ display:none; }
+@media (max-width:860px){
+  .overlay{ align-items:end; padding:0; }
+  .modal{
+    width:100%; max-width:none; max-height:88dvh;
+    border-radius:var(--r-xl) var(--r-xl) 0 0;
+    border-bottom:0;
+    animation:ft-sheet-in var(--t-slow) var(--ease-out) both;
+  }
+  .modal-head{ padding-top:var(--s-2); flex-direction:column; align-items:stretch; }
+  .sheet-grab{
+    display:block; width:42px; height:4px; border-radius:2px;
+    background:var(--line-strong); margin:2px auto 6px;
+  }
+  .modal-foot{
+    position:sticky; bottom:0; padding-bottom:max(var(--s-3),env(safe-area-inset-bottom));
+  }
+  .modal-foot .btn{ flex:1; }
+}
+
+/* --------------------------------------------------------------- dropdown */
+.menu-wrap{ position:relative; }
+.menu{
+  position:absolute; right:0; top:calc(100% + 8px); z-index:60;
+  min-width:230px; padding:6px;
+  border:1px solid var(--line-strong); border-radius:var(--r-md);
+  background:linear-gradient(180deg,var(--surface-1),var(--surface-2));
+  box-shadow:var(--e3);
+  animation:ft-rise var(--t-fast) var(--ease-out) both;
+}
+.menu[hidden]{ display:none; }
+.menu-label{
+  padding:8px 10px 4px; font-size:10.5px; letter-spacing:.12em;
+  text-transform:uppercase; color:var(--text-3); font-weight:700;
+}
+.menu-item{
+  display:flex; align-items:center; gap:10px; width:100%;
+  min-height:var(--tap); padding:8px 10px;
+  border:0; border-radius:var(--r-xs); background:transparent;
+  color:var(--text-1); font-size:13px; text-align:left; cursor:pointer;
+}
+.menu-item svg{ width:15px; height:15px; opacity:.8; flex:0 0 auto; }
+.menu-item:hover{ background:var(--line-soft); }
+.menu-item.is-danger{ color:var(--danger); }
+.menu-item .kbd{ margin-left:auto; }
+.menu-sep{ height:1px; background:var(--line); margin:5px 4px; }
+
+/* ------------------------------------------------------------ toast / note */
+.toasts{
+  position:fixed; z-index:90; right:var(--s-4); bottom:var(--s-4);
+  display:flex; flex-direction:column; gap:var(--s-2); max-width:min(360px,86vw);
+  pointer-events:none;
+}
+@media (max-width:860px){ .toasts{ left:var(--s-3); right:var(--s-3); bottom:88px; max-width:none; } }
+.toast{
+  display:flex; align-items:flex-start; gap:10px;
+  padding:11px var(--s-3);
+  border:1px solid var(--line-strong); border-left:3px solid var(--accent);
+  border-radius:var(--r-sm);
+  background:linear-gradient(180deg,var(--surface-1),var(--surface-2));
+  box-shadow:var(--e2); color:var(--text-1); font-size:13px;
+  pointer-events:auto;
+  animation:ft-rise var(--t-mid) var(--ease-out) both;
+}
+.toast.is-danger{ border-left-color:var(--danger); }
+.toast.is-success{ border-left-color:var(--success); }
+.toast.is-move{ border-left-color:var(--move); }
+.toast b{ display:block; font-size:13px; margin-bottom:1px; }
+.toast span{ color:var(--text-2); font-size:12px; }
+
+/* ---------------------------------------------------------------- tooltip */
+.tip{ position:relative; }
+.tip::after{
+  content:attr(data-tip);
+  position:absolute; bottom:calc(100% + 6px); left:50%; transform:translateX(-50%);
+  padding:5px 9px; border-radius:var(--r-xs); white-space:nowrap;
+  background:var(--n-950); color:var(--n-050);
+  border:1px solid var(--line-strong); font-size:11.5px;
+  opacity:0; pointer-events:none; transition:opacity var(--t-fast) var(--ease);
+  z-index:70;
+}
+.tip:hover::after,.tip:focus-visible::after{ opacity:1; }
+
+/* Callout used across the documentation pages ---------------------------- */
+.callout{
+  display:grid; grid-template-columns:auto 1fr; gap:var(--s-3);
+  padding:var(--s-3); border-radius:var(--r-md);
+  border:1px solid var(--line); border-left:3px solid var(--accent);
+  background:color-mix(in srgb,var(--surface-2) 70%,transparent);
+  font-size:13px; color:var(--text-2);
+}
+.callout b{ color:var(--text-1); }
+.callout-accent{ border-left-color:var(--accent); }
+.callout-move{ border-left-color:var(--move); }
+.callout-danger{ border-left-color:var(--danger); }
+
+

@@ -1,0 +1,145 @@
+<!doctype html>
+<html lang="en" data-mode="dark" data-board="tex01-forged-steel" data-bg="t01-brushed-graphite">
+<head>
+<meta charset="utf-8">
+<title>Fortress app test</title>
+<link rel="stylesheet" href="../css/tokens.css">
+<link rel="stylesheet" href="../css/base.css">
+<link rel="stylesheet" href="../css/backgrounds.css">
+<link rel="stylesheet" href="../css/themes.css">
+<link rel="stylesheet" href="../css/board.css">
+<link rel="stylesheet" href="../css/layout.css">
+<link rel="stylesheet" href="../css/components.css">
+<link rel="stylesheet" href="../css/mobile.css">
+</head>
+<body>
+<!--
+  Integration harness. It mounts the real shell from index.html's contract but
+  only the pieces the application needs, then drives it with real DOM events:
+  a click on a hex really is a click, and Accept really is a button press.
+  Open this file (or run it headless) after changing anything in js/.
+-->
+<div class="wrap" style="padding:var(--s-4)">
+  <h1>Fortress app test</h1>
+  <p class="meta">Drives js/app.js through the DOM. Requires js/*.js to load without errors.</p>
+
+  <!-- The minimum shell app.js binds to: two boards, action buttons, hosts. -->
+  <div class="row wrap">
+    <button class="btn btn-primary" type="button" data-action="accept">Accept turn</button>
+    <button class="btn" type="button" data-action="undo">Undo move</button>
+    <button class="btn" type="button" data-action="hint">Hint</button>
+    <button class="btn" type="button" data-action="flip">Flip</button>
+    <button class="btn" type="button" data-action="coords">Coords</button>
+    <button class="btn" type="button" data-action="hints">Hints</button>
+    <button class="btn" type="button" data-action="mode">Mode</button>
+    <button class="btn" type="button" data-action="new">New game</button>
+    <button class="btn" type="button" data-action="hero-play">Play now</button>
+  </div>
+  <!-- The play view's stage attribute, so the hero/game swap is observable.
+       js/app.js collapses the arena with display:none keyed off this value. -->
+  <div id="view-play" data-stage="hero">
+    <button class="btn" type="button" data-action="hero-back">Back</button>
+    <span id="match-top-sub"></span>
+  </div>
+  <div class="row wrap">
+    <span id="phase-text"></span>
+    <span id="status-text"></span>
+    <span id="move-number"></span>
+    <span id="turn-name"></span>
+    <span id="phase-detail"></span>
+    <span id="stagnation-text"></span>
+    <span id="repeat-text"></span>
+    <span id="board-material"></span>
+    <span id="board-cursor"></span>
+    <span id="arena-board-name"></span>
+    <span id="arena-bg-name"></span>
+    <span id="ai-note"></span>
+    <span id="difficulty-note"></span>
+    <span id="black-name"></span>
+    <span id="white-name"></span>
+    <span id="black-sub"></span>
+    <span id="white-sub"></span>
+    <span id="stagnation-meter"></span>
+    <span id="clock-black" class="clock"></span>
+    <span id="clock-white" class="clock"></span>
+  </div>
+  <div class="row wrap">
+    <span id="strip-black" class="player-strip"></span>
+    <span id="strip-white" class="player-strip"></span>
+    <span id="captured-black" class="captured"></span>
+    <span id="captured-white" class="captured"></span>
+    <span id="preview-empty" class="empty"></span>
+  </div>
+  <div class="row wrap">
+    <span id="preview-list" class="list"></span>
+    <span id="log-list" class="list" style="display:block;min-width:260px"></span>
+    <span id="theme-grid" class="grid-auto" style="display:block"></span>
+    <span id="bg-grid" class="grid-auto" style="display:block"></span>
+    <span id="theme-quick" class="grid-2"></span>
+    <span id="bg-quick" class="grid-2"></span>
+    <span id="token-grid"></span>
+  </div>
+  <table class="table"><tbody id="contrast-body"></tbody></table>
+  <div class="choice" id="difficulty-seg"></div>
+  <label class="switch"><input type="checkbox" id="ai-toggle" checked><span class="switch-track"></span></label>
+
+  <div class="stage" style="max-width:560px"><svg id="board" class="stage-svg" tabindex="-1" role="grid" aria-label="Fortress board" xmlns="http://www.w3.org/2000/svg"></svg></div>
+  <div class="device"><div class="device-screen"><svg id="board-mini" class="stage-svg" xmlns="http://www.w3.org/2000/svg"></svg></div></div>
+</div>
+<div class="toasts" id="toasts" aria-live="polite"></div>
+<pre id="test-log" class="mono" style="padding:var(--s-4);white-space:pre-wrap"></pre>
+
+<!-- A harness that cannot boot is a harness that reports nothing, which is
+     indistinguishable from a passing run. This listener is registered BEFORE
+     app-test.js so it catches a throw from the suite itself, not just from the
+     app booting underneath it. -->
+<script>
+window.__firstErr = null;
+window.addEventListener('error', function (e) {
+  if (window.__firstErr) { return; }
+  window.__firstErr = (e && e.message ? e.message : String(e)) +
+    ' @ ' + (e && e.filename ? e.filename : '?') + ':' + (e && e.lineno ? e.lineno : '?');
+});
+</script>
+
+<script src="../js/hex.js"></script>
+<script src="../js/rules.js"></script>
+<script src="../js/catalog.js"></script>
+<script src="../js/bot.js"></script>
+<script src="../js/board.js"></script>
+<script src="../js/ui.js"></script>
+<script src="../js/sound.js"></script>
+<script src="../js/social.js"></script>
+<script src="../js/app.js"></script>
+<!-- app.js boots on DOMContentLoaded, so a suite loaded as a plain <script> at
+     parse time would run BEFORE there is a state to assert against — which is
+     why this report used to come back empty. Loading it inside the same event,
+     after app.js has already registered its own listener, means the app is up
+     before the first assertion. Listener order is the whole mechanism here:
+     app.js is earlier in this file, so its boot runs first. -->
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+  var s = document.createElement('script');
+  s.src = 'app-test.js';
+  document.body.appendChild(s);
+});
+</script>
+<script>
+/* If the suite threw, or a module never arrived, say so in the report rather
+   than leaving an empty element that reads like a silent pass. */
+window.addEventListener('load', function () {
+  var pre = document.getElementById('test-log');
+  if (pre.textContent) { return; }          /* the suite already reported */
+  var why = [];
+  if (!window.FT) { why.push('FT global never loaded'); }
+  else {
+    if (!FT.sound) { why.push('FT.sound missing — js/sound.js is not in the tag list'); }
+    if (!FT.app) { why.push('FT.app missing — js/app.js did not finish booting'); }
+    else if (!FT.app.getState()) { why.push('FT.app booted with no rules state'); }
+  }
+  pre.textContent = 'HARNESS DID NOT RUN\n' + (why.length ? why.join('\n') : 'the suite threw before flush()') +
+    (window.__firstErr ? '\n\nFIRST ERROR: ' + window.__firstErr : '');
+});
+</script>
+</body>
+</html>

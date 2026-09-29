@@ -1,0 +1,200 @@
+/* ==========================================================================
+   06 · Board — hex geometry, material cells, milled piece plates, states
+   The SVG is rendered by js/board.js; every fill/stroke below comes from a
+   theme variable so switching theme or mode repaints with zero re-render.
+   The board is drawn PORTRAIT — flat-top hexes, rank running up the screen so
+   the player's back rank is at the bottom. js/hex.js owns that geometry; the
+   engine's axial maths it is built from is unchanged.
+   ========================================================================== */
+
+/* Default material tokens — overridden by [data-board] in 08-themes.css.
+   Deliberately written with :where() so the fallback carries NO specificity: a
+   theme block must always out-rank it, whichever order the stylesheets arrive
+   in. With a plain :root here, any sheet loaded after this one silently froze
+   the arena to these fallbacks — the board never repainted on a theme change,
+   the per-theme light-mode mixes never applied, and the four remapped-selection
+   themes never remapped anything. */
+:where(:root){
+  --mix-a:16%; --mix-b:12%; --mix-line:42%; --mix-coord:72%;
+
+  --b-a:#22262c; --b-b:#2c313a; --b-line:#3a4049; --b-coord:#8d949e; --b-plate:#0d0f12;
+
+  /* The plate the board sits on. In the desktop cockpit the stage around it
+     is transparent page background, so this rect is the only thing separating
+     the arena from the room — it has to cast its own shadow to read as a
+     surface the hexes are milled into, not as a hole. */
+  --board-shadow:0 30px 70px -20px rgb(0 0 0 / .85);
+  --board-rim:rgb(255 255 255 / .07);
+
+  --cell-a:var(--b-a);
+  --cell-b:var(--b-b);
+  --cell-line:var(--b-line);
+  --cell-coord:var(--b-coord);
+  --board-plate:var(--b-plate);
+
+  /* piece metals: "white" = bright alloy, "black" = blue-black iron */
+  --p-w-a:#eef1f5; --p-w-b:#c2cad4; --p-w-line:#7b8590; --p-w-ink:#181c21;
+  --p-b-a:#39404a; --p-b-b:#20242a; --p-b-line:#0c0e11; --p-b-ink:#e3e8ee;
+
+  /* interaction states */
+  --cell-sel:var(--accent);
+  --cell-last:rgb(229 169 60 / .16);
+  --cell-move:var(--move);
+  --cell-atk:var(--danger);
+  --cell-promo:var(--promo);
+  --cell-warn:var(--warning);
+}
+
+/* The derivation is re-declared on anything that carries its own [data-board] —
+   the picker's preview cards do — because a custom property is substituted on
+   the element that declares it. --cell-a written on :root alone resolves against
+   :root's --b-a and then inherits that one frozen colour into every card, so all
+   twenty previews would paint the page's material instead of their own. */
+:root,
+[data-board]{
+  --cell-a:var(--b-a);
+  --cell-b:var(--b-b);
+  --cell-line:var(--b-line);
+  --cell-coord:var(--b-coord);
+  --board-plate:var(--b-plate);
+}
+
+/* Light mode derives its cell palette from the same material inputs, so a
+   theme only has to describe itself once. */
+html[data-mode="light"]{
+  --cell-a:color-mix(in srgb,var(--b-a) var(--mix-a),#fffdf8);
+  --cell-b:color-mix(in srgb,var(--b-b) var(--mix-b),#fffdf8);
+  --cell-line:color-mix(in srgb,var(--b-line) var(--mix-line),#fffdf8);
+  --cell-coord:color-mix(in srgb,var(--b-coord) var(--mix-coord),#8a8272);
+  --board-plate:color-mix(in srgb,var(--b-plate) 22%,#fffdf8);
+  --board-shadow:0 22px 48px -22px rgb(40 33 20 / .38);
+  --board-rim:rgb(27 28 30 / .10);
+  --p-w-a:#fdfcfa; --p-w-b:#dcd9d0; --p-w-line:#8f8a7e; --p-w-ink:#22242a;
+  --p-b-a:#3d424a; --p-b-b:#23272c; --p-b-line:#101215; --p-b-ink:#eff2f5;
+}
+
+/* The same light derivation, re-declared for a card that owns its own
+   [data-board]: in light mode a preview chip has to show the chalked-over
+   material, not the dark input the light theme is derived from. */
+html[data-mode="light"] [data-board]{
+  --cell-a:color-mix(in srgb,var(--b-a) var(--mix-a),#fffdf8);
+  --cell-b:color-mix(in srgb,var(--b-b) var(--mix-b),#fffdf8);
+  --cell-line:color-mix(in srgb,var(--b-line) var(--mix-line),#fffdf8);
+  --cell-coord:color-mix(in srgb,var(--b-coord) var(--mix-coord),#8a8272);
+  --board-plate:color-mix(in srgb,var(--b-plate) 22%,#fffdf8);
+}
+
+/* ------------------------------------------------------------------- stage
+   The plate hugs the board exactly: the svg's viewBox is the grid bounds, so
+   this rect is the arena's true silhouette and the rest of the column is just
+   page. The rim is the only edge treatment it needs. */
+.board-backdrop{
+  fill:var(--board-plate);
+  stroke:var(--board-rim);
+  stroke-width:1;
+  filter:drop-shadow(var(--board-shadow));
+}
+
+/* -------------------------------------------------------------------- cells */
+.b-hex .cell{
+  fill:var(--cell-a);
+  stroke:var(--cell-line);
+  stroke-width:1;
+  transition:fill var(--t-mid) var(--ease), stroke var(--t-mid) var(--ease);
+}
+.b-hex .cell-inner{ fill:var(--cell-b); opacity:.55; stroke:none; }
+/* Coordinates are a map for the keyboard cursor, not decoration: they sit
+   behind the pieces, so they stay quiet enough to read as a grid. */
+.b-hex .coord{
+  fill:var(--cell-coord);
+  opacity:.55;
+  font-family:var(--font-mono);
+  font-size:8.5px; letter-spacing:.04em;
+  pointer-events:none; user-select:none;
+}
+
+/* -------------------------------------------------------------- hex states */
+.is-legal .cell{ fill:color-mix(in srgb,var(--cell-a) 66%,var(--cell-move)); stroke:var(--cell-move); stroke-width:2; }
+.is-legal .cell-inner{ fill:color-mix(in srgb,var(--cell-b) 55%,var(--cell-move)); }
+.is-last .cell{ stroke:var(--cell-last); stroke-width:2; }
+.is-last .cell-inner{ fill:color-mix(in srgb,var(--cell-b) 78%,var(--accent)); }
+.is-selected .cell{ stroke:var(--cell-sel); stroke-width:3.5; filter:drop-shadow(0 0 8px var(--cell-sel)); }
+.is-selected .cell-inner{ fill:color-mix(in srgb,var(--cell-b) 62%,var(--accent)); }
+.is-promo .cell{ stroke:var(--cell-promo); stroke-dasharray:4 3; stroke-width:1.5; }
+.is-check .cell{ stroke:var(--cell-atk); stroke-width:2; }
+.is-doomed .p-plate{ stroke:var(--cell-atk); stroke-width:2.5; }
+.is-collapsing .p-plate{ stroke:var(--cell-warn); stroke-width:2; stroke-dasharray:3 2; }
+.is-hinted .cell{ stroke:var(--cell-move); stroke-width:2; stroke-dasharray:5 3; }
+
+/* Destination dot: shape carries meaning, colour only reinforces it. */
+.move-dot{ fill:var(--cell-move); stroke:var(--surface-inset); stroke-width:1.5; opacity:1; pointer-events:none; }
+.move-dot.is-captureish{ fill:var(--cell-atk); }
+.attack-reticle{ fill:none; stroke:var(--cell-atk); stroke-width:2.2; opacity:.95; pointer-events:none; }
+.attack-reticle.is-lethal{ stroke-width:3.2; }
+/* -------------------------------------------------------------------- pieces */
+.p-plate{
+  stroke:var(--p-line);
+  stroke-width:1.2;
+  transition:transform var(--dur-move) var(--ease);
+}
+.p-inner{ stroke:none; opacity:.85; }
+.p-light .p-plate{ fill:var(--p-w-a); stroke:var(--p-w-line); }
+.p-light .p-inner{ fill:var(--p-w-b); }
+.p-light .p-glyph,.p-light .p-str{ fill:var(--p-w-ink); }
+.p-dark .p-plate{ fill:var(--p-b-a); stroke:var(--p-b-line); }
+.p-dark .p-inner{ fill:var(--p-b-b); }
+.p-dark .p-glyph,.p-dark .p-str{ fill:var(--p-b-ink); }
+.p-glyph,.p-piece,.p-str{ pointer-events:none; }
+.p-str{
+  font-family:var(--font-display); font-weight:700; font-size:11px;
+  text-anchor:middle; user-select:none;
+}
+.p-str-bg{ fill:color-mix(in srgb,var(--cell-a) 35%,#000 65%); opacity:.55; pointer-events:none; }
+html[data-mode="light"] .p-str-bg{ fill:rgb(255 253 248 / .82); }
+.is-selected .p-piece .p-plate{ transform:scale(1.06); }
+.is-doomed .p-piece .p-plate{ transform:scale(.94); }
+
+/* Combat flash: fired once per resolution so losses register physically. */
+.combat-flash{ fill:var(--cell-atk); opacity:0; pointer-events:none; animation:ft-flash 620ms var(--ease-out) both; }
+.combat-flash.is-warn{ fill:var(--cell-warn); }
+
+/* ------------------------------------------------------- board interaction */
+.b-hex{ cursor:default; }
+.b-hex.is-clickable{ cursor:pointer; }
+.b-hex.is-clickable:hover .cell{ stroke:var(--accent-line); stroke-width:2; }
+.b-hex .hit{ fill:transparent; pointer-events:all; }
+/* Fat invisible touch ring: makes every hex tappable on touch screens
+   without changing the visible geometry. */
+.b-hex .hit{ stroke:transparent; stroke-width:14; }
+.b-hex.is-cursor .cell{ stroke:var(--accent-hi); stroke-width:2.5; }
+.b-hex:focus{ outline:none; }
+.b-hex:focus-visible .cell{ stroke:var(--accent-hi); stroke-width:2.5; }
+
+/* Piece roster legend (also used in the rules page figures) ------------- */
+.legend{ display:flex; flex-wrap:wrap; gap:var(--s-3); }
+.legend-item{ display:flex; align-items:center; gap:8px; font-size:12.5px; color:var(--text-2); }
+.legend-item svg{ width:26px; height:30px; }
+
+/* Board chrome: header strip, coordinate readout, controls --------------- */
+.board-chrome{
+  display:flex; align-items:center; gap:var(--s-2);
+  padding:10px var(--s-4); border-bottom:1px solid var(--line);
+  background:var(--surface-2);
+  flex-wrap:wrap; min-width:0;
+}
+.board-chrome .board-btns{ display:flex; align-items:center; gap:var(--s-2); margin-left:auto; flex:0 0 auto; }
+.board-chrome .board-btns .btn{ min-height:40px; }
+.board-chrome .badge{ flex:0 0 auto; max-width:100%; }
+.board-hint{ font-size:12.5px; color:var(--text-3); flex:1 1 200px; min-width:0; }
+.board-hint b{ color:var(--text-1); }
+/* The cursor readout must stay readable on narrow columns: allow two lines
+   instead of pushing the Flip/Coords/Hints buttons off the stage. */
+#board-cursor{ white-space:normal; overflow:visible; text-overflow:clip; }
+
+/* Preview damage badge overlay (sits above the piece it threatens) -------- */
+.dmg-badge{ fill:var(--cell-atk); }
+.dmg-text{
+  fill:#fff; font-family:var(--font-display); font-weight:700; font-size:10px;
+  text-anchor:middle; pointer-events:none;
+}
+

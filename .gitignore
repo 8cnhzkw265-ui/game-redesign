@@ -1,0 +1,12 @@
+# Build artefacts and editor noise. The site is plain static files — there is
+# no bundler, no node_modules and no dist/ — so nothing here is generated.
+node_modules/
+dist/
+.DS_Store
+Thumbs.db
+*.log
+
+# Local QA scratch. The _ref/ folder holds screenshots, dumps and probe pages
+# used while building; it is a few MB of history that should never be published.
+_ref/
+_probe-*.html
