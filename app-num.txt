@@ -1,0 +1,847 @@
+1:/* ==========================================================================
+2:   FT.app — the game itself
+3:   Owns one rules state, paints every mounted board from it, and enforces the
+4:   rhythm the rules define: Move 1 -> Move 2 -> Preview -> Accept. The human
+5:   always presses Accept (that is the decision point); the bot plans a whole
+6:   turn with js/bot.js and then accepts on its own.
+7:   ========================================================================== */
+8:(function (global) {
+9:  'use strict';
+10:  var FT = global.FT, U = FT.ui, C = FT.catalog, H = FT.hex, R = FT.rules, B = FT.bot;
+11:  var doc = global.document;
+12:
+13:  var prefs = null;
+14:  var state = null;
+15:  var human = 'white';
+16:  var vsAI = true;
+17:  var selected = null;
+18:  var lastMove = null;
+19:  var boards = [];
+20:  var clocks = null;
+21:  var clockTimer = null;
+22:  var aiTimer = null;
+23:  var hintTimer = null;
+24:  var busy = false;
+25:  var hinted = [];
+26:  var filters = { themes: 'all', backgrounds: 'all' };
+27:
+28:  function $(sel) { return doc.querySelector(sel); }
+29:  function $all(sel) { return Array.prototype.slice.call(doc.querySelectorAll(sel)); }
+30:  function setText(sel, text) { var n = $(sel); if (n) { n.textContent = text; } }
+31:
+32:  /* --------------------------------------------------------------- mounting */
+33:  function mountBoards() {
+34:    boards.forEach(function (b) { b.api.destroy(); });
+35:    boards = [];
+36:    [['#board', 40, true], ['#board-mini', 24, false]].forEach(function (spec) {
+37:      var svg = $(spec[0]);
+38:      if (!svg) { return; }
+39:      var api = FT.board.mount(svg, {
+40:        radius: spec[1], flip: prefs.flip, coords: spec[2] ? prefs.coords : false
+41:      });
+42:      api.on('select', onHexClick);
+43:      boards.push({ api: api, mini: !spec[2] });
+44:    });
+45:  }
+46:
+47:  function paintBoards() {
+48:    if (!state) { return; }
+49:    var legal = legalForSelection();
+50:    if (!selected && prefs.hints && (state.phase === 'awaiting_move1' || state.phase === 'awaiting_move2')) {
+51:      legal = openTargets();   /* hint overlay: every reachable hex, dimmed */
+52:    }
+53:    var view = {
+54:      state: state,
+55:      legal: legal,
+56:      lastMove: lastMove,
+57:      preview: state.phase === 'preview' ? R.preview(state) : null,
+58:      hinted: hinted,
+59:      selected: selected ? state.positions[selected] : null
+60:    };
+61:    boards.forEach(function (b) { b.api.paint(view); });
+62:  }
+63:
+64:  function legalForSelection() {
+65:    if (!selected || !state) { return []; }
+66:    if (state.phase !== 'awaiting_move1' && state.phase !== 'awaiting_move2') { return []; }
+67:    return R.legalMoves(state, selected);
+68:  }
+69:
+70:  function openTargets() {
+71:    var seen = {}, out = R.allLegalMoves(state);
+72:    return out.filter(function (mv) {
+73:      var k = H.key(mv.to);
+74:      if (seen[k]) { return false; }
+75:      seen[k] = true;
+76:      return true;
+77:    }).map(function (mv) { return mv.to; });
+78:  }
+79:
+80:  /* ------------------------------------------------------------------ look */
+81:  function refreshPickers() {
+82:    U.fillThemeGrid($('#theme-grid'), prefs, pickBoard, filters.themes);
+83:    U.fillBackgroundGrid($('#bg-grid'), prefs, pickBackground, filters.backgrounds);
+84:    U.fillThemeGrid($('#theme-quick'), prefs, pickBoard, 'all');
+85:    U.fillBackgroundGrid($('#bg-quick'), prefs, pickBackground, 'all');
+86:    setText('#arena-board-name', C.board(prefs.board).name);
+87:    setText('#arena-bg-name', C.background(prefs.background).name);
+88:    setText('#arena-bg-quick-name', C.background(prefs.background).name);
+89:    paintLooksIntoBoards();
+90:  }
+91:
+92:  function paintLooksIntoBoards() {
+93:    var b = C.board(prefs.board);
+94:    setText('#board-material', b.name + ' board');
+95:    boards.forEach(function (inst) { inst.api.setCoords(inst.mini ? false : prefs.coords); });
+96:  }
+97:
+98:  function pickBoard(id) {
+99:    prefs.board = C.board(id).id;
+100:    U.savePrefs(prefs);
+101:    U.applyLook(prefs);
+102:    refreshPickers();
+103:    U.toast('Board theme', C.board(prefs.board).name + ' · ' + C.board(prefs.board).sub);
+104:  }
+105:
+106:  function pickBackground(id) {
+107:    prefs.background = C.background(id).id;
+108:    U.savePrefs(prefs);
+109:    U.applyLook(prefs);
+110:    refreshPickers();
+111:    U.toast('Background', C.background(prefs.background).name);
+112:  }
+113:
+114:  function setMode(mode) {
+115:    prefs.mode = mode === 'light' ? 'light' : 'dark';
+116:    U.savePrefs(prefs);
+117:    U.applyLook(prefs);
+118:    syncModeButton();
+119:  }
+120:
+121:  /* The mode control exists twice — in the menu rail and in the compact bar —
+122:     so every copy has to be told the current mode, not just the first one. */
+123:  function syncModeButton() {
+124:    var light = prefs.mode === 'light';
+125:    var label = light ? 'Switch to dark material' : 'Switch to light material';
+126:    $all('[data-action="mode"]').forEach(function (btn) {
+127:      btn.setAttribute('aria-pressed', light ? 'true' : 'false');
+128:      btn.setAttribute('aria-label', label);
+129:      var t = btn.querySelector('[data-mode-text]');
+130:      if (t) { t.textContent = light ? 'Light' : 'Dark'; }
+131:    });
+132:  }
+133:
+134:  /* ---------------------------------------------------------------- sidebar
+135:     One control, two meanings. Wide screens collapse the rail to icons;
+136:     narrow screens slide the whole rail off canvas. Both are driven from the
+137:     same data-action="sidebar" so the chevron and the drawer handle agree. */
+138:  var narrow = global.matchMedia ? global.matchMedia('(max-width: 860px)') : null;
+139:
+140:  function railIsMini() { return prefs.rail === 'mini'; }
+141:  function drawerIsOpen() { return doc.documentElement.classList.contains('is-drawer-open'); }
+142:
+143:  function syncSidebar() {
+144:    var mini = railIsMini(), open = drawerIsOpen();
+145:    $all('[data-action="sidebar"]').forEach(function (btn) {
+146:      if (btn.classList.contains('side-toggle')) {
+147:        var what = mini ? 'Expand the menu' : 'Collapse the menu';
+148:        btn.setAttribute('aria-expanded', mini ? 'false' : 'true');
+149:        btn.setAttribute('aria-label', what);
+150:        btn.setAttribute('data-tip', what);
+151:      } else {
+152:        btn.setAttribute('aria-expanded', open ? 'true' : 'false');
+153:        btn.setAttribute('aria-label', open ? 'Close the menu' : 'Open the menu');
+154:      }
+155:    });
+156:  }
+157:
+158:  function setDrawer(open) {
+159:    if (open) { doc.documentElement.classList.add('is-drawer-open'); }
+160:    else { doc.documentElement.classList.remove('is-drawer-open'); }
+161:    syncSidebar();
+162:  }
+163:
+164:  function toggleSidebar() {
+165:    if (narrow && narrow.matches) { setDrawer(!drawerIsOpen()); return; }
+166:    prefs.rail = railIsMini() ? 'full' : 'mini';
+167:    U.savePrefs(prefs);
+168:    doc.documentElement.setAttribute('data-rail', railIsMini() ? 'mini' : 'full');
+169:    syncSidebar();
+170:  }
+171:
+172:  function setDifficulty(id) {
+173:    prefs.difficulty = C.difficulty(id).id;
+174:    U.savePrefs(prefs);
+175:    syncSettings();
+176:  }
+177:
+178:  function syncSettings() {
+179:    var d = C.difficulty(prefs.difficulty);
+180:    var seg = $('#difficulty-seg');
+181:    if (seg) {
+182:      U.fillSegmented(seg, C.DIFFICULTIES.map(function (x) {
+183:        return { id: x.id, label: x.name };
+184:      }), prefs.difficulty, setDifficulty);
+185:    }
+186:    setText('#difficulty-note', d.sub + ' · looks ' + d.depth + ' ply ahead');
+187:    var toggle = $('#ai-toggle');
+188:    if (toggle) { toggle.checked = vsAI; }
+189:  }
+190:
+191:  /* ------------------------------------------------------------ interaction */
+192:  function humanToMove() {
+193:    return !!state && !state.result && (!vsAI || state.turn === human);
+194:  }
+195:
+196:  function onHexClick(hex) {
+197:    if (!hex || !state || state.result || busy) { return; }
+198:    if (state.pendingPromotion) { return; }
+199:    if (!humanToMove()) { U.toast('Hold on', 'The opponent is moving.', 'move'); return; }
+200:
+201:    var id = state.hexOccupant[H.key(hex)];
+202:    if (selected) {
+203:      var legal = legalForSelection();
+204:      for (var i = 0; i < legal.length; i++) {
+205:        if (H.same(legal[i], hex)) { playMove(selected, hex); return; }
+206:      }
+207:    }
+208:    if (id && state.pieces[id].color === state.turn) {
+209:      selected = (selected === id) ? null : id;
+210:      hinted = [];
+211:      clearHintTimer();
+212:      render();
+213:      return;
+214:    }
+215:    selected = null;
+216:    render();
+217:  }
+218:
+219:  function playMove(pieceId, to) {
+220:    var from = H.clone(state.positions[pieceId]);
+221:    var next = R.applyMove(state, pieceId, to);
+222:    if (!next) { U.toast('Illegal move', 'That piece cannot reach that hex.', 'danger'); return; }
+223:    state = next;
+224:    lastMove = { from: from, to: H.clone(to) };
+225:    selected = null;
+226:    hinted = [];
+227:    if (state.pendingPromotion) { askPromotion(); }
+228:    render();
+229:  }
+230:
+231:  function askPromotion() {
+232:    U.openModal({
+233:      title: 'Promote on the back rank',
+234:      sticky: true,
+235:      body: '<p>A wall that reaches the enemy back rank always promotes — it never stays a wall.</p>' +
+236:            '<p class="meta">Tower: slides any distance along the six directions. Turret: jumps exactly two hexes, over anything.</p>',
+237:      actions: [
+238:        { label: 'Tower', kind: 'btn-primary', onClick: function () { finishPromotion('tower'); } },
+239:        { label: 'Turret', kind: 'btn-secondary', onClick: function () { finishPromotion('turret'); } }
+240:      ]
+241:    });
+242:  }
+243:
+244:  function finishPromotion(kind) {
+245:    state = R.choosePromotion(state, kind) || state;
+246:    U.toast('Promoted', 'The wall stands as a ' + kind + '.', 'success');
+247:    render();
+248:  }
+249:
+250:  /* Accept = the decision point: resolve simultaneous combat, hand over. */
+251:  function acceptTurn() {
+252:    if (!state || state.result || state.phase !== 'preview') { return; }
+253:    var pre = R.preview(state);
+254:    var kills = [], collapses = [];
+255:    pre.hexes.forEach(function (row) {
+256:      if (row.willDie) { kills.push(row.hex); }
+257:      if (row.willCollapse) { collapses.push(row.hex); }
+258:    });
+259:    var mover = state.turn;
+260:    var next = R.accept(state);
+261:    if (!next) { return; }
+262:    state = next;
+263:    boards.forEach(function (b) {
+264:      b.api.flash(kills, 'kill');
+265:      b.api.flash(collapses, 'collapse');
+266:    });
+267:    if (pre.captured.length) {
+268:      var kinds = pre.captured.map(function (c) {
+269:        return c.kind + (c.how === 'collapsed' ? ' (collapsed)' : '');
+270:      });
+271:      U.toast(pre.captured.length + ' piece' + (pre.captured.length > 1 ? 's' : '') + ' lost',
+272:        kinds.join(', '), 'danger');
+273:    }
+274:    if (clocks && clocks.base) { clocks[mover] = Math.min(clocks.base, clocks[mover] + clocks.inc); }
+275:    selected = null; lastMove = null; hinted = [];
+276:    clearHintTimer();
+277:    render();
+278:    if (state.result) { finish(); } else { scheduleAI(); }
+279:  }
+280:
+281:  function finish() {
+282:    stopClock();
+283:    var text = R.resultText(state);
+284:    var body = U.el('div', 'stack');
+285:    body.appendChild(U.el('p', 'lede', text));
+286:    var stats = U.el('div', 'grid-3');
+287:    [['White pieces', countOf(state, 'white')], ['Black pieces', countOf(state, 'black')],
+288:     ['Turns played', state.moveNumber]].forEach(function (row) {
+289:      var card = U.el('div', 'stat');
+290:      card.appendChild(U.el('div', 'stat-label', row[0]));
+291:      card.appendChild(U.el('div', 'stat-value', String(row[1])));
+292:      stats.appendChild(card);
+293:    });
+294:    body.appendChild(stats);
+295:    body.appendChild(U.el('p', 'meta', 'Ended by: ' + R.endReasonLabel(state.endReason)));
+296:    U.openModal({
+297:      title: state.result === 'draw' ? 'Draw' : (state.result === 'white' ? 'White wins' : 'Black wins'),
+298:      body: body,
+299:      actions: [
+300:        { label: 'Rematch', kind: 'btn-primary', onClick: function () { newGame(vsAI ? human : 'hotseat'); } },
+301:        { label: 'Review the board', kind: 'btn-secondary' }
+302:      ]
+303:    });
+304:  }
+305:
+306:  /* -------------------------------------------------------------------- bot */
+307:  function scheduleAI() {
+308:    global.clearTimeout(aiTimer);
+309:    if (!vsAI || !state || state.result || state.turn === human) { return; }
+310:    busy = true;
+311:    aiTimer = global.setTimeout(runAITurn, 400);
+312:  }
+313:
+314:  function runAITurn() {
+315:    if (!state || state.result) { busy = false; return; }
+316:    var plan = { moves: [] };
+317:    try { plan = B.plan(state, C.difficulty(prefs.difficulty)) || plan; }
+318:    catch (err) { U.toast('Opponent stalled', 'The planner returned no move.', 'danger'); }
+319:    playPlan(plan.moves || [], 0);
+320:  }
+321:
+322:  /* The bot moves piece by piece, so the player can follow the turn. */
+323:  function playPlan(moves, i) {
+324:    if (!state || state.result) { busy = false; render(); return; }
+325:    if (i >= moves.length) {
+326:      busy = false;
+327:      if (state.phase === 'preview') { acceptTurn(); } else { render(); }
+328:      return;
+329:    }
+330:    var mv = moves[i];
+331:    var from = H.clone(state.positions[mv.pieceId]);
+332:    var next = R.applyMove(state, mv.pieceId, mv.to);
+333:    if (!next) { busy = false; render(); return; }
+334:    state = next;
+335:    lastMove = { from: from, to: H.clone(mv.to) };
+336:    if (state.pendingPromotion) {
+337:      state = R.choosePromotion(state, B.promotionChoice(state, state.pendingPromotion.hex)) || state;
+338:    }
+339:    render();
+340:    aiTimer = global.setTimeout(function () { playPlan(moves, i + 1); }, 380);
+341:  }
+342:
+343:  /* ------------------------------------------------------------------ hints */
+344:  function clearHintTimer() { global.clearTimeout(hintTimer); hintTimer = null; }
+345:
+346:  function showHint() {
+347:    if (!state || state.result || !humanToMove()) { return; }
+348:    var best = B.bestSingleMove(state, C.difficulty(prefs.difficulty));
+349:    if (!best) { U.toast('No suggestion', 'Nothing legal in this position.', 'danger'); return; }
+350:    hinted = [best.move.from, best.move.to];
+351:    U.toast('One good move', R.subMoveText({
+352:      pieceId: best.move.pieceId, from: best.move.from, to: best.move.to,
+353:      kind: state.pieces[best.move.pieceId].kind
+354:    }), 'move');
+355:    render();
+356:  }
+357:
+358:  /* -------------------------------------------------------------- painting */
+359:  function countOf(s, color) {
+360:    var n = 0;
+361:    Object.keys(s.pieces).forEach(function (id) { if (s.pieces[id].color === color) { n++; } });
+362:    return n;
+363:  }
+364:
+365:  function strengthOf(s, color) {
+366:    var n = 0;
+367:    Object.keys(s.pieces).forEach(function (id) {
+368:      if (s.pieces[id].color === color) { n += R.strength(s, id); }
+369:    });
+370:    return n;
+371:  }
+372:
+373:  function render() {
+374:    if (!state) { return; }
+375:    paintBoards();
+376:    paintStrips();
+377:    paintChrome();
+378:    paintActionBar();
+379:    paintTurnPanel();
+380:    paintPreviewPanel();
+381:    paintLog();
+382:    paintClocks();
+383:  }
+384:
+385:  function paintStrips() {
+386:    ['white', 'black'].forEach(function (color) {
+387:      var strip = $('#strip-' + color);
+388:      if (!strip) { return; }
+389:      strip.classList.toggle('is-turn', state.turn === color && !state.result);
+390:      setText('#' + color + '-name', color === human ? 'You'
+391:        : (vsAI ? C.difficulty(prefs.difficulty).name + ' AI' : 'Opponent'));
+392:      setText('#' + color + '-sub', countOf(state, color) + ' pieces · total STR ' + strengthOf(state, color));
+393:      var host = $('#captured-' + color);
+394:      if (!host) { return; }
+395:      U.clear(host);
+396:      var caps = color === 'white' ? state.capturedByWhite : state.capturedByBlack;
+397:      if (!caps.length) { host.appendChild(U.el('span', 'meta', 'Nothing lost yet')); return; }
+398:      caps.forEach(function (c) {
+399:        var chip = U.el('span', 'chip', R.KIND_LETTER[c.kind] || '?');
+400:        chip.title = c.kind + ' — ' + (c.how === 'collapsed' ? 'wall collapse' : 'destroyed in combat');
+401:        host.appendChild(chip);
+402:      });
+403:    });
+404:  }
+405:
+406:  function paintChrome() {
+407:    setText('#board-material', C.board(prefs.board).name + ' · ' + C.background(prefs.background).name);
+408:    setText('#board-cursor', selected
+409:      ? 'Selected ' + selected + ' at ' + H.square(state.positions[selected])
+410:      : 'Arrow keys move the cursor, Enter selects');
+411:  }
+412:
+413:  function paintActionBar() {
+414:    setText('#phase-text', state.result ? 'Game over' : R.statusText(state));
+415:    setText('#status-text', state.result ? R.resultText(state) : promptText());
+416:    var canAccept = R.canAccept(state) && humanToMove();
+417:    $all('[data-action="accept"]').forEach(function (b) {
+418:      b.disabled = !canAccept;
+419:      b.classList.toggle('btn-pulse', !!canAccept);
+420:    });
+421:    $all('[data-action="undo"]').forEach(function (b) {
+422:      b.disabled = !R.canUndo(state) || !humanToMove();
+423:    });
+424:  }
+425:
+426:  function promptText() {
+427:    if (state.pendingPromotion) { return 'Choose what the promoted wall becomes.'; }
+428:    if (state.phase === 'preview') {
+429:      var pre = R.preview(state);
+430:      var inContact = pre.hexes.filter(function (r) { return r.incoming > 0; }).length;
+431:      var doomed = Object.keys(pre.doomed).length;
+432:      if (!inContact) { return 'No piece is in contact — accept to hand the turn over.'; }
+433:      return inContact + ' hex' + (inContact > 1 ? 'es' : '') + ' in contact, ' + doomed +
+434:        ' piece' + (doomed === 1 ? '' : 's') + ' would fall. Accept, or undo your last move.';
+435:    }
+436:    if (state.phase === 'awaiting_move1') {
+437:      return (state.isFirstTurn && state.turn === 'white')
+438:        ? 'White opens with a single move: pick a piece, then a highlighted hex.'
+439:        : 'Move 1 of 2 — pick a piece, then a highlighted hex.';
+440:    }
+441:    if (state.phase === 'awaiting_move2') { return 'Move 2 of 2 — a piece may not move twice in one turn.'; }
+442:    return '';
+443:  }
+444:
+445:  function paintTurnPanel() {
+446:    setText('#move-number', String(state.moveNumber));
+447:    setText('#turn-name', state.result ? 'Game over'
+448:      : (state.turn === 'white' ? 'White to move' : 'Black to move'));
+449:    setText('#phase-detail', R.statusText(state));
+450:    var st = state.stagnation || { turns: 0 };
+451:    var meter = $('#stagnation-meter');
+452:    if (meter) { meter.style.width = Math.min(100, Math.round(st.turns / R.STAGNATION_LIMIT * 100)) + '%'; }
+453:    setText('#stagnation-text', st.turns + ' of ' + R.STAGNATION_LIMIT + ' quiet turns');
+454:    var max = 0;
+455:    Object.keys(state.positionCounts || {}).forEach(function (k) {
+456:      if (state.positionCounts[k] > max) { max = state.positionCounts[k]; }
+457:    });
+458:    setText('#repeat-text', max + ' of ' + R.REPEAT_LIMIT + ' occurrences of the most repeated position');
+459:  }
+460:
+461:  function paintPreviewPanel() {
+462:    var host = $('#preview-list'), empty = $('#preview-empty');
+463:    if (!host) { return; }
+464:    U.clear(host);
+465:    var pre = state.phase === 'preview' ? R.preview(state) : null;
+466:    var hits = pre ? pre.hexes.filter(function (row) { return row.incoming > 0; }) : [];
+467:    if (empty) { empty.classList.toggle('hidden', hits.length > 0); }
+468:    host.classList.toggle('hidden', hits.length === 0);
+469:    if (!hits.length) { return; }
+470:    hits.sort(function (a, b) { return b.incoming - a.incoming; }).forEach(function (row) {
+471:      var piece = state.pieces[row.id];
+472:      if (!piece) { return; }
+473:      var tr = U.el('div', 'list-row');
+474:      tr.appendChild(U.el('span', 'list-main mono',
+475:        H.square(row.hex) + ' · ' + (R.KIND_LETTER[piece.kind] || '?') + ' ' + piece.color));
+476:      tr.appendChild(U.el('span', 'mono', '\u2212' + row.incoming + ' / ' + row.str));
+477:      tr.appendChild(U.el('span', 'badge ' + (row.willDie ? 'badge-danger' : 'badge-warn'),
+478:        row.willDie ? 'destroyed' : (row.willCollapse ? 'collapses' : 'survives')));
+479:      host.appendChild(tr);
+480:    });
+481:  }
+482:
+483:  function paintLog() {
+484:    var host = $('#log-list');
+485:    if (!host) { return; }
+486:    U.clear(host);
+487:    var rows = state.history.map(function (entry) {
+488:      return { num: entry.moveNumber, color: entry.color, text: entry.text, caps: entry.captured.length };
+489:    });
+490:    if (state.turnMoves.length && !state.result) {
+491:      rows.push({
+492:        num: state.moveNumber, color: state.turn,
+493:        text: state.turnMoves.map(R.subMoveText).join(', ') + (state.phase === 'preview' ? ' · preview' : ''),
+494:        caps: 0, live: true
+495:      });
+496:    }
+497:    if (!rows.length) {
+498:      host.appendChild(U.el('div', 'empty', 'No moves yet. White opens with a single move.'));
+499:      return;
+500:    }
+501:    rows.slice().reverse().forEach(function (r) {
+502:      var row = U.el('div', 'list-row' + (r.live ? ' is-active' : ''));
+503:      row.appendChild(U.el('span', 'list-rank', r.num + '.'));
+504:      row.appendChild(U.el('span', 'badge ' + (r.color === 'white' ? 'badge-move' : 'badge-accent'),
+505:        r.color === 'white' ? 'W' : 'B'));
+506:      row.appendChild(U.el('span', 'list-main mono', r.text));
+507:      if (r.caps) { row.appendChild(U.el('span', 'badge-danger', '+' + r.caps)); }
+508:      host.appendChild(row);
+509:    });
+510:  }
+511:
+512:  function paintClocks() {
+513:    ['white', 'black'].forEach(function (color) {
+514:      var el = $('#clock-' + color);
+515:      if (!el) { return; }
+516:      el.textContent = clocks ? U.fmtClock(clocks[color]) : '\u2014';
+517:      el.classList.toggle('is-active', !!clocks && state.turn === color && !state.result);
+518:      el.classList.toggle('is-low', !!clocks && clocks[color] <= 20);
+519:    });
+520:  }
+521:
+522:  /* --------------------------------------------------------------- new game */
+523:  function newGame(mode) {
+524:    if (mode === 'black') { vsAI = true; human = 'black'; }
+525:    else if (mode === 'hotseat') { vsAI = false; human = 'white'; }
+526:    else { vsAI = true; human = 'white'; }
+527:    state = R.newGame('white');
+528:    selected = null; lastMove = null; hinted = []; busy = false;
+529:    global.clearTimeout(aiTimer);
+530:    U.closeModal();
+531:    startClock();
+532:    render();
+533:    U.toast('New game', vsAI
+534:      ? (human === 'white' ? 'You are white: your opening turn is a single move.' : 'You are black: the AI opens the game.')
+535:      : 'Two-player hot seat: both sides are yours.', 'move');
+536:    scheduleAI();
+537:  }
+538:
+539:  /* ----------------------------------------------------------------- clocks */
+540:  function startClock() {
+541:    stopClock();
+542:    var tc = C.timeControl(prefs.timeControl);
+543:    if (!tc.base) { clocks = null; paintClocks(); return; }
+544:    clocks = { base: tc.base, inc: tc.inc, white: tc.base, black: tc.base };
+545:    clockTimer = global.setInterval(tickClock, 250);
+546:  }
+547:
+548:  function stopClock() {
+549:    if (clockTimer) { global.clearInterval(clockTimer); clockTimer = null; }
+550:  }
+551:
+552:  function tickClock() {
+553:    if (!clocks || !state || state.result) { return; }
+554:    clocks[state.turn] -= 0.25;
+555:    if (clocks[state.turn] <= 0) {
+556:      clocks[state.turn] = 0;
+557:      var loser = state.turn;
+558:      state = R.flagFall(state, loser) || state;
+559:      paintClocks();
+560:      U.toast('Flag fall', (loser === 'white' ? 'White' : 'Black') + ' ran out of time.', 'danger');
+561:      finish();
+562:      return;
+563:    }
+564:    paintClocks();
+565:  }
+566:
+567:  function setTimeControl(id) {
+568:    prefs.timeControl = C.timeControl(id).id;
+569:    U.savePrefs(prefs);
+570:    startClock();
+571:  }
+572:
+573:  /* --------------------------------------------------------------- dialogs */
+574:  function newGameDialog() {
+575:    var chosen = vsAI ? human : 'hotseat';
+576:    var body = U.el('div', 'stack');
+577:    body.appendChild(U.el('p', 'lede',
+578:      'Two moves per turn, then Accept. Combat is simultaneous — everything in contact strikes at once.'));
+579:
+580:    body.appendChild(U.el('div', 'label', 'Your side'));
+581:    var sideSeg = U.el('div', 'segmented');
+582:    U.fillSegmented(sideSeg, [
+583:      { id: 'white', label: 'White (first)' },
+584:      { id: 'black', label: 'Black (second)' },
+585:      { id: 'hotseat', label: 'Two players' }
+586:    ], chosen, function (id) { chosen = id; });
+587:    body.appendChild(sideSeg);
+588:
+589:    body.appendChild(U.el('div', 'label', 'Opponent strength'));
+590:    var diffNote = U.el('p', 'meta', C.difficulty(prefs.difficulty).sub);
+591:    var diffSeg = U.el('div', 'segmented');
+592:    var drawDiff = function () {
+593:      U.fillSegmented(diffSeg, C.DIFFICULTIES.map(function (d) { return { id: d.id, label: d.name }; }),
+594:        prefs.difficulty, function (id) { setDifficulty(id); drawDiff(); });
+595:    };
+596:    drawDiff();
+597:    body.appendChild(diffSeg);
+598:    body.appendChild(diffNote);
+599:
+600:    body.appendChild(U.el('div', 'label', 'Clock'));
+601:    var timeWrap = U.el('div', 'choice');
+602:    var timeCards = {};
+603:    C.TIME_CONTROLS.forEach(function (tc) {
+604:      var card = U.el('button', 'choice-card');
+605:      card.type = 'button';
+606:      card.setAttribute('aria-pressed', tc.id === prefs.timeControl ? 'true' : 'false');
+607:      card.appendChild(U.el('b', null, tc.name));
+608:      card.appendChild(U.el('span', 'meta', tc.sub));
+609:      card.addEventListener('click', function () {
+610:        setTimeControl(tc.id);
+611:        Object.keys(timeCards).forEach(function (k) {
+612:          timeCards[k].setAttribute('aria-pressed', k === tc.id ? 'true' : 'false');
+613:        });
+614:      });
+615:      timeCards[tc.id] = card;
+616:      timeWrap.appendChild(card);
+617:    });
+618:    body.appendChild(timeWrap);
+619:
+620:    U.openModal({
+621:      title: 'New game', wide: true, body: body,
+622:      actions: [
+623:        { label: 'Start game', kind: 'btn-primary', onClick: function () { newGame(chosen); } },
+624:        { label: 'Cancel', kind: 'btn-secondary' }
+625:      ]
+626:    });
+627:  }
+628:
+629:  function resignDialog() {
+630:    if (!state || state.result) { return; }
+631:    var color = state.turn;
+632:    U.openModal({
+633:      title: 'Resign?',
+634:      body: '<p>' + (color === 'white' ? 'White' : 'Black') + ' concedes. This cannot be undone.</p>',
+635:      actions: [
+636:        { label: 'Resign', kind: 'btn-danger', onClick: function () {
+637:          state = R.resign(state, color) || state;
+638:          U.toast('Resigned', R.resultText(state), 'danger');
+639:          finish();
+640:        } },
+641:        { label: 'Keep playing', kind: 'btn-secondary' }
+642:      ]
+643:    });
+644:  }
+645:
+646:  function drawDialog() {
+647:    if (!state || state.result) { return; }
+648:    if (!vsAI) {
+649:      U.openModal({
+650:        title: 'Agree a draw?',
+651:        body: '<p>Under the rules a draw needs both players to agree. Announce it, then confirm.</p>',
+652:        actions: [
+653:          { label: 'We agree', kind: 'btn-primary', onClick: function () {
+654:            state = R.agreeDraw(state) || state; finish();
+655:          } },
+656:          { label: 'Play on', kind: 'btn-secondary' }
+657:        ]
+658:      });
+659:      return;
+660:    }
+661:    var aiColor = human === 'white' ? 'black' : 'white';
+662:    var aiScore = B.evalState(state, aiColor, C.difficulty(prefs.difficulty));
+663:    if (aiScore < -40) {
+664:      state = R.agreeDraw(state) || state;
+665:      U.toast('Draw agreed', 'The opponent cannot see progress and accepts.', 'success');
+666:      finish();
+667:    } else {
+668:      U.toast(C.difficulty(prefs.difficulty).name + ' declines', 'It still sees a way through.', 'danger');
+669:    }
+670:  }
+671:
+672:  /* ---------------------------------------------------------------- toggles */
+673:  function undoMove() {
+674:    if (!humanToMove() || !R.canUndo(state)) { return; }
+675:    var next = R.undo(state);
+676:    if (!next) { return; }
+677:    state = next;
+678:    selected = null; lastMove = null; hinted = [];
+679:    render();
+680:  }
+681:
+682:  function toggleFlip() {
+683:    prefs.flip = !prefs.flip;
+684:    U.savePrefs(prefs);
+685:    mountBoards();
+686:    render();
+687:    U.toast('Board flipped', prefs.flip ? 'Black sits at the bottom.' : 'White sits at the bottom.');
+688:  }
+689:
+690:  function toggleCoords() {
+691:    prefs.coords = !prefs.coords;
+692:    U.savePrefs(prefs);
+693:    boards.forEach(function (b) { b.api.setCoords(b.mini ? false : prefs.coords); });
+694:    syncToggles();
+695:    paintChrome();
+696:  }
+697:
+698:  function toggleHints() {
+699:    prefs.hints = !prefs.hints;
+700:    U.savePrefs(prefs);
+701:    hinted = [];
+702:    syncToggles();
+703:    render();
+704:  }
+705:
+706:  function syncToggles() {
+707:    $all('[data-action="coords"]').forEach(function (b) {
+708:      b.setAttribute('aria-pressed', prefs.coords ? 'true' : 'false');
+709:    });
+710:    $all('[data-action="hints"]').forEach(function (b) {
+711:      b.setAttribute('aria-pressed', prefs.hints ? 'true' : 'false');
+712:    });
+713:  }
+714:
+715:  function applyFilter(btn) {
+716:    var group = btn.getAttribute('data-filter-group');
+717:    var value = btn.getAttribute('data-filter-value');
+718:    if (!group) { return; }
+719:    filters[group] = value;
+720:    var seg = btn.parentNode;
+721:    Array.prototype.slice.call(seg.children).forEach(function (b) {
+722:      b.setAttribute('aria-pressed', b === btn ? 'true' : 'false');
+723:    });
+724:    refreshPickers();
+725:  }
+726:
+727:  /* ---------------------------------------------------------------- actions */
+728:  function wireActions() {
+729:    doc.addEventListener('click', function (evt) {
+730:      var target = evt.target;
+731:      var btn = target && target.closest ? target.closest('[data-action]') : null;
+732:      if (!btn) { return; }
+733:      var action = btn.getAttribute('data-action');
+734:      if (btn.tagName !== 'A') { evt.preventDefault(); }
+735:      if (action === 'accept') { acceptTurn(); }
+736:      else if (action === 'undo') { undoMove(); }
+737:      else if (action === 'hint') { showHint(); }
+738:      else if (action === 'new') { newGameDialog(); }
+739:      else if (action === 'resign') { resignDialog(); }
+740:      else if (action === 'draw') { drawDialog(); }
+741:      else if (action === 'flip') { toggleFlip(); }
+742:      else if (action === 'coords') { toggleCoords(); }
+743:      else if (action === 'hints') { toggleHints(); }
+744:      else if (action === 'mode') { setMode(prefs.mode === 'light' ? 'dark' : 'light'); }
+745:      else if (action === 'sidebar') { toggleSidebar(); }
+746:      else if (action === 'sidebar-close') { setDrawer(false); }
+747:      else if (action === 'feedback') {
+748:        U.toast('Feedback', 'This build ships without a server — notes go to the issue tracker.');
+749:      }
+750:      else if (action === 'notifications') {
+751:        U.toast('Notifications', 'Nothing new. Press H whenever you want a hint.', 'move');
+752:      }
+753:      else if (action === 'profile') {
+754:        U.toast('Guest session', 'guest43 — no account, so nothing to sync.');
+755:      }
+756:      else if (action === 'filter') { applyFilter(btn); }
+757:    });
+758:
+759:    var aiToggle = $('#ai-toggle');
+760:    if (aiToggle) {
+761:      aiToggle.addEventListener('change', function () {
+762:        vsAI = aiToggle.checked;
+763:        setText('#ai-note', vsAI ? 'The AI plays the other side.' : 'Hot seat: you move for both sides.');
+764:        if (vsAI) { selected = null; render(); scheduleAI(); }
+765:        else { global.clearTimeout(aiTimer); busy = false; render(); }
+766:      });
+767:    }
+768:    var prevBtn = $('#prev-btn'), nextBtn = $('#next-btn');
+769:    if (prevBtn) { prevBtn.addEventListener('click', function () { stepLook(-1); }); }
+770:    if (nextBtn) { nextBtn.addEventListener('click', function () { stepLook(1); }); }
+771:  }
+772:
+773:  /* The arena page can walk the library without opening a picker. */
+774:  function stepLook(delta) {
+775:    var boardsList = C.BOARDS, i = 0;
+776:    boardsList.forEach(function (b, idx) { if (b.id === prefs.board) { i = idx; } });
+777:    pickBoard(boardsList[(i + delta + boardsList.length) % boardsList.length].id);
+778:  }
+779:
+780:  /* -------------------------------------------------------------- shortcuts */
+781:  function wireShortcuts() {
+782:    doc.addEventListener('keydown', function (evt) {
+783:      if (doc.querySelector('.overlay')) { return; }
+784:      var tag = (evt.target && evt.target.tagName || '').toLowerCase();
+785:      if (tag === 'input' || tag === 'select' || tag === 'textarea') { return; }
+786:      if (evt.target && evt.target.closest && evt.target.closest('#board')) { return; }
+787:      var key = String(evt.key).toLowerCase();
+788:      if (key === ' ' || key === 'enter') { acceptTurn(); }
+789:      else if (key === 'u') { undoMove(); }
+790:      else if (key === 'h') { showHint(); }
+791:      else if (key === 'n') { newGameDialog(); }
+792:      else if (key === 'f') { toggleFlip(); }
+793:      else if (key === 'c') { toggleCoords(); }
+794:      else if (key === 'r') { resignDialog(); }
+795:      else if (key === 'm') { setMode(prefs.mode === 'light' ? 'dark' : 'light'); }
+796:      else { return; }
+797:      evt.preventDefault();
+798:    });
+799:  }
+800:
+801:  /* The drawer has to behave like a dialog: it closes on Escape, on the way
+802:     out of the narrow range, and once a destination has been chosen. */
+803:  function wireSidebar() {
+804:    if (narrow && narrow.addEventListener) {
+805:      narrow.addEventListener('change', function (evt) { if (!evt.matches) { setDrawer(false); } });
+806:    }
+807:    doc.addEventListener('keydown', function (evt) {
+808:      if (evt.key === 'Escape' && drawerIsOpen()) { setDrawer(false); }
+809:    });
+810:    $all('.side-nav a').forEach(function (link) {
+811:      link.addEventListener('click', function () {
+812:        if (narrow && narrow.matches) { setDrawer(false); }
+813:      });
+814:    });
+815:  }
+816:
+817:  /* ------------------------------------------------------------------- boot */
+818:  function boot() {
+819:    prefs = U.loadPrefs();
+820:    U.applyLook(prefs);
+821:    U.linkNav();
+822:    U.route();
+823:    mountBoards();
+824:    refreshPickers();
+825:    syncModeButton();
+826:    syncSettings();
+827:    syncToggles();
+828:    wireActions();
+829:    wireShortcuts();
+830:    wireSidebar();
+831:    syncSidebar();
+832:    newGame('white');
+833:    U.toast('Fortress', 'Move 1, move 2, then Accept. Press ? on the rules, H for a hint.', 'move');
+834:  }
+835:
+836:  FT.app = {
+837:    boot: boot,
+838:    newGame: newGame,
+839:    refresh: render,
+840:    getState: function () { return state; },
+841:    getPrefs: function () { return prefs; }
+842:  };
+843:
+844:  if (doc.readyState === 'loading') { doc.addEventListener('DOMContentLoaded', boot); }
+845:  else { boot(); }
+846:})(window);
+847:

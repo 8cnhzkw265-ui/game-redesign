@@ -1,0 +1,1046 @@
+<!doctype html>
+<html lang="en" data-mode="dark" data-board="tex01-forged-steel" data-bg="t01-brushed-graphite">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="color-scheme" content="dark light">
+<meta name="theme-color" content="#0c0d10">
+<meta name="description" content="Fortress — a hex strategy game of simultaneous combat: two moves a turn, then Accept. Twenty board materials, twenty backgrounds, dark and light.">
+<title>Arena · Fortress</title>
+<link rel="stylesheet" href="../css/tokens.css">
+<link rel="stylesheet" href="../css/base.css">
+<link rel="stylesheet" href="../css/backgrounds.css">
+<link rel="stylesheet" href="../css/themes.css">
+<link rel="stylesheet" href="../css/board.css">
+<link rel="stylesheet" href="../css/layout.css">
+<link rel="stylesheet" href="../css/components.css">
+<link rel="stylesheet" href="../css/mobile.css">
+</head>
+<body>
+<div class="theme-wash" aria-hidden="true"></div>
+<a class="skip" href="#main">Skip to the game</a>
+
+<div class="shell">
+
+  <div class="shell-main">
+    <!-- Compact bar: only what the off-canvas drawer cannot supply — the
+         handle, the wordmark, and the two global controls. -->
+    <header class="topbar">
+      <button class="btn btn-ghost btn-icon tip" type="button" data-action="sidebar" data-tip="Open the menu" aria-label="Open the menu" aria-controls="sidebar">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"/></svg>
+      </button>
+      <a class="brand" href="#play" data-nav="play">
+        <svg class="brand-mark" viewBox="-16 -16 32 32" aria-hidden="true">
+          <path d="M12.99 -7.5L12.99 7.5L0 15L-12.99 7.5L-12.99 -7.5L0 -15Z" fill="var(--surface-3)" stroke="var(--line-strong)" stroke-width="1.2"/>
+          <path d="M6.5 -3.8L6.5 3.8L0 7.5L-6.5 3.8L-6.5 -3.8L0 -7.5Z" fill="var(--accent)"/>
+          <path d="M-1.7 -3.4h3.4v6.8h-3.4z" fill="var(--on-accent)"/>
+        </svg>
+        <span class="brand-name">Fortress</span>
+      </a>
+      <div class="topbar-actions">
+        <button class="btn btn-ghost btn-sm tip" type="button" data-action="mode" data-tip="Dark / light material" aria-pressed="false">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M12 3v2M12 19v2M3 12h2M19 12h2M5.6 5.6l1.4 1.4M17 17l1.4 1.4M18.4 5.6 17 7M7 17l-1.4 1.4"/><circle cx="12" cy="12" r="4"/></svg>
+          <span data-mode-text>Dark</span>
+        </button>
+        <button class="btn btn-secondary btn-sm" type="button" data-action="new">New game</button>
+      </div>
+    </header>
+
+    <main id="main">
+    <!-- =====================================================================
+         ARENA — the play cockpit. Order is deliberate: the menu rail holds the
+         navigation, the centre column is the board, and the right rail holds
+         everything the turn needs on one screen.
+         ===================================================================== -->
+    <section class="view" id="view-play" aria-label="Game arena">
+      <div class="wrap">
+        <div class="page-head">
+          <p class="eyebrow">Subtract, don't capture</p>
+          <p class="lede">Two moves a turn, then <strong>Accept</strong>. Every piece in contact strikes at once — a dying wall still deals its damage, and a wall with no support simply collapses. Destroy the enemy Keep, or lose your own.</p>
+          <div class="title-rule">Live board</div>
+        </div>
+
+        <div class="play-layout">
+
+          <!-- ------------------------------------------------- centre column -->
+          <div class="cockpit">
+            <div class="match-bar panel" aria-label="Match status">
+              <h1 class="match-title">Fortress</h1>
+              <button class="btn btn-ghost btn-sm" type="button" data-action="new">← Back</button>
+              <div class="match-meta grow">
+                <div class="meta" id="match-top-sub">15 min · Casual</div>
+                <strong id="phase-text">Move 1 of 2</strong>
+              </div>
+              <div class="board-chrome">
+                <span class="badge badge-accent" id="board-material">Forged Steel</span>
+                <span class="board-hint grow truncate" id="board-cursor">Arrow keys move the cursor, Enter selects</span>
+                <span class="meta desktop-only">63 hexes · rows a–i</span>
+                <span class="board-btns">
+                  <button class="btn btn-ghost btn-sm tip" type="button" data-action="flip" data-tip="Flip the board">Flip</button>
+                  <button class="btn btn-ghost btn-sm tip" type="button" data-action="coords" data-tip="Show coordinates" aria-pressed="true">Coords</button>
+                  <button class="btn btn-ghost btn-sm tip" type="button" data-action="hints" data-tip="Show every reachable hex" aria-pressed="true">Hints</button>
+                </span>
+              </div>
+              <div class="menu-wrap">
+                <button class="btn btn-ghost btn-icon btn-sm" type="button" aria-label="Game menu">⋮</button>
+              </div>
+            </div>
+
+            <div class="board-frame">
+            <div class="player-strip player-top" id="strip-black">
+              <span class="turn-dot" aria-hidden="true"></span>
+              <span class="avatar avatar-md" aria-hidden="true">B</span>
+              <div class="grow">
+                <div class="player-name" id="black-name">Black</div>
+                <div class="player-sub" id="black-sub">16 pieces</div>
+                <div class="captured" id="captured-black" aria-label="Black losses"></div>
+              </div>
+              <div class="clock" id="clock-black" role="timer" aria-label="Black clock">—</div>
+            </div>
+
+            <div class="stage">
+              <svg id="board" class="stage-svg" xmlns="http://www.w3.org/2000/svg" tabindex="-1" role="grid" aria-label="Fortress board"></svg>
+            </div>
+
+            <div class="player-strip player-bottom" id="strip-white">
+              <span class="turn-dot" aria-hidden="true"></span>
+              <span class="avatar avatar-md" aria-hidden="true">W</span>
+              <div class="grow">
+                <div class="player-name" id="white-name">White</div>
+                <div class="player-sub" id="white-sub">16 pieces</div>
+                <div class="captured" id="captured-white" aria-label="White losses"></div>
+              </div>
+              <div class="clock" id="clock-white" role="timer" aria-label="White clock">—</div>
+            </div>
+
+            </div><!-- /.board-frame -->
+
+            <div class="action-bar">
+              <div class="grow">
+                <span class="phase-pill"><span class="turn-dot" aria-hidden="true"></span><span id="phase-text">Move 1</span></span>
+                <div class="meta" id="status-text" aria-live="polite">Pick a piece, then a highlighted hex.</div>
+              </div>
+              <div class="row">
+                <button class="btn btn-ghost btn-sm" type="button" data-action="hint">Hint</button>
+                <button class="btn btn-outline" type="button" data-action="undo">Undo move</button>
+                <button class="btn btn-primary" type="button" data-action="accept">Accept turn</button>
+              </div>
+            </div>
+
+            <!-- Thumb zone: the same awaited action, always under the thumb. -->
+            <div class="mobile-actions mobile-only" aria-label="Turn actions">
+              <button class="btn btn-outline" type="button" data-action="undo">Undo</button>
+              <button class="btn btn-primary primary-span" type="button" data-action="accept">Accept turn</button>
+            </div>
+          </div>
+
+          <!-- ---------------------------------------------------- right rail -->
+          <aside class="rail-right" aria-label="Turn detail">
+            <div class="panel">
+              <div class="panel-head"><h3>Turn</h3><span class="badge badge-live" style="margin-left:auto">Live</span></div>
+              <div class="panel-body stack-2">
+                <div class="row between">
+                  <span class="meta">Turn</span>
+                  <span class="mono" id="move-number">1</span>
+                </div>
+                <div class="row between">
+                  <span class="meta">To move</span>
+                  <strong id="turn-name">White to move</strong>
+                </div>
+                <div class="row between">
+                  <span class="meta">Phase</span>
+                  <span id="phase-detail">Move 1</span>
+                </div>
+                <div class="field">
+                  <span class="meta">Adjudication clock</span>
+                  <div class="meter meter-move" role="progressbar" aria-label="Quiet turns before adjudication">
+                    <span id="stagnation-meter" style="width:0%"></span>
+                  </div>
+                  <span class="hint" id="stagnation-text">0 of 30 quiet turns</span>
+                </div>
+                <p class="meta" id="repeat-text">0 of 3 occurrences of the most repeated position</p>
+              </div>
+            </div>
+
+            <div class="panel">
+              <div class="panel-head"><h3>Combat preview</h3><span class="badge badge-danger" style="margin-left:auto">Resolves on Accept</span></div>
+              <div class="panel-body">
+                <div class="empty" id="preview-empty">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><path d="M12 2v6M12 16v6M2 12h6M16 12h6"/><circle cx="12" cy="12" r="3.2"/></svg>
+                  <strong>Nothing in contact yet</strong>
+                  <span class="meta">Move a piece next to an enemy to see what happens when you accept.</span>
+                </div>
+                <div class="list" id="preview-list"></div>
+              </div>
+            </div>
+
+            <div class="panel panel-span">
+              <div class="panel-head"><h3>Move log</h3><span class="meta" style="margin-left:auto">newest first</span></div>
+              <div class="panel-body" style="padding:0">
+                <div class="list" id="log-list"></div>
+              </div>
+            </div>
+
+            <div class="panel">
+              <div class="panel-head"><h3>Opponent</h3></div>
+              <div class="panel-body stack-3">
+                <label class="switch">
+                  <input type="checkbox" id="ai-toggle" checked>
+                  <span class="switch-track"></span>
+                  <span class="switch-text"><strong>AI opponent</strong><span class="meta" id="ai-note">The AI plays the other side.</span></span>
+                </label>
+                <div class="field">
+                  <span class="label">Strength</span>
+                  <div class="segmented" id="difficulty-seg" role="group" aria-label="Opponent strength"></div>
+                  <span class="hint" id="difficulty-note">Trades evenly and shields its Keep.</span>
+                </div>
+                <div class="row wrap">
+                  <button class="btn btn-secondary btn-sm" type="button" data-action="new">New game</button>
+                  <button class="btn btn-outline btn-sm" type="button" data-action="draw">Offer draw</button>
+                  <button class="btn btn-danger btn-sm" type="button" data-action="resign">Resign</button>
+                </div>
+              </div>
+            </div>
+
+            <div class="panel">
+              <div class="panel-head"><h3>Arena material</h3></div>
+              <div class="panel-body stack-3">
+                <div class="row between">
+                  <span class="meta">Board</span>
+                  <strong id="arena-board-name">Forged Steel</strong>
+                </div>
+                <div class="row between">
+                  <span class="meta">Background</span>
+                  <strong id="arena-bg-name">Brushed Graphite</strong>
+                </div>
+                <div class="grid-2 quick-grid" id="theme-quick"></div>
+                <div class="row between" style="margin-top:var(--s-2)">
+                  <span class="meta">Background shortcut</span>
+                  <strong class="meta" id="arena-bg-quick-name">Brushed Graphite</strong>
+                </div>
+                <div class="grid-2 quick-grid" id="bg-quick"></div>
+                <div class="row">
+                  <button class="btn btn-outline btn-sm" type="button" id="prev-btn">Previous board</button>
+                  <button class="btn btn-outline btn-sm" type="button" id="next-btn">Next board</button>
+                </div>
+                <a class="btn btn-ghost btn-sm btn-block" href="#themes" data-nav="themes">Open the full library</a>
+              </div>
+            </div>
+          </aside>
+
+        </div>
+      </div>
+    </section>
+
+    <!-- =====================================================================
+         WATCH — the live board. Same shape as the reference: title, one line of
+         copy, a three-way filter, and then either the list of matches or a
+         single honest empty state. No server in this build, so the empty state
+         is the real answer rather than a placeholder.
+         ===================================================================== -->
+    <section class="view" id="view-watch" aria-label="Watch live games">
+      <div class="wrap-tight">
+        <div class="page-head">
+          <h1>Watch</h1>
+          <p class="lede">Live games happening right now. Tap any match to spectate.</p>
+        </div>
+
+        <div class="filter-bar">
+          <div class="segmented segmented-pill" role="group" aria-label="Filter live games">
+            <button type="button" data-action="watch-filter" data-watch-filter="all" aria-pressed="true">All</button>
+            <button type="button" data-action="watch-filter" data-watch-filter="ranked" aria-pressed="false">Ranked</button>
+            <button type="button" data-action="watch-filter" data-watch-filter="casual" aria-pressed="false">Casual</button>
+          </div>
+          <p class="meta grow" id="watch-count" aria-live="polite">Checking the boards…</p>
+        </div>
+
+        <div class="list panel" id="watch-list" role="list" aria-label="Live games"></div>
+
+        <div class="empty-panel" id="watch-empty" hidden>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><path d="M2.5 12S6 5.8 12 5.8 21.5 12 21.5 12 18 18.2 12 18.2 2.5 12 2.5 12Z"/><circle cx="12" cy="12" r="3"/></svg>
+          <strong id="watch-empty-title">Nothing live right now</strong>
+          <p class="meta" id="watch-empty-body">Check back during peak hours, or start a game yourself.</p>
+          <a class="btn btn-primary" href="#play" data-nav="play">Start a game</a>
+        </div>
+      </div>
+    </section>
+
+    <!-- =====================================================================
+         RANKS — the ladder. One panel, one row per player: place, avatar,
+         name, rating, record. Podium places are gold; the rest are neutral, so
+         the colour always means "top three" and never just "a row".
+         ===================================================================== -->
+    <section class="view" id="view-ranks" aria-label="Leaderboard">
+      <div class="wrap-tight">
+        <div class="page-head">
+          <h1>Leaderboard</h1>
+          <p class="lede">Top rated players</p>
+        </div>
+
+        <div class="list panel" id="rank-list" role="list" aria-label="Top rated players"></div>
+
+        <p class="meta rank-foot" id="rank-foot">Ratings start at 1200 and move with every finished game.</p>
+      </div>
+    </section>
+
+    <!-- =====================================================================
+         LIBRARY — 20 board themes and 20 website backgrounds, generated from
+         js/catalog.js. The cards carry the same data-attributes the <html>
+         element uses, so a card is always a true preview.
+         ===================================================================== -->
+    <section class="view" id="view-themes" aria-label="Arena library">
+      <div class="wrap">
+        <div class="page-head">
+          <p class="eyebrow">Twenty materials</p>
+          <h1>Arena library</h1>
+          <p class="lede">Ten industrial textures and ten natural stones. The board and the page background are independent layers, so all 400 pairings are legal — start from the shipped pairing and move one axis at a time.</p>
+          <div class="title-rule">Board themes · the arena itself</div>
+        </div>
+
+        <div class="stack">
+          <div class="row between wrap">
+            <div class="segmented" role="group" aria-label="Filter board themes">
+              <button type="button" data-action="filter" data-filter-group="themes" data-filter-value="all" aria-pressed="true">All 20</button>
+              <button type="button" data-action="filter" data-filter-group="themes" data-filter-value="Industrial" aria-pressed="false">Industrial</button>
+              <button type="button" data-action="filter" data-filter-group="themes" data-filter-value="Natural" aria-pressed="false">Natural stone</button>
+            </div>
+            <p class="meta">Pick a card to repaint the live arena instantly — no reload, no flash.</p>
+          </div>
+          <div class="grid-auto" id="theme-grid"></div>
+        </div>
+
+        <div class="title-rule" style="margin-top:var(--s-7)">Website backgrounds · the room around it</div>
+
+        <div class="stack" style="margin-top:var(--s-4)">
+          <div class="row between wrap">
+            <div class="segmented" role="group" aria-label="Filter backgrounds">
+              <button type="button" data-action="filter" data-filter-group="backgrounds" data-filter-value="all" aria-pressed="true">All 20</button>
+              <button type="button" data-action="filter" data-filter-group="backgrounds" data-filter-value="Industrial" aria-pressed="false">Industrial</button>
+              <button type="button" data-action="filter" data-filter-group="backgrounds" data-filter-value="Natural" aria-pressed="false">Natural</button>
+            </div>
+            <p class="meta">Every background is gradients plus one inline noise plate: no image requests, works offline.</p>
+          </div>
+          <div class="grid-auto" id="bg-grid"></div>
+        </div>
+
+        <div class="title-rule" style="margin-top:var(--s-7)">How the pairing works</div>
+        <div class="doc-grid" style="margin-top:var(--s-4)">
+          <div class="callout callout-accent">
+            <span class="badge badge-accent">01</span>
+            <div>
+              <b>One material input set per theme</b>
+              <p class="meta">A board theme declares only <span class="mono">--b-a</span>, <span class="mono">--b-b</span>, <span class="mono">--b-line</span>, <span class="mono">--b-coord</span> and <span class="mono">--b-plate</span>. Cells, inlays, coordinates, light-mode pastels and every state colour are derived from those five values.</p>
+            </div>
+          </div>
+          <div class="callout callout-move">
+            <span class="badge badge-move">02</span>
+            <div>
+              <b>Light mode is a derivation, not a second theme</b>
+              <p class="meta">In light mode each cell is mixed toward warm chalk with <span class="mono">color-mix()</span>, so a theme is never authored twice and can never drift out of sync.</p>
+            </div>
+          </div>
+          <div class="callout callout-danger">
+            <span class="badge badge-danger">03</span>
+            <div>
+              <b>Warm boards remap the states</b>
+              <p class="meta">Copper, sandstone and ironstone carry their own selection, move and threat colours, because amber-on-copper would fail contrast. The rest inherit the accent untouched.</p>
+            </div>
+          </div>
+          <div class="callout">
+            <span class="badge">04</span>
+            <div>
+              <b>Shipped pairing</b>
+              <p class="meta">Forged Steel (TEX01) on Brushed Graphite (T01) is the default: 15.4:1 body text in dark, 16.6:1 in light, and the lowest glare of the twenty materials.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- =====================================================================
+         SYSTEM — the design language, measured live. The token swatches and the
+         contrast table are computed from the running page, so they always tell
+         the truth about the current theme and mode.
+         ===================================================================== -->
+    <section class="view" id="view-system" aria-label="Design system">
+      <div class="wrap">
+        <div class="page-head">
+          <p class="eyebrow">The Forged system</p>
+          <h1>One material language, two temperatures</h1>
+          <p class="lede">Cold steel and one forge amber in dark; warm chalk and burnished bronze in light. Twenty backgrounds, twenty board materials, a single accent that always means “this is the action the game is waiting on”.</p>
+          <div class="title-rule">Measured on this page, right now</div>
+        </div>
+
+        <div class="grid-auto">
+          <div class="stat stat-accent">
+            <div class="stat-label">Board materials</div>
+            <div class="stat-value">20</div>
+            <div class="stat-sub">10 industrial · 10 natural stone</div>
+          </div>
+          <div class="stat">
+            <div class="stat-label">Page backgrounds</div>
+            <div class="stat-value">20</div>
+            <div class="stat-sub">0 image requests, offline-safe</div>
+          </div>
+          <div class="stat">
+            <div class="stat-label">Arena hexes</div>
+            <div class="stat-value">63</div>
+            <div class="stat-sub">9 rows, width 6→8→6</div>
+          </div>
+          <div class="stat">
+            <div class="stat-label">Touch floor</div>
+            <div class="stat-value">44px</div>
+            <div class="stat-sub">52px for the awaited action</div>
+          </div>
+        </div>
+
+        <div class="title-rule" style="margin-top:var(--s-7)">Semantic tokens</div>
+        <div class="doc-grid-wide" style="margin-top:var(--s-4)">
+          <div class="panel">
+            <div class="panel-head"><h3>Colour roles</h3><span class="meta" style="margin-left:auto">resolved at runtime</span></div>
+            <div class="panel-body stack-2" id="token-grid"></div>
+          </div>
+          <div class="stack">
+            <div class="panel">
+              <div class="panel-head"><h3>Contrast audit</h3><span class="meta" style="margin-left:auto">WCAG 2.2</span></div>
+              <div class="panel-body" style="padding:0">
+                <table class="table">
+                  <thead>
+                    <tr><th scope="col">Pairing</th><th scope="col" class="num">Ratio</th><th scope="col">Level</th><th scope="col">Used for</th></tr>
+                  </thead>
+                  <tbody id="contrast-body"></tbody>
+                </table>
+              </div>
+              <div class="panel-foot">
+                <span class="meta">Flip the temperature — every number recomputes live.</span>
+                <button class="btn btn-outline btn-sm" type="button" data-action="mode" data-tip="Dark / light material" aria-pressed="false" style="margin-left:auto">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true" style="width:18px;height:18px"><path d="M12 3v2M12 19v2M3 12h2M19 12h2M5.6 5.6l1.4 1.4M17 17l1.4 1.4M18.4 5.6 17 7M7 17l-1.4 1.4"/><circle cx="12" cy="12" r="4"/></svg>
+                  <span data-mode-text>Dark</span>
+                </button>
+              </div>
+            </div>
+            <div class="callout callout-accent">
+              <span class="badge badge-accent">Rule</span>
+              <div>
+                <b>Colour is never the only signal</b>
+                <p class="meta">A legal destination is a dot <em>and</em> a coloured cell. A doomed piece is a scaled plate <em>and</em> a red outline. A wall about to collapse gets a dashed outline on top of its colour — so the board still reads in grayscale.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="title-rule" style="margin-top:var(--s-7)">Type, geometry and motion</div>
+        <div class="doc-grid" style="margin-top:var(--s-4)">
+          <div class="panel">
+            <div class="panel-head"><h3>Type scale</h3><span class="meta" style="margin-left:auto">Outfit · DM Sans · Cascadia Mono</span></div>
+            <div class="panel-body stack">
+              <div class="display-1">Forge</div>
+              <div class="display-2">Arena library</div>
+              <h3>Panel heading</h3>
+              <p class="lede">Lede copy at 15px, capped at 64 characters for comfortable reading.</p>
+              <p>Body copy carries the rules: two moves a turn, then Accept, and every piece in contact strikes at once.</p>
+              <p class="meta">Meta 12px — labels and captions only, never a paragraph.</p>
+              <span class="mono">c4–c5, +2 · wall collapses at STR 0</span>
+            </div>
+          </div>
+          <div class="panel">
+            <div class="panel-head"><h3>Geometry</h3></div>
+            <div class="panel-body">
+              <table class="table">
+                <thead><tr><th scope="col">Token</th><th scope="col" class="num">Value</th><th scope="col">Use</th></tr></thead>
+                <tbody>
+                  <tr><td class="mono">--s-1 … --s-8</td><td class="num">4 → 64px</td><td>8-pt grid, never a magic number</td></tr>
+                  <tr><td class="mono">--r-xs … --r-xl</td><td class="num">4 → 22px</td><td>Radius ladder, largest = stage</td></tr>
+                  <tr><td class="mono">--tap</td><td class="num">44px</td><td>Absolute minimum target</td></tr>
+                  <tr><td class="mono">--tap-lg</td><td class="num">52px</td><td>Mobile primary control</td></tr>
+                  <tr><td class="mono">--dur-move</td><td class="num">240ms</td><td>Piece travel: chainable, trackable</td></tr>
+                  <tr><td class="mono">--ease-out</td><td class="num">cubic-bezier</td><td>Entrances and sheets</td></tr>
+                </tbody>
+              </table>
+            </div>
+            <div class="panel-foot">
+              <span class="meta">Reduced-motion collapses every duration to 0.</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="title-rule" style="margin-top:var(--s-7)">Components</div>
+        <div class="doc-grid" style="margin-top:var(--s-4)">
+          <div class="panel">
+            <div class="panel-head"><h3>Buttons &amp; states</h3></div>
+            <div class="panel-body stack">
+              <div class="row wrap">
+                <button class="btn btn-primary" type="button">Accept turn</button>
+                <button class="btn btn-secondary" type="button">New game</button>
+                <button class="btn btn-outline" type="button">Undo move</button>
+                <button class="btn btn-ghost" type="button">Hint</button>
+                <button class="btn btn-danger" type="button">Resign</button>
+                <button class="btn btn-success" type="button">Promoted</button>
+              </div>
+              <div class="row wrap">
+                <button class="btn btn-sm" type="button">Small</button>
+                <button class="btn btn-lg btn-block" type="button">Large, full width</button>
+              </div>
+              <div class="row wrap">
+                <button class="btn" type="button" disabled>Disabled</button>
+                <button class="btn btn-primary btn-pulse" type="button">Awaited action</button>
+                <span class="kbd">Space</span>
+              </div>
+              <p class="meta">Hover lifts 1px, active presses in, and disabled drops to 45% with no shadow. The pulse ring is reserved for the single awaited action.</p>
+            </div>
+          </div>
+
+          <div class="panel">
+            <div class="panel-head"><h3>Badges, meters, switches</h3></div>
+            <div class="panel-body stack">
+              <div class="row wrap">
+                <span class="badge badge-accent">Accent</span>
+                <span class="badge badge-move">Legal</span>
+                <span class="badge badge-danger">Doomed</span>
+                <span class="badge badge-success">Held</span>
+                <span class="badge badge-warn">Collapsing</span>
+                <span class="badge badge-live">Live</span>
+                <span class="count">3</span>
+              </div>
+              <div class="field">
+                <span class="label">Quiet turns before adjudication</span>
+                <div class="meter meter-move"><span style="width:46%"></span></div>
+                <span class="hint">14 of 30</span>
+              </div>
+              <div class="field">
+                <span class="label">Threat to the Keep</span>
+                <div class="meter meter-danger"><span style="width:72%"></span></div>
+              </div>
+              <label class="switch">
+                <input type="checkbox" checked>
+                <span class="switch-track"></span>
+                <span class="switch-text"><strong>Coordinate labels</strong><span class="meta">a1 → i8 printed on every cell</span></span>
+              </label>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- =====================================================================
+         RULES — the reference, written from the same engine that runs the board.
+         ===================================================================== -->
+    <section class="view" id="view-rules" aria-label="Rules of Fortress">
+      <div class="wrap-tight">
+        <div class="page-head">
+          <p class="eyebrow">Complete rules</p>
+          <h1>How Fortress is played</h1>
+          <p class="lede">Two moves, then one simultaneous exchange of fire. Walls are structure, not strength. Nothing is captured — everything is destroyed, including what destroyed it.</p>
+          <nav class="section-nav" aria-label="Rule sections">
+            <a href="#r-turn">Turn</a>
+            <a href="#r-board">Board</a>
+            <a href="#r-pieces">Pieces</a>
+            <a href="#r-support">Support</a>
+            <a href="#r-combat">Combat</a>
+            <a href="#r-promo">Promotion</a>
+            <a href="#r-end">Endings</a>
+            <a href="#r-read">Board reading</a>
+          </nav>
+        </div>
+
+        <section id="r-turn">
+          <h2>The turn</h2>
+          <p>A turn is four steps, in this order, every time:</p>
+          <div class="list panel">
+            <div class="list-row"><span class="list-rank">1</span><span class="list-main"><strong>Move one piece.</strong> Pick any piece of your colour and a highlighted destination. A piece that has moved may not move again this turn — the one exception is the Keep, which may step twice, but never straight back to the hex it came from.</span></div>
+            <div class="list-row"><span class="list-rank">2</span><span class="list-main"><strong>Move a second piece.</strong> If nothing can legally move, the game goes straight to step 3.</span></div>
+            <div class="list-row"><span class="list-rank">3</span><span class="list-main"><strong>Preview.</strong> Incoming damage appears as a <span class="mono">−N</span> badge on every piece in contact, along with what would die. Nothing has happened yet — you may undo either move.</span></div>
+            <div class="list-row"><span class="list-rank">4</span><span class="list-main"><strong>Accept.</strong> Combat resolves simultaneously and the turn passes to the other player.</span></div>
+          </div>
+          <div class="callout callout-accent" style="margin-top:var(--s-4)">
+            <span class="badge badge-accent">Exception</span>
+            <div>
+              <b>White's first turn is a single move.</b>
+              <p class="meta">White opens with one move, then Accept. Every later turn — for both players — is two moves.</p>
+            </div>
+          </div>
+        </section>
+
+        <section id="r-board" style="margin-top:var(--s-7)">
+          <h2>The board</h2>
+          <p>63 pointy-top hexes in nine rows, widening from 6 to 8 and back: <span class="mono">6 · 7 · 8 · 7 · 8 · 7 · 8 · 7 · 6</span>. Each side has one Keep, one Turret, two Bastions, two Towers and ten Walls — sixteen pieces each.</p>
+          <div class="doc-grid" style="margin-top:var(--s-3)">
+            <div class="callout callout-move">
+              <span class="badge badge-move">Direction</span>
+              <div>
+                <b>White pushes east, black pushes west.</b>
+                <p class="meta">Every hex has a rank, <span class="mono">2q + r</span>. White's rank rises as it advances, black's falls. The far right edge (rank 6) is white's target; the far left (rank −8) is black's.</p>
+              </div>
+            </div>
+            <div class="callout">
+              <span class="badge">Notation</span>
+              <div>
+                <b>Files a–i, rows counted from the bottom.</b>
+                <p class="meta"><span class="mono">a1</span> is the bottom-left hex and <span class="mono">i6</span> the top-right. A sub-move reads like <span class="mono">Wc4–e5</span>: piece letter, from, to.</p>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section id="r-pieces" style="margin-top:var(--s-7)">
+          <h2>Pieces</h2>
+          <p>Strength is never stored — it is recalculated from core value plus support every time it matters. The number printed on each plate is that total, right now.</p>
+          <div class="panel">
+            <div class="panel-body" style="padding:0">
+              <table class="table">
+                <thead>
+                  <tr><th scope="col">Piece</th><th scope="col" class="num">Core</th><th scope="col">Movement</th></tr>
+                </thead>
+                <tbody>
+                  <tr><td><strong>Keep</strong> <span class="mono">K</span></td><td class="num">3</td><td>One hex step in any of the six directions. May move <em>twice</em> in a turn, but never straight back to where it started.</td></tr>
+                  <tr><td><strong>Tower</strong> <span class="mono">T</span></td><td class="num">2</td><td>Slides any distance along one of the six directions, stopping when blocked. It cannot jump.</td></tr>
+                  <tr><td><strong>Bastion</strong> <span class="mono">B</span></td><td class="num">2</td><td>Steps one hex in any direction, or vaults over a <em>contiguous run</em> of pieces that begins adjacent and contains at least one friend, landing on the first empty hex beyond it. It may vault over enemies.</td></tr>
+                  <tr><td><strong>Turret</strong> <span class="mono">U</span></td><td class="num">1</td><td>Jumps to any empty hex at distance exactly two — over anything in between, friends included.</td></tr>
+                  <tr><td><strong>Wall</strong> <span class="mono">W</span></td><td class="num">0</td><td>Steps one hex forward along either forward diagonal, or straight ahead as an advance. On its <em>first</em> move it may slide two hexes along a forward line. It never moves backwards or sideways.</td></tr>
+                </tbody>
+              </table>
+            </div>
+            <div class="panel-foot">
+              <span class="meta">A wall's strength comes entirely from support — and an unsupported wall collapses at the next Accept.</span>
+            </div>
+          </div>
+        </section>
+
+        <section id="r-support" style="margin-top:var(--s-7)">
+          <h2>Support</h2>
+          <p>Support is given by friends, never by the piece itself, and only in a straight line distance sense: adjacent, or exactly two hexes away. Only the Keep supports at distance two.</p>
+          <div class="panel">
+            <div class="panel-body" style="padding:0">
+              <table class="table">
+                <thead>
+                  <tr><th scope="col">Supporter</th><th scope="col" class="num">Adjacent</th><th scope="col" class="num">At distance 2</th></tr>
+                </thead>
+                <tbody>
+                  <tr><td>Keep</td><td class="num">+2</td><td class="num">+1</td></tr>
+                  <tr><td>Tower</td><td class="num">+2</td><td class="num">—</td></tr>
+                  <tr><td>Turret</td><td class="num">+2</td><td class="num">—</td></tr>
+                  <tr><td>Bastion</td><td class="num">+1</td><td class="num">—</td></tr>
+                  <tr><td>Wall</td><td class="num">+1</td><td class="num">—</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+          <div class="callout" style="margin-top:var(--s-3)">
+            <span class="badge">Example</span>
+            <div>
+              <b>A Tower beside a wall is worth 3, not 2.</b>
+              <p class="meta">Tower core 2 + one adjacent friendly wall (+1) = STR 3. Add a friendly Keep at distance two and it becomes 4. Support is the whole game: mass beats spread.</p>
+            </div>
+          </div>
+        </section>
+
+        <section id="r-combat" style="margin-top:var(--s-7)">
+          <h2>Combat</h2>
+          <p>Combat is simultaneous. Every piece deals its <em>current</em> strength to every adjacent enemy at the same instant — so a piece that is about to die still lands its blow, and a piece that kills its attacker may fall to that attacker's damage anyway.</p>
+          <div class="list panel" style="margin-top:var(--s-3)">
+            <div class="list-row"><span class="list-rank">1</span><span class="list-main">Each piece's incoming damage is the sum of the current strength of every adjacent enemy.</span></div>
+            <div class="list-row"><span class="list-rank">2</span><span class="list-main">A piece is destroyed if incoming damage is greater than or equal to its strength.</span></div>
+            <div class="list-row"><span class="list-rank">3</span><span class="list-main">All destroyed pieces are removed at once. A wall reduced to strength 0 — including by the loss of the friend that was supporting it — collapses, and that collapse can take its neighbours with it.</span></div>
+            <div class="list-row"><span class="list-rank">4</span><span class="list-main">If a Keep is gone, the game is over. If both Keeps go in the same combat, it is a draw.</span></div>
+          </div>
+          <div class="callout callout-danger" style="margin-top:var(--s-3)">
+            <span class="badge badge-danger">The wall trap</span>
+            <div>
+              <b>An unsupported wall always dies.</b>
+              <p class="meta">A wall has core strength 0. With no friendly neighbour its strength is 0, so at every Accept it collapses — whether or not anybody attacked it. The board draws it with a dashed amber outline so you can see it coming before you commit.</p>
+            </div>
+          </div>
+        </section>
+
+        <section id="r-promo" style="margin-top:var(--s-7)">
+          <h2>Promotion</h2>
+          <p>Each side has three promotion hexes on its far edge — the extreme corner hexes of the enemy back ranks (rank 6 for white, rank −8 for black). They are drawn on the board with a dashed gold outline whenever it is your turn.</p>
+          <p>A <strong>wall</strong> that lands on one of them never stays a wall: it is promoted immediately, and you choose what it becomes.</p>
+          <div class="choice" style="margin-top:var(--s-3)">
+            <div class="choice-card">
+              <b>Tower</b>
+              <span class="meta">Core 2, slides any distance. The choice when the promotion hex is quiet — it keeps the wall's push and adds reach.</span>
+            </div>
+            <div class="choice-card">
+              <b>Turret</b>
+              <span class="meta">Core 1, jumps exactly two, over anything. The choice when the hex is contested — it can leave again through a closing gap.</span>
+            </div>
+          </div>
+          <div class="callout" style="margin-top:var(--s-3)">
+            <span class="badge">Also automatic</span>
+            <div>
+              <b>A wall already standing on a promotion hex promotes too.</b>
+              <p class="meta">If a wall begins your turn on a promotion hex — shoved there by another piece, or left over from a vault — the game asks you the same question at the end of the turn.</p>
+            </div>
+          </div>
+        </section>
+
+        <section id="r-end" style="margin-top:var(--s-7)">
+          <h2>Endings</h2>
+          <div class="panel">
+            <div class="panel-body" style="padding:0">
+              <table class="table">
+                <thead>
+                  <tr><th scope="col">Ending</th><th scope="col">Result</th><th scope="col">How it happens</th></tr>
+                </thead>
+                <tbody>
+                  <tr><td>Keep destroyed</td><td><span class="badge badge-success">Win</span></td><td>One Keep is gone at the end of combat.</td></tr>
+                  <tr><td>Mutual destruction</td><td><span class="badge">Draw</span></td><td>Both Keeps fall in the same combat.</td></tr>
+                  <tr><td>Stalemate</td><td><span class="badge">Draw</span></td><td>The player to move has no legal move at all — rare, because walls and the Keep can almost always find a step.</td></tr>
+                  <tr><td>Threefold repetition</td><td><span class="badge">Draw</span></td><td>The same position (pieces, sides, and whose turn) occurs three times.</td></tr>
+                  <tr><td>Adjudication</td><td><span class="badge badge-warn">Win or draw</span></td><td>Thirty consecutive turns with no destruction and no new ground gained. The side further up the rank axis wins; equal ground is a draw.</td></tr>
+                  <tr><td>Resignation</td><td><span class="badge badge-danger">Loss</span></td><td>A player concedes.</td></tr>
+                  <tr><td>Draw agreed</td><td><span class="badge">Draw</span></td><td>Both players agree. Against the AI, it accepts only when it no longer sees progress.</td></tr>
+                  <tr><td>Flag fall</td><td><span class="badge badge-danger">Loss</span></td><td>With a clock running, a player's time runs out.</td></tr>
+                </tbody>
+              </table>
+            </div>
+            <div class="panel-foot">
+              <span class="meta">The adjudication countdown is the meter in the Turn panel: thirty quiet turns, reset by any destruction or any new ground taken.</span>
+            </div>
+          </div>
+        </section>
+
+        <section id="r-read" style="margin-top:var(--s-7)">
+          <h2>Reading the board</h2>
+          <p>Every state a piece or a hex can be in has a shape of its own, so the board still makes sense in grayscale, at a glance, on a phone in daylight.</p>
+          <div class="panel">
+            <div class="panel-body" style="padding:0">
+              <table class="table">
+                <thead>
+                  <tr><th scope="col">Signal</th><th scope="col">Means</th></tr>
+                </thead>
+                <tbody>
+                  <tr><td><span class="badge badge-move">Dot</span></td><td>An empty hex this piece can legally reach. A dot over an enemy piece means the destination is occupied — you can never move onto a piece.</td></tr>
+                  <tr><td><span class="badge badge-danger">Reticle</span></td><td>A dark ring around an enemy piece: it is in contact with something you have selected or moved. A heavy reticle means the exchange is lethal.</td></tr>
+                  <tr><td><span class="badge badge-danger">−N badge</span></td><td>Incoming damage in the preview: this piece will take N damage when you accept.</td></tr>
+                  <tr><td><span class="badge badge-danger">Red outline</span></td><td>The piece is destroyed by the current preview.</td></tr>
+                  <tr><td><span class="badge badge-warn">Dashed amber</span></td><td>A wall with no support: it collapses when the turn is accepted.</td></tr>
+                  <tr><td><span class="badge badge-accent">Gold ring</span></td><td>The selected piece, or the keyboard cursor. Enter selects; Escape clears.</td></tr>
+                  <tr><td><span class="badge">Faded cell</span></td><td>The origin and destination of the move just played.</td></tr>
+                  <tr><td><span class="badge badge-accent">Gold dashes</span></td><td>A promotion hex for the side to move.</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <h3 style="margin-top:var(--s-5)">Notation</h3>
+          <p>Sub-moves are written as piece letter, origin, en dash, destination — <span class="mono">Wc4–e5</span>. A promotion adds <span class="mono">=T</span> or <span class="mono">=U</span>, both moves of a turn are comma-separated, and the turn ends with <span class="mono">×N</span> when N pieces were destroyed or collapsed by that Accept.</p>
+          <div class="callout">
+            <span class="badge">Letters</span>
+            <div>
+              <p class="meta"><span class="mono">K</span> Keep · <span class="mono">T</span> Tower · <span class="mono">B</span> Bastion · <span class="mono">U</span> Turret · <span class="mono">W</span> Wall. Because both armies share the letters, the log prefixes each turn with <span class="mono">W</span> or <span class="mono">B</span> and numbers it, so a whole game can be replayed from the log alone.</p>
+            </div>
+          </div>
+
+          <h3 style="margin-top:var(--s-5)">A turn, step by step</h3>
+          <div class="list panel">
+            <div class="list-row"><span class="list-rank">1</span><span class="list-main">You move a wall two hexes on its opener: <span class="mono">Wc4–c6</span>.</span></div>
+            <div class="list-row"><span class="list-rank">2</span><span class="list-main">You move a Tower up behind it: <span class="mono">Tb3–b6</span>. It now supports nothing and threatens nothing — yet.</span></div>
+            <div class="list-row"><span class="list-rank">3</span><span class="list-main">The preview shows the wall at <span class="mono">c6</span> with one adjacent friend, so its plate reads <span class="mono">1</span> — and any enemy in contact carries a <span class="mono">−N</span> badge, where N is that enemy's current strength.</span></div>
+            <div class="list-row"><span class="list-rank">4</span><span class="list-main">You accept. Damage is dealt both ways at once, and the log records the turn with its destruction count: <span class="mono">Wc4–c6, Tb3–b6 ×1</span>.</span></div>
+          </div>
+          <p class="meta" style="margin-top:var(--s-3)">The whole game — 32 pieces, 63 hexes, simultaneous combat, eight endings — runs on the maths on this page. If the board ever disagrees with this text, the board is wrong; tell the builder.</p>
+
+          <div class="row wrap" style="margin-top:var(--s-5)">
+            <a class="btn btn-ghost btn-sm" href="#themes" data-nav="themes">Arena library</a>
+            <a class="btn btn-ghost btn-sm" href="#system" data-nav="system">The Forged system</a>
+          </div>
+        </section>
+
+      </div>
+    </section>
+
+    <!-- =====================================================================
+         MOBILE — the same game, redesigned for a thumb. The frame below hosts a
+         real, live board instance, not a screenshot: it repaints from the same
+         state, with the same engine.
+         ===================================================================== -->
+    <section class="view" id="view-mobile" aria-label="Mobile layout">
+      <div class="wrap-tight">
+        <div class="page-head">
+          <p class="eyebrow">Small screens</p>
+          <h1>Mobile is not a shrunk desktop</h1>
+          <p class="lede">Navigation moves to the thumb, the awaited action keeps a permanent home above the tab bar, and panels become compact rows so the arena keeps the viewport. The 44&nbsp;px touch floor never moves; the primary action gets 52&nbsp;px.</p>
+          <div class="title-rule">Live instance</div>
+        </div>
+
+        <div class="doc-grid-wide">
+          <div>
+            <div class="device">
+              <div class="device-screen">
+                <div class="mini-head">
+                  <svg class="brand-mark" viewBox="-16 -16 32 32" aria-hidden="true" style="width:22px;height:22px">
+                    <path d="M12.99 -7.5L12.99 7.5L0 15L-12.99 7.5L-12.99 -7.5L0 -15Z" fill="var(--surface-3)" stroke="var(--line-strong)" stroke-width="1.2"/>
+                    <path d="M6.5 -3.8L6.5 3.8L0 7.5L-6.5 3.8L-6.5 -3.8L0 -7.5Z" fill="var(--accent)"/>
+                  </svg>
+                  <strong style="font-size:13px">Fortress</strong>
+                  <span class="badge badge-live" style="margin-left:auto">Turn 1</span>
+                </div>
+                <div class="mini-body">
+                  <div class="player-strip" style="padding:6px 8px">
+                    <span class="turn-dot" aria-hidden="true"></span>
+                    <span class="avatar avatar-sm" aria-hidden="true">B</span>
+                    <div class="grow">
+                      <div class="player-name" style="font-size:12.5px">Opponent</div>
+                      <div class="player-sub">16 pieces</div>
+                    </div>
+                    <span class="badge badge-move">to move</span>
+                  </div>
+                  <div class="stage" style="margin:0">
+                    <div class="board-chrome">
+                      <span class="badge badge-accent">Arena</span>
+                      <span class="board-hint">Move 1 of 2</span>
+                    </div>
+                    <svg id="board-mini" class="stage-svg" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"></svg>
+                  </div>
+                  <div class="mobile-actions" style="position:static;margin:0">
+                    <button class="btn btn-outline btn-sm" type="button" data-action="undo">Undo</button>
+                    <button class="btn btn-primary primary-span btn-sm" type="button" data-action="accept">Accept turn</button>
+                  </div>
+                </div>
+                <div class="mini-tabbar" aria-hidden="true">
+                  <span class="is-on">Arena</span>
+                  <span>Watch</span>
+                  <span>Ranks</span>
+                  <span>Rules</span>
+                  <span>Mobile</span>
+                </div>
+              </div>
+            </div>
+            <p class="device-scale-note">392 × 640 CSS pixels — resize this window below 860&nbsp;px to drive the same layout for real.</p>
+          </div>
+
+          <div class="stack">
+            <div class="panel">
+              <div class="panel-head"><h3>What changes</h3></div>
+              <div class="panel-body" style="padding:0">
+                <div class="list">
+                  <div class="list-row"><span class="list-main"><strong>Navigation to the thumb</strong><span class="meta" style="display:block">Five destinations move into a bottom tab bar, safe-area aware.</span></span></div>
+                  <div class="list-row"><span class="list-main"><strong>The awaited action goes full width</strong><span class="meta" style="display:block">Accept spans the thumb bar and stays sticky above the tab bar all turn.</span></span></div>
+                  <div class="list-row"><span class="list-main"><strong>Rails collapse to rows</strong><span class="meta" style="display:block">The action rail stacks under the board; wide tables scroll rather than squeeze.</span></span></div>
+                  <div class="list-row"><span class="list-main"><strong>Chrome gets denser</strong><span class="meta" style="display:block">The board header drops its captions and keeps the phase badge.</span></span></div>
+                  <div class="list-row"><span class="list-main"><strong>Sheets replace modals</strong><span class="meta" style="display:block">Dialogs become bottom sheets with a grab handle and a sticky action row.</span></span></div>
+                </div>
+              </div>
+            </div>
+
+            <div class="panel">
+              <div class="panel-head"><h3>Breakpoints</h3></div>
+              <div class="panel-body" style="padding:0">
+                <table class="table">
+                  <thead><tr><th scope="col">Width</th><th scope="col">Layout</th></tr></thead>
+                  <tbody>
+                    <tr><td class="mono">≥ 1400px</td><td>Menu rail, board, action rail — three columns</td></tr>
+                    <tr><td class="mono">1101–1399px</td><td>Menu rail beside the board and the action rail</td></tr>
+                    <tr><td class="mono">861–1120px</td><td>Menu rail stays; the action rail drops under the board as a two-up grid</td></tr>
+                    <tr><td class="mono">≤ 860px</td><td>Menu becomes an off-canvas drawer, bottom tab bar, sticky thumb actions</td></tr>
+                    <tr><td class="mono">≤ 420px</td><td>Tighter tab labels, smaller wordmark</td></tr>
+                    <tr><td class="mono">landscape ≤ 520px</td><td>Tab bar returns to the flow, rails go two-up</td></tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            <div class="callout callout-move">
+              <span class="badge badge-move">Touch</span>
+              <div>
+                <b>One gesture language</b>
+                <p class="meta">Tap a piece, then tap a destination. Mouse, touch and pen all arrive through a single delegated listener, every control is a real button with a visible focus ring, and pinch zoom and text zoom stay available.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    </main>
+  </div>
+
+  <!-- ===================================================================
+       SIDEBAR — the whole menu lives in one column on the RIGHT of the
+       board: the wordmark and its collapse chevron, the five
+       destinations, then the session block pinned to the bottom. It is a
+       sibling of the content rather than a child of a view, so the menu is
+       the same on every page and never scrolls away from the thumb.
+       =================================================================== -->
+  <aside class="sidebar" id="sidebar" aria-label="Main menu">
+    <div class="sidebar-head">
+      <a class="brand" href="#play" data-nav="play">
+        <svg class="brand-mark" viewBox="-16 -16 32 32" aria-hidden="true">
+          <path d="M12.99 -7.5L12.99 7.5L0 15L-12.99 7.5L-12.99 -7.5L0 -15Z" fill="var(--surface-3)" stroke="var(--line-strong)" stroke-width="1.2"/>
+          <path d="M6.5 -3.8L6.5 3.8L0 7.5L-6.5 3.8L-6.5 -3.8L0 -7.5Z" fill="var(--accent)"/>
+          <path d="M-1.7 -3.4h3.4v6.8h-3.4z" fill="var(--on-accent)"/>
+        </svg>
+        <span class="brand-name">Fortress</span>
+      </a>
+      <button class="side-toggle tip" type="button" data-action="sidebar" data-tip="Collapse the menu" aria-label="Collapse the menu" aria-expanded="true" aria-controls="sidebar">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M9.5 5.5 16 12l-6.5 6.5"/></svg>
+      </button>
+    </div>
+
+    <nav class="side-nav" aria-label="Sections">
+      <a class="tip" href="#play" data-nav="play" data-tip="Play">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><rect x="2.5" y="7" width="19" height="10" rx="5"/><path d="M6.5 10.5v3M5 12h3"/><circle cx="16" cy="11" r="1.1"/><circle cx="18.2" cy="13.6" r="1.1"/></svg>
+        <span>Play</span>
+      </a>
+      <a class="tip" href="#watch" data-nav="watch" data-tip="Watch">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M2.5 12S6 5.8 12 5.8 21.5 12 21.5 12 18 18.2 12 18.2 2.5 12 2.5 12Z"/><circle cx="12" cy="12" r="2.6"/></svg>
+        <span>Watch</span>
+      </a>
+      <a class="tip" href="#ranks" data-nav="ranks" data-tip="Ranks">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M8 4h8v4a4 4 0 0 1-8 0z"/><path d="M8 5H5.5A1.5 1.5 0 0 0 4 6.5C4 9 6 10.5 8.5 10.5M16 5h2.5A1.5 1.5 0 0 1 20 6.5C20 9 18 10.5 15.5 10.5M12 12v3M8.5 20.5h7M10 15.5h4"/></svg>
+        <span>Ranks</span>
+      </a>
+      <a class="tip" href="#rules" data-nav="rules" data-tip="Rules">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M4 5h11a3 3 0 0 1 3 3v11H7a3 3 0 0 1-3-3z"/><path d="M8 9h6M8 13h6"/></svg>
+        <span>Rules</span>
+      </a>
+      <a class="tip" href="#mobile" data-nav="mobile" data-tip="Survey">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><rect x="5" y="3" width="14" height="18" rx="2.5"/><path d="M9.5 8h5M9.5 12h5M9.5 16h3"/></svg>
+        <span>Survey</span>
+      </a>
+    </nav>
+
+    <!-- The menu is deliberately short. The five destinations are the whole
+         navigation; below the divider sit the two things that are not
+         destinations, then who you are. Everything else — the mode switch, a
+         new game, the library, the design-system reference — lives with the
+         content it changes, not in the rail. -->
+    <div class="sidebar-foot">
+      <button class="side-link tip" type="button" data-action="feedback" data-tip="Feedback">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M21 12a8 8 0 0 1-8 8H4l2-3.2A8 8 0 1 1 21 12Z"/><path d="M12 9v6M9 12h6"/></svg>
+        <span>Feedback</span>
+      </button>
+      <button class="side-link tip" type="button" data-action="notifications" data-tip="Notifications">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M18 8.5a6 6 0 1 0-12 0c0 5-2 6.5-2 6.5h16s-2-1.5-2-6.5Z"/><path d="M10.5 19a2 2 0 0 0 3 0"/></svg>
+        <span>Notifications</span>
+      </button>
+
+      <button class="side-user tip" type="button" data-action="profile" data-tip="Guest session">
+        <span class="avatar avatar-md" aria-hidden="true" data-user-avatar>G</span>
+        <span class="side-user-text">
+          <span class="side-user-name"><b data-user-name>guest43</b><span class="badge badge-accent" data-user-badge>Guest</span></span>
+          <span class="meta" data-user-sub>Guest session</span>
+        </span>
+        <svg class="side-user-caret" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="m9 6 6 6-6 6"/></svg>
+      </button>
+    </div>
+  </aside>
+</div>
+
+<div class="scrim" data-action="sidebar-close" aria-hidden="true"></div>
+
+<nav class="tabbar" aria-label="Sections">
+  <button type="button" data-nav="play">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M12 2 21 7v10l-9 5-9-5V7z"/></svg>
+    Arena
+  </button>
+  <button type="button" data-nav="watch">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M2.5 12S6 5.8 12 5.8 21.5 12 21.5 12 18 18.2 12 18.2 2.5 12 2.5 12Z"/><circle cx="12" cy="12" r="2.6"/></svg>
+    Watch
+  </button>
+  <button type="button" data-nav="ranks">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M8 4h8v4a4 4 0 0 1-8 0z"/><path d="M8 5H5.5A1.5 1.5 0 0 0 4 6.5C4 9 6 10.5 8.5 10.5M16 5h2.5A1.5 1.5 0 0 1 20 6.5C20 9 18 10.5 15.5 10.5M12 12v3M8.5 20.5h7M10 15.5h4"/></svg>
+    Ranks
+  </button>
+  <button type="button" data-nav="rules">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M4 5h11a3 3 0 0 1 3 3v11H7a3 3 0 0 1-3-3z"/><path d="M8 9h6M8 13h6"/></svg>
+    Rules
+  </button>
+  <button type="button" data-nav="mobile">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><rect x="7" y="2" width="10" height="20" rx="3"/><path d="M11 19h2"/></svg>
+    Mobile
+  </button>
+</nav>
+
+<div class="toasts" id="toasts" aria-live="polite" aria-atomic="false"></div>
+
+<script src="../js/hex.js"></script>
+<script src="../js/rules.js"></script>
+<script src="../js/catalog.js"></script>
+<script src="../js/bot.js"></script>
+<script src="../js/board.js"></script>
+<script src="../js/ui.js"></script>
+<script src="../js/social.js"></script>
+<script src="../js/app.js"></script>
+
+<script>
+(function () {
+  var out = [], errors = [];
+  function say(s) { out.push(s); }
+  function cs(el, pseudo) { return getComputedStyle(el, pseudo || null); }
+  function press(el) { el.dispatchEvent(new MouseEvent('click', { bubbles: true, cancelable: true })); }
+  window.addEventListener('error', function (e) { errors.push('window: ' + e.message); });
+
+  function prop(name) { return cs(document.documentElement).getPropertyValue(name).trim(); }
+  function pickTheme(id) { press(document.querySelector('#theme-quick [data-board="' + id + '"]')); }
+  function pickBg(id) { press(document.querySelector('#bg-quick [data-bg="' + id + '"]')); }
+  function report(tag) {
+    var html = document.documentElement;
+    var bd = document.querySelector('.board-backdrop');
+    var cell = document.querySelector('#board .cell');
+    var body = document.body;
+    say('--- ' + tag + ' (' + html.getAttribute('data-mode') + ') ---');
+    say('html data-board=' + html.getAttribute('data-board') + ' data-bg=' + html.getAttribute('data-bg'));
+    say('--b-a=' + prop('--b-a') + '  --b-plate=' + prop('--b-plate') +
+        '  --mix-a=' + prop('--mix-a') + '  --cell-sel=' + prop('--cell-sel'));
+    say('--cell-a=' + prop('--cell-a') + '  --board-plate=' + prop('--board-plate'));
+    say('board backdrop fill=' + (bd ? cs(bd).fill : 'MISSING') +
+        '  cell fill=' + (cell ? cs(cell).fill : 'MISSING'));
+    say('body bg-color=' + cs(body).backgroundColor + '  grain=' + cs(body, '::before').opacity);
+    say('body bg-image=' + cs(body).backgroundImage.slice(0, 58));
+  }
+  function go() {
+    try {
+      report('shipped default');
+      pickBg('n07-ironstone');
+      pickTheme('tex08-board-concrete');
+      report('Ironstone Strata + Board Concrete');
+      pickTheme('tex07-copper-patina');
+      report('Copper Patina (remapped selection)');
+      document.documentElement.setAttribute('data-mode', 'light');
+      report('Copper Patina, light mode');
+      document.documentElement.setAttribute('data-mode', 'dark');
+      return;
+      var html = document.documentElement;
+      var body = document.body;
+      var bd = document.querySelector('.board-backdrop');
+      var cell = document.querySelector('#board .cell');
+      var stage = document.querySelector('.stage');
+      say('html data-board=' + html.getAttribute('data-board') + '  data-bg=' + html.getAttribute('data-bg') +
+          '  data-mode=' + html.getAttribute('data-mode'));
+      say('body  bg-color=' + cs(body).backgroundColor);
+      say('body  bg-image=' + cs(body).backgroundImage.slice(0, 70));
+      say('body::before opacity(--grain)=' + cs(body, '::before').opacity);
+      say('html --bg-base=' + cs(html).getPropertyValue('--bg-base').trim() +
+          ' --grain=' + cs(html).getPropertyValue('--grain').trim() +
+          ' --vignette=' + cs(html).getPropertyValue('--vignette').trim());
+      say('board backdrop fill=' + (bd ? cs(bd).fill : 'MISSING'));
+      say('board cell fill=' + (cell ? cs(cell).fill : 'MISSING'));
+      say('html --b-plate=' + cs(html).getPropertyValue('--b-plate').trim() +
+          ' --board-plate=' + cs(html).getPropertyValue('--board-plate').trim());
+      say('stage bg=' + (stage ? cs(stage).backgroundColor : 'MISSING'));
+      say('panel surface-1=' + cs(document.querySelector('.panel')).backgroundColor);
+      say('selected theme card plate=' +
+          cs(document.querySelector('#theme-quick [data-board="tex08-board-concrete"] .swatch')).backgroundColor);
+    } catch (err) { errors.push('probe: ' + err.message); }
+    say('JS errors: ' + (errors.length ? errors.join(' | ') : 'none'));
+
+    var pre = document.createElement('pre');
+    pre.id = 'probe-out';
+    pre.textContent = out.join('\n');
+    pre.style.cssText = 'position:fixed;right:0;bottom:0;z-index:200;max-width:520px;margin:0;padding:6px;' +
+      'background:#fff;color:#000;font:11px/1.4 monospace;white-space:pre-wrap';
+    document.body.appendChild(pre);
+  }
+  var fired = false;
+  function once() { if (fired) { return; } fired = true; go(); }
+  window.setTimeout(once, 1600);
+  window.addEventListener('load', function () { window.setTimeout(once, 700); });
+})();
+</script>
+
+</body>
+</html>

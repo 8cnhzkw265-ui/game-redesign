@@ -1,0 +1,16 @@
+﻿  75 |                 <button class="btn btn-ghost btn-icon btn-sm" type="button" aria-label="Game menu">â‹®</button>
+  76 |               </div>
+  77 |             </div>
+  78 | 
+  79 |             <div class="board-frame">
+  80 |             <div class="player-strip player-top" id="strip-black">
+  81 |               <span class="turn-dot" aria-hidden="true"></span>
+  82 |               <span class="avatar avatar-md" aria-hidden="true">B</span>
+  83 |               <div class="grow">
+  84 |                 <div class="player-name" id="black-name">Black</div>
+  85 |                 <div class="player-sub" id="black-sub">16 pieces</div>
+  86 |                 <div class="captured" id="captured-black" aria-label="Black losses"></div>
+  87 |               </div>
+  88 |               <div class="clock" id="clock-black" role="timer" aria-label="Black clock">â€”</div>
+  89 |             </div>
+  90 | 

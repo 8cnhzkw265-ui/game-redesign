@@ -1,0 +1,75 @@
+<!doctype html>
+<html lang="en" data-mode="dark" data-board="tex01-forged-steel" data-bg="t01-brushed-graphite">
+<head>
+<meta charset="utf-8">
+<title>Probe · picker paint</title>
+<link rel="stylesheet" href="../css/tokens.css">
+<link rel="stylesheet" href="../css/base.css">
+<link rel="stylesheet" href="../css/backgrounds.css">
+<link rel="stylesheet" href="../css/themes.css">
+<link rel="stylesheet" href="../css/board.css">
+<link rel="stylesheet" href="../css/layout.css">
+<link rel="stylesheet" href="../css/components.css">
+<link rel="stylesheet" href="../css/mobile.css">
+<style>
+  #theme-quick{ display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:12px; max-width:360px; }
+  #bg-quick{ display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:12px; max-width:360px; }
+</style>
+</head>
+<body>
+<pre id="out" class="mono" style="position:relative;z-index:5;background:#fff;color:#000"></pre>
+<div id="theme-quick"></div>
+<div id="bg-quick"></div>
+<script src="../js/hex.js"></script>
+<script src="../js/catalog.js"></script>
+<script src="../js/ui.js"></script>
+<script>
+var lines = [];
+function say(s) { lines.push(s); }
+window.addEventListener('error', function (e) { say('JS ERROR: ' + e.message); });
+
+var prefs = { board: 'tex01-forged-steel', background: 't01-brushed-graphite' };
+FT.ui.fillThemeGrid(document.getElementById('theme-quick'), prefs, function () {}, 'all');
+FT.ui.fillBackgroundGrid(document.getElementById('bg-quick'), prefs, function () {}, 'all');
+
+function cs(el) { return getComputedStyle(el); }
+function prop(el, name) { return cs(el).getPropertyValue(name).trim(); }
+
+say('cards: themes=' + document.querySelectorAll('#theme-quick .theme-card').length +
+    ' backgrounds=' + document.querySelectorAll('#bg-quick .choice-card').length);
+
+function report(tag) {
+  say('--- ' + tag + ' ---');
+  say('html --cell-a / --board-plate = ' + prop(document.documentElement, '--cell-a') +
+      ' / ' + prop(document.documentElement, '--board-plate'));
+  ['tex01-forged-steel', 'tex03-basalt-column', 'tex05-micro-cement', 'nat05-limestone', 'tex07-copper-patina']
+    .forEach(function (id) {
+      var card = document.querySelector('.theme-card[data-board="' + id + '"]');
+      if (!card) { say('MISSING card ' + id); return; }
+      var path = card.querySelector('.cell');
+      say(id +
+          '  --b-a=' + prop(card, '--b-a') +
+          '  card --cell-a=' + prop(card, '--cell-a') +
+          '  path fill=' + (path ? cs(path).fill : 'no path') +
+          '  swatch bg=' + prop(card.querySelector('.swatch'), 'background-color'));
+    });
+
+  ['t01-brushed-graphite', 't03-basalt-columns', 'n05-limestone'].forEach(function (id) {
+    var chip = document.querySelector('.bg-chip[data-bg="' + id + '"]');
+    if (!chip) { say('MISSING chip ' + id); return; }
+    var s = cs(chip);
+    say(id + '  chip image=' + (s.backgroundImage === 'none' ? 'NONE' : s.backgroundImage.slice(0, 54) + '…') +
+        '  base=' + s.backgroundColor + '  h=' + s.height +
+        '  pos=' + s.position + '  wash=' + getComputedStyle(chip, '::after').backgroundColor);
+  });
+}
+
+report('dark');
+document.documentElement.setAttribute('data-mode', 'light');
+report('light');
+document.documentElement.setAttribute('data-mode', 'dark');
+
+document.getElementById('out').textContent = lines.join('\n');
+</script>
+</body>
+</html>

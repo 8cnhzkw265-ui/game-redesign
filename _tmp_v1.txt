@@ -1,0 +1,30 @@
+﻿  21 | <a class="skip" href="#main">Skip to the game</a>
+  22 | 
+  23 | <div class="shell">
+  24 | 
+  25 |   <div class="shell-main">
+  26 |     <!-- Compact bar: only what the off-canvas drawer cannot supply â€” the
+  27 |          handle, the wordmark, and the two global controls. -->
+  28 |     <header class="topbar">
+  29 |       <button class="btn btn-ghost btn-icon tip" type="button" data-action="sidebar" data-tip="Open the menu" aria-label="Open the menu" aria-controls="sidebar">
+  30 |         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"/></svg>
+  31 |       </button>
+  32 |       <a class="brand" href="#play" data-nav="play">
+  33 |         <svg class="brand-mark" viewBox="-16 -16 32 32" aria-hidden="true">
+  34 |           <path d="M12.99 -7.5L12.99 7.5L0 15L-12.99 7.5L-12.99 -7.5L0 -15Z" fill="var(--surface-3)" stroke="var(--line-strong)" stroke-width="1.2"/>
+  35 |           <path d="M6.5 -3.8L6.5 3.8L0 7.5L-6.5 3.8L-6.5 -3.8L0 -7.5Z" fill="var(--accent)"/>
+  36 |           <path d="M-1.7 -3.4h3.4v6.8h-3.4z" fill="var(--on-accent)"/>
+  37 |         </svg>
+  38 |         <span class="brand-name">Fortress</span>
+  39 |       </a>
+  40 |       <div class="topbar-actions">
+  41 |         <button class="btn btn-ghost btn-sm tip" type="button" data-action="mode" data-tip="Dark / light material" aria-pressed="false">
+  42 |           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M12 3v2M12 19v2M3 12h2M19 12h2M5.6 5.6l1.4 1.4M17 17l1.4 1.4M18.4 5.6 17 7M7 17l-1.4 1.4"/><circle cx="12" cy="12" r="4"/></svg>
+  43 |           <span data-mode-text>Dark</span>
+  44 |         </button>
+  45 |         <button class="btn btn-secondary btn-sm" type="button" data-action="new">New game</button>
+  46 |       </div>
+  47 |     </header>
+  48 | 
+  49 |     <main id="main">
+  50 |     <!-- =====================================================================

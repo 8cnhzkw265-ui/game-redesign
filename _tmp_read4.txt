@@ -1,0 +1,36 @@
+﻿ 144 | /* Drawer scrim: inert until the mobile layer sets .is-drawer-open. */
+ 145 | .scrim{
+ 146 |   position:fixed; inset:0; z-index:55;
+ 147 |   background:var(--scrim);
+ 148 |   opacity:0; pointer-events:none;
+ 149 |   transition:opacity var(--t-mid) var(--ease);
+ 150 | }
+ 151 | html.is-drawer-open .scrim{ opacity:1; pointer-events:auto; }
+ 152 | 
+ 153 | /* The compact bar only exists once the sidebar has left the flow. */
+ 154 | .topbar{ display:none; }
+ 155 | 
+ 156 | /* --- collapsed rail: icons carry the menu, tooltips carry the names ------- */
+ 157 | html[data-rail="mini"] .sidebar-head{
+ 158 |   flex-direction:column; gap:6px; padding:10px 0; min-height:0;
+ 159 | }
+ 160 | html[data-rail="mini"] .sidebar-head .brand{ flex:0 0 auto; }
+ 161 | html[data-rail="mini"] .brand-name,
+ 162 | html[data-rail="mini"] .side-nav a span,
+ 163 | html[data-rail="mini"] .side-link span,
+ 164 | html[data-rail="mini"] .side-user-text,
+ 165 | html[data-rail="mini"] .side-user-caret{ display:none; }
+ 166 | html[data-rail="mini"] .side-nav a,
+ 167 | html[data-rail="mini"] .side-link,
+ 168 | html[data-rail="mini"] .side-user{ justify-content:center; padding:0; }
+ 169 | html[data-rail="mini"] .side-user{ padding:8px; }
+ 170 | /* Collapsed, the icons ARE the menu, so they are drawn at a readable size
+ 171 |    rather than shrunk to fit. Anything smaller reads as a stray glyph floating
+ 172 |    in an empty column. Sizes stay above the 44px touch floor. */
+ 173 | html[data-rail="mini"] .side-nav a{ min-height:48px; }
+ 174 | html[data-rail="mini"] .side-nav a svg{ width:23px; height:23px; }
+ 175 | html[data-rail="mini"] .side-link{ min-height:46px; }
+ 176 | html[data-rail="mini"] .side-link svg{ width:22px; height:22px; }
+ 177 | html[data-rail="mini"] .side-toggle{ width:var(--tap-lg); height:var(--tap-lg); }
+ 178 | html[data-rail="mini"] .side-toggle svg{ width:21px; height:21px; }
+ 179 | /* The rail is one column of icons now, so tighten the rhythm to keep the whole

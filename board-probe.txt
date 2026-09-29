@@ -1,0 +1,45 @@
+=== 1440,900 ===
+viewport=1410x805
+docScrollW=1429
+stage      12..706 w694 h662 T72 B734
+stage pad  62px/62px overflow=hidden
+svg box    24..694 w670 h538 T134 B672
+svg css    h=537.656px maxH=none minH=0px w=670px flex=0 1 auto
+viewBox    0 0 563.9 569.6 par=xMidYMid meet
+svg client 670x538 scale=0.945 letterboxX=69 letterboxY=0
+content    97..621 h529 T139 B667
+CLIP top=-67 bottom=-67  => fits
+overlap .player-top = no
+overlap .player-bottom = no
+overlap .board-chrome = no
+overlap .action-bar = no
+.player-top T84 B134 h50 pos=absolute
+   [turn-dot] "" w9 h9 disp=block color=rgb(242, 243, 245) vis=visible
+   [avatar avatar-md] "B" w36 h36 disp=grid color=rgb(25, 26, 28) vis=visible
+   [player-name] "Veteran AI" w71 h23 disp=block color=rgb(242, 243, 245) vis=visible
+   [player-sub] "16 pieces · total STR 94" w124 h18 disp=block color=rgb(111, 117, 126) vis=visible
+   [meta] "Nothing lost yet" w87 h18 disp=block color=rgb(111, 117, 126) vis=visible
+   [clock] "—" w86 h34 disp=block color=rgb(86, 91, 99) vis=visible
+.player-bottom T672 B722 h50 pos=absolute
+   [turn-dot] "" w9 h9 disp=block color=rgb(242, 243, 245) vis=visible
+   [avatar avatar-md] "W" w36 h36 disp=grid color=rgb(25, 26, 28) vis=visible
+   [player-name] "You" w25 h23 disp=block color=rgb(242, 243, 245) vis=visible
+   [player-sub] "16 pieces · total STR 94" w124 h18 disp=block color=rgb(111, 117, 126) vis=visible
+   [meta] "Nothing lost yet" w87 h18 disp=block color=rgb(111, 117, 126) vis=visible
+   [clock] "—" w86 h34 disp=block color=rgb(86, 91, 99) vis=visible
+mode=light text1=#191a1c
+  chain DIV.player-name color=rgb(242, 243, 245) rule-inline=none
+  chain DIV.grow color=rgb(242, 243, 245) rule-inline=none
+  chain DIV.player-strip player-top color=rgb(242, 243, 245) rule-inline=none
+  chain DIV.board-frame color=rgb(242, 243, 245) rule-inline=none
+  chain DIV.cockpit color=rgb(242, 243, 245) rule-inline=none
+  chain DIV.play-layout color=rgb(242, 243, 245) rule-inline=none
+  chain DIV.wrap color=rgb(242, 243, 245) rule-inline=none
+  chain SECTION.view is-active color=rgb(242, 243, 245) rule-inline=none
+  chain MAIN.- color=rgb(242, 243, 245) rule-inline=none
+  chain DIV.shell-main color=rgb(242, 243, 245) rule-inline=none
+  chain DIV.shell color=rgb(242, 243, 245) rule-inline=none
+  chain BODY.- color=rgb(242, 243, 245) rule-inline=none
+cockpit mid=359 content mid=359 dx=0
+one hex    w65 h76
+errors=0

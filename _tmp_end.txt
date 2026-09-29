@@ -1,0 +1,22 @@
+﻿ 917 |                 <p class="meta">Tap a piece, then tap a destination. Mouse, touch and pen all arrive through a single delegated listener, every control is a real button with a visible focus ring, and pinch zoom and text zoom stay available.</p>
+ 918 |               </div>
+ 919 |             </div>
+ 920 |           </div>
+ 921 |         </div>
+ 922 |       </div>
+ 923 |     </section>
+ 924 | 
+ 925 |     </main>
+ 926 |   </div>
+ 927 | </div>
+ 928 | 
+ 929 | <div class="scrim" data-action="sidebar-close" aria-hidden="true"></div>
+ 930 | 
+ 931 | <nav class="tabbar" aria-label="Sections">
+ 932 |   <button type="button" data-nav="play">
+ 933 |     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M12 2 21 7v10l-9 5-9-5V7z"/></svg>
+ 934 |     Arena
+ 935 |   </button>
+ 936 |   <button type="button" data-nav="watch">
+ 937 |     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M2.5 12S6 5.8 12 5.8 21.5 12 21.5 12 18 18.2 12 18.2 2.5 12 2.5 12Z"/><circle cx="12" cy="12" r="2.6"/></svg>
+ 938 |     Watch

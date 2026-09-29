@@ -1,0 +1,151 @@
+/* ==========================================================================
+   FORTRESS — "FORGED" DESIGN SYSTEM
+   01 · Tokens (dark + light)
+
+   One accent, one neutral ramp per mode, semantic tactical colours,
+   8-pt spacing grid, hairline+occlusion elevation. Everything else in this
+   project consumes these variables — never hard-coded values.
+   ========================================================================== */
+
+:root{
+  color-scheme: dark;
+
+  /* ---- neutral ramp · cold steel, never blue ------------------------------ */
+  --n-950:#08090b; --n-900:#0c0d10; --n-880:#0f1114; --n-850:#121419;
+  --n-800:#161a1f; --n-750:#1b1f26; --n-700:#21262e; --n-650:#292e37;
+  --n-600:#333944; --n-550:#3f4650; --n-500:#4c545f; --n-400:#6b737e;
+  --n-300:#878f9a; --n-200:#aab1bb; --n-100:#d7dbe0; --n-050:#f2f3f5;
+
+  /* ---- surfaces ---------------------------------------------------------- */
+  --bg-app:var(--n-900);
+  --bg-canvas:var(--n-880);
+  --surface-1:var(--n-800);
+  --surface-2:var(--n-750);
+  --surface-3:var(--n-700);
+  --surface-inset:var(--n-950);
+  --line:var(--n-650);
+  --line-strong:var(--n-600);
+  --line-soft:rgb(255 255 255 / .06);
+  --line-top:rgb(255 255 255 / .07);
+
+  /* ---- text (contrast on --surface-1) ------------------------------------ */
+  --text-1:var(--n-050);   /* 15.4:1  AAA  */
+  --text-2:var(--n-200);   /*  7.6:1  AAA  */
+  --text-3:var(--n-300);   /*  4.9:1  AA — meta only, never body copy */
+
+  /* ---- accent · forge amber --------------------------------------------- */
+  --accent:#e5a93c;
+  --accent-hi:#f6c15f;
+  --accent-lo:#b57f1c;
+  --accent-soft:rgb(229 169 60 / .14);
+  --accent-line:rgb(229 169 60 / .40);
+  --accent-glow:rgb(229 169 60 / .28);
+  --on-accent:#14100a;     /* 9.9:1 on --accent */
+
+  /* ---- tactical semantics · one meaning each ---------------------------- */
+  --move:#4fd6e2;     --move-strong:#7de5ee;  --move-soft:rgb(79 214 226 / .16);
+  --danger:#e0575c;   --danger-hi:#ef7075;    --danger-soft:rgb(224 87 92 / .16);
+  --success:#46c07a;  --success-hi:#5ed48f;   --success-soft:rgb(70 192 122 / .16);
+  --warning:#e0ab45;  --warning-soft:rgb(224 171 69 / .15);
+  --info:#8f9bf0;     --info-soft:rgb(143 155 240 / .15);
+  --promo:#d8b03a;
+  --scrim:rgb(6 7 9 / .72);
+
+  /* ---- elevation · hairline highlight + ambient occlusion --------------- */
+  --e1:0 1px 0 var(--line-top), 0 1px 2px rgb(0 0 0 / .55);
+  --e2:0 1px 0 var(--line-top), 0 10px 26px -10px rgb(0 0 0 / .70);
+  --e3:0 1px 0 var(--line-top), 0 34px 70px -18px rgb(0 0 0 / .80);
+
+  /* ---- geometry ---------------------------------------------------------- */
+  --r-xs:4px; --r-sm:7px; --r-md:11px; --r-lg:16px; --r-xl:22px; --r-pill:999px;
+  --s-1:4px;  --s-2:8px;  --s-3:12px; --s-4:16px;
+  --s-5:24px; --s-6:32px; --s-7:48px; --s-8:64px;
+  --tap:44px;      /* absolute minimum touch target */
+  --tap-lg:52px;   /* mobile primary controls        */
+  --rail-w:296px;  /* the side menu, fully expanded  */
+  --rail-mini:88px;/* the side menu, collapsed to icons */
+
+  /* ---- motion ------------------------------------------------------------ */
+  --t-fast:120ms; --t-mid:200ms; --t-slow:340ms;
+  --ease:cubic-bezier(.2,.7,.3,1);
+  --ease-out:cubic-bezier(.16,1,.3,1);
+  --dur-move:240ms;   /* fast enough to chain, slow enough to track */
+
+  /* ---- type -------------------------------------------------------------- */
+  --font-display:"Outfit","Segoe UI Variable Display","Segoe UI",system-ui,sans-serif;
+  --font-body:"DM Sans","Segoe UI",system-ui,-apple-system,sans-serif;
+  --font-mono:"Cascadia Mono",ui-monospace,"SFMono-Regular",Consolas,monospace;
+
+  /* ---- material overlay strength (backgrounds read these) ---------------- */
+  --grain:.05;
+  --sheen:.05;
+  --vignette:.55;
+  --pattern:1;
+  --panel-blur:14px;   /* sticky chrome frosted-glass radius */
+}
+
+/* ==========================================================================
+   LIGHT MODE — identical material story, inverted temperature:
+   warm chalk limestone instead of cold basalt, bronze instead of amber.
+   Every pairing below was checked for >= 4.5:1 (text) / 3:1 (UI edges).
+   ========================================================================== */
+html[data-mode="light"]{
+  color-scheme: light;
+
+  --n-950:#ffffff; --n-900:#f7f6f3; --n-880:#f2f1ed; --n-850:#ffffff;
+  --n-800:#ffffff; --n-750:#f5f3ee; --n-700:#eae7de; --n-650:#ded9cd;
+  --n-600:#c9c3b4; --n-550:#b3ac9c; --n-500:#8e8779; --n-400:#6f757e;
+  --n-300:#6f757e; --n-200:#565b63; --n-100:#2b2c2e; --n-050:#1b1c1e;
+
+  --bg-app:var(--n-880);
+  --bg-canvas:var(--n-900);
+  --surface-1:#fffefb;
+  --surface-2:#f7f5f0;
+  --surface-3:#efebe2;
+  --surface-inset:#e8e4d9;
+  --line:#dfd9cb;
+  --line-strong:#c6bfae;
+  --line-soft:rgb(27 28 30 / .07);
+  --line-top:rgb(255 255 255 / .9);
+
+  --text-1:#191a1c;   /* 16.6:1 */
+  --text-2:#565b63;   /*  7.3:1 */
+  --text-3:#6f757e;   /*  4.9:1 */
+
+  --accent:#96610c;         /* burnished bronze */
+  --accent-hi:#7a4e08;
+  --accent-lo:#c08a22;
+  --accent-soft:rgb(150 97 12 / .12);
+  --accent-line:rgb(150 97 12 / .36);
+  --accent-glow:rgb(150 97 12 / .22);
+  --on-accent:#fffdf7;      /* 5.9:1 on --accent */
+
+  --move:#0d6672;     --move-strong:#0a5058;  --move-soft:rgb(13 102 114 / .12);
+  --danger:#b3282f;   --danger-hi:#8f1f25;    --danger-soft:rgb(179 40 47 / .11);
+  --success:#1f7a4a;  --success-hi:#17603a;   --success-soft:rgb(31 122 74 / .12);
+  --warning:#8a5d05;  --warning-soft:rgb(138 93 5 / .12);
+  --info:#3f4bb0;     --info-soft:rgb(63 75 176 / .12);
+  --promo:#a9750f;
+  --scrim:rgb(28 25 19 / .48);
+
+  --e1:0 1px 2px rgb(27 28 30 / .07), 0 1px 0 var(--line-top);
+  --e2:0 6px 18px -8px rgb(27 28 30 / .16), 0 1px 0 var(--line-top);
+  --e3:0 30px 60px -22px rgb(27 28 30 / .28), 0 1px 0 var(--line-top);
+
+  --grain:.035;
+  --sheen:.10;
+  --vignette:.30;
+}
+
+/* ==========================================================================
+   DENSITY · mobile tightens the grid, the 44px touch floor never moves.
+   ========================================================================== */
+@media (max-width: 700px){
+  :root{ --s-5:20px; --s-6:24px; --s-7:32px; --s-8:40px; }
+}
+
+/* Reduced transparency / motion fallbacks keep the UI legible everywhere. */
+@media (prefers-reduced-motion: reduce){
+  :root{ --dur-move:0ms; --t-fast:0ms; --t-mid:0ms; --t-slow:0ms; }
+}
+

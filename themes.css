@@ -1,0 +1,132 @@
+/* ==========================================================================
+   08 · Board themes — 20 materials for the arena itself
+   Each theme declares ONE set of material inputs (--b-a / --b-b / --b-line /
+   --b-coord / --b-plate); the light-mode palette and every interaction state
+   are derived from them, so a theme is never defined twice.
+   TEX01-TEX10 are industrial, NAT01-NAT10 are natural stone.
+   ========================================================================== */
+
+/* Default: TEX01 is the shipped pairing (see README for rationale). */
+[data-board="tex01-forged-steel"]{
+  --b-a:#23272d; --b-b:#2d333b; --b-line:#3d444e; --b-coord:#8f96a1; --b-plate:#0d0f12;
+  --mix-a:16%; --mix-b:12%;
+}
+/* Cold mill plate: coarser grain, harder specular line at the plate seam. */
+[data-board="tex02-cold-rolled"]{
+  --b-a:#1f2429; --b-b:#2a3037; --b-line:#39414a; --b-coord:#8792a0; --b-plate:#090b0d;
+  --mix-a:15%; --mix-b:11%;
+}
+[data-board="tex03-basalt-column"]{
+  --b-a:#191c20; --b-b:#23272c; --b-line:#33383f; --b-coord:#7d858e; --b-plate:#0a0b0d;
+  --mix-a:13%; --mix-b:10%;
+}
+[data-board="tex04-honed-slate"]{
+  --b-a:#262a2e; --b-b:#2f3439; --b-line:#3f454b; --b-coord:#939aa1; --b-plate:#101214;
+  --mix-a:17%; --mix-b:13%;
+}
+[data-board="tex05-micro-cement"]{
+  --b-a:#2b2e31; --b-b:#34383c; --b-line:#43484d; --b-coord:#999fa5; --b-plate:#131516;
+  --mix-a:20%; --mix-b:15%;
+}
+[data-board="tex06-carbon-weave"]{
+  --b-a:#14161a; --b-b:#1e2126; --b-line:#2c3037; --b-coord:#79808a; --b-plate:#07080a;
+  --mix-a:12%; --mix-b:10%;
+}
+/* Warm board: amber accent is remapped so selection stays legible on copper. */
+[data-board="tex07-copper-patina"]{
+  --b-a:#6d4526; --b-b:#7c5230; --b-line:#8f6338; --b-coord:#dcb68c; --b-plate:#1a1008;
+  --mix-a:26%; --mix-b:22%;
+  --cell-sel:#ffe7bd; --cell-move:#bdf0f7; --cell-atk:#ffc0c2;
+}
+html[data-mode="light"][data-board="tex07-copper-patina"]{
+  --cell-sel:#8a561c; --cell-move:#0f5f6c; --cell-atk:#a8242a;
+}
+[data-board="tex08-board-concrete"]{
+  --b-a:#3a3d40; --b-b:#44484c; --b-line:#54595e; --b-coord:#a3a8ad; --b-plate:#1a1c1e;
+  --mix-a:24%; --mix-b:19%;
+}
+[data-board="tex09-diamond-tread"]{
+  --b-a:#232830; --b-b:#2e343d; --b-line:#414852; --b-coord:#8b93a0; --b-plate:#0b0d10;
+  --mix-a:16%; --mix-b:12%;
+}
+[data-board="tex10-cast-iron"]{
+  --b-a:#2a2624; --b-b:#332e2b; --b-line:#443d38; --b-coord:#9a918a; --b-plate:#120f0e;
+  --mix-a:18%; --mix-b:14%;
+}
+
+
+/* ------------------------------------------------------------- natural stone */
+[data-board="nat01-granite"]{
+  --b-a:#2f3235; --b-b:#3a3d41; --b-line:#4a4e53; --b-coord:#a0a5aa; --b-plate:#15171a;
+  --mix-a:20%; --mix-b:15%;
+}
+[data-board="nat02-obsidian"]{
+  --b-a:#131519; --b-b:#1c1f24; --b-line:#2a2e34; --b-coord:#7c848e; --b-plate:#050607;
+  --mix-a:10%; --mix-b:9%;
+}
+[data-board="nat03-sandstone"]{
+  --b-a:#7a5f3c; --b-b:#8a6c45; --b-line:#9d7c51; --b-coord:#e6d0ab; --b-plate:#1c140b;
+  --mix-a:26%; --mix-b:22%;
+  --cell-sel:#fff0d2; --cell-move:#c9f2f8; --cell-atk:#ffc6c8;
+}
+html[data-mode="light"][data-board="nat03-sandstone"]{
+  --cell-sel:#8b5c14; --cell-move:#0f5f6c; --cell-atk:#a8242a;
+}
+[data-board="nat04-marble"]{
+  --b-a:#3c4046; --b-b:#484d54; --b-line:#585e66; --b-coord:#aeb5bd; --b-plate:#171a1e;
+  --mix-a:30%; --mix-b:24%;
+}
+[data-board="nat05-limestone"]{
+  --b-a:#55585a; --b-b:#606365; --b-line:#717477; --b-coord:#c2c5c8; --b-plate:#202224;
+  --mix-a:32%; --mix-b:26%;
+}
+[data-board="nat06-onyx"]{
+  --b-a:#17181c; --b-b:#212227; --b-line:#33343a; --b-coord:#8a8b93; --b-plate:#070709;
+  --mix-a:12%; --mix-b:10%;
+}
+[data-board="nat07-ironstone"]{
+  --b-a:#4a2f28; --b-b:#573a30; --b-line:#6a473a; --b-coord:#d3a795; --b-plate:#170e0b;
+  --mix-a:28%; --mix-b:23%;
+  --cell-sel:#ffe2c9; --cell-move:#c6f1f6; --cell-atk:#ffc3c5;
+}
+html[data-mode="light"][data-board="nat07-ironstone"]{
+  --cell-sel:#8c3f1c; --cell-move:#0f5f6c; --cell-atk:#a8242a;
+}
+[data-board="nat08-glacier"]{
+  --b-a:#2b3842; --b-b:#35434e; --b-line:#465663; --b-coord:#a8bac7; --b-plate:#0d1317;
+  --mix-a:22%; --mix-b:17%;
+}
+[data-board="nat09-volcanic-ash"]{
+  --b-a:#2c2d2e; --b-b:#363738; --b-line:#464748; --b-coord:#9b9c9d; --b-plate:#131414;
+  --mix-a:18%; --mix-b:14%;
+}
+/* Aurora: the one theme where the board carries its own colour cast. */
+[data-board="nat10-aurora"]{
+  --b-a:#1a1e2a; --b-b:#242a38; --b-line:#343c4d; --b-coord:#8f9ab2; --b-plate:#080a10;
+  --mix-a:14%; --mix-b:12%;
+  --cell-move:#7ff0e4; --cell-sel:#e9c86a;
+}
+html[data-mode="light"][data-board="nat10-aurora"]{
+  --cell-move:#0d6d78; --cell-sel:#8a5f10;
+}
+
+/* Preview chips in the theme picker reuse the same variables -------------- */
+.swatch{
+  display:block; border-radius:var(--r-sm); overflow:hidden;
+  border:1px solid var(--line); background:var(--board-plate);
+}
+.swatch-board{ display:grid; place-items:center; padding:6px; height:64px; }
+.theme-card{
+  display:grid; gap:6px; padding:6px; text-align:left; cursor:pointer;
+  border:1px solid var(--line); border-radius:var(--r-md); background:var(--surface-2);
+  transition:border-color var(--t-fast) var(--ease), box-shadow var(--t-fast) var(--ease);
+}
+.theme-card:hover{ border-color:var(--line-strong); }
+.theme-card[aria-pressed="true"]{ border-color:var(--accent); box-shadow:0 0 0 1px var(--accent-line); }
+.theme-card .name{ font-size:12px; font-weight:600; color:var(--text-1); display:flex; align-items:center; gap:6px; }
+.theme-card .sub{ font-size:11px; color:var(--text-3); }
+.theme-card.is-default .name::after{
+  content:"Default"; font-size:9px; letter-spacing:.1em; text-transform:uppercase;
+  color:var(--accent); border:1px solid var(--accent-line); border-radius:var(--r-pill);
+  padding:1px 6px;
+}

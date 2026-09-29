@@ -1,0 +1,20 @@
+﻿OK    app.js            32368 bytes
+OK    board.js          14602 bytes
+OK    bot.js             6521 bytes
+OK    catalog.js         7967 bytes
+OK    hex.js             4605 bytes
+OK    rules.js          28382 bytes
+OK    ui.js             16789 bytes
+OK    backgrounds.css     10087 bytes
+OK    base.css             5163 bytes
+OK    board.css            5303 bytes
+OK    components.css      18695 bytes
+OK    layout.css           9835 bytes
+OK    mobile.css           6274 bytes
+OK    themes.css           4292 bytes
+OK    tokens.css           3938 bytes
+WARN  index.html         unclosed: []
+OK    tests\app-test.html tags balanced
+OK    tests\engine-test.html tags balanced
+
+TOTAL FAILURES: 1

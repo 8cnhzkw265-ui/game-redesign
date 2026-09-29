@@ -1,0 +1,81 @@
+      paintOverlay(v);
+
+      if (v.selected && cells[H.key(v.selected)]) {
+        cells[H.key(v.selected)].g.classList.add('is-selected');
+      }
+      if (v.cursor) { cursor = v.cursor; }
+      if (!decorative) { paintCursor(); }
+
+      if (!decorative) {
+        svg.setAttribute('aria-label', state
+          ? 'Fortress board. ' + FT.rules.statusText(state) + '. ' +
+            (state.turn === 'white' ? 'White' : 'Black') + ' to move, move ' + state.moveNumber + '.'
+          : 'Fortress board');
+      }
+    }
+
+    /* Destinations, threat reticles, damage badges: rebuilt every paint. */
+    function paintOverlay(view) {
+      var v = view || {}, state = v.state, legal = v.legal || [];
+      var doomedSet = v.preview ? (v.preview.doomed || {}) : {};
+      legal.forEach(function (h) {
+        var p = at(h);
+        var occ = state ? state.hexOccupant[H.key(h)] : null;
+        var enemy = occ && state.pieces[occ].color !== state.turn;
+        if (enemy) {
+          overlayLayer.appendChild(node('circle', {
+            class: 'attack-reticle' + (doomedSet[occ] ? ' is-lethal' : ''),
+            cx: p.x.toFixed(2), cy: p.y.toFixed(2), r: (radius * 0.55).toFixed(2)
+          }));
+        }
+        overlayLayer.appendChild(node('circle', {
+          class: 'move-dot' + (enemy ? ' is-captureish' : ''),
+          cx: p.x.toFixed(2), cy: p.y.toFixed(2),
+          r: (radius * (enemy ? DOT * 0.8 : DOT)).toFixed(2)
+        }));
+      });
+
+      if (!v.preview || !state) { return; }
+      (v.preview.hexes || []).forEach(function (row) {
+        if (!row.incoming) { return; }
+        var p = at(row.hex);
+        var bx = p.x + radius * 0.40, by = p.y - radius * 0.56;
+        overlayLayer.appendChild(node('circle', {
+          class: 'dmg-badge', cx: bx.toFixed(2), cy: by.toFixed(2), r: (radius * 0.24).toFixed(2)
+        }));
+        var t = node('text', {
+          class: 'dmg-text', x: bx.toFixed(2), y: (by + radius * 0.09).toFixed(2),
+          'font-size': (radius * 0.26).toFixed(1)
+        });
+        t.textContent = '\u2212' + row.incoming;
+        overlayLayer.appendChild(t);
+        if (doomedSet[row.id] && cells[H.key(row.hex)]) {
+          cells[H.key(row.hex)].g.classList.add('is-doomed');
+        }
+      });
+      Object.keys(doomedSet).forEach(function (id) {
+        var piece = state.pieces[id];
+        if (!piece || piece.kind !== 'keep') { return; }
+        var hex = state.positions[id];
+        if (hex && cells[H.key(hex)]) { cells[H.key(hex)].g.classList.add('is-check'); }
+      });
+    }
+
+    /* Combat flash: one short pulse per lost, collapsed or struck hex. */
+    function flash(hexes, kind) {
+      (hexes || []).forEach(function (h) {
+        var p = at(h);
+        var c = node('circle', {
+          class: 'combat-flash' + (kind === 'collapse' ? ' is-warn' : ''),
+          cx: p.x.toFixed(2), cy: p.y.toFixed(2), r: (radius * 0.95).toFixed(2)
+        });
+        overlayLayer.appendChild(c);
+        global.setTimeout(function () {
+          if (c.parentNode) { c.parentNode.removeChild(c); }
+        }, 760);
+      });
+    }
+
+    /* ------------------------------------------------- keyboard cursor (roving) */
+    var STEPS = { right: ['E'], left: ['W'], up: ['NW', 'NE'], down: ['SW', 'SE'] };
+

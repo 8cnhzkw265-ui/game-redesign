@@ -1,0 +1,62 @@
+﻿ 185 |             <div class="action-bar">
+ 186 |               <div class="grow">
+ 187 |                 <span class="phase-pill"><span class="turn-dot" aria-hidden="true"></span><span id="phase-text">Move 1</span></span>
+ 188 |                 <div class="meta" id="status-text" aria-live="polite">Pick a piece, then a highlighted hex.</div>
+ 189 |               </div>
+ 190 |               <div class="row">
+ 191 |                 <button class="btn btn-ghost btn-sm" type="button" data-action="hint">Hint</button>
+ 192 |                 <button class="btn btn-outline" type="button" data-action="undo">Undo move</button>
+ 193 |                 <button class="btn btn-primary" type="button" data-action="accept">Accept turn</button>
+ 194 |               </div>
+ 195 |             </div>
+ 196 | 
+ 197 |             <!-- Thumb zone: the same awaited action, always under the thumb. -->
+ 198 |             <div class="mobile-actions mobile-only" aria-label="Turn actions">
+ 199 |               <button class="btn btn-outline" type="button" data-action="undo">Undo</button>
+ 200 |               <button class="btn btn-primary primary-span" type="button" data-action="accept">Accept turn</button>
+ 201 |             </div>
+ 202 |           </div>
+ 203 | 
+ 204 |           <!-- ---------------------------------------------------- right rail -->
+ 205 |           <aside class="rail-right" aria-label="Turn detail">
+ 206 |             <div class="panel">
+ 207 |               <div class="panel-head"><h3>Turn</h3><span class="badge badge-live" style="margin-left:auto">Live</span></div>
+ 208 |               <div class="panel-body stack-2">
+ 209 |                 <div class="row between">
+ 210 |                   <span class="meta">Turn</span>
+ 211 |                   <span class="mono" id="move-number">1</span>
+ 212 |                 </div>
+ 213 |                 <div class="row between">
+ 214 |                   <span class="meta">To move</span>
+ 215 |                   <strong id="turn-name">White to move</strong>
+ 216 |                 </div>
+ 217 |                 <div class="row between">
+ 218 |                   <span class="meta">Phase</span>
+ 219 |                   <span id="phase-detail">Move 1</span>
+ 220 |                 </div>
+ 221 |                 <div class="field">
+ 222 |                   <span class="meta">Adjudication clock</span>
+ 223 |                   <div class="meter meter-move" role="progressbar" aria-label="Quiet turns before adjudication">
+ 224 |                     <span id="stagnation-meter" style="width:0%"></span>
+ 225 |                   </div>
+ 226 |                   <span class="hint" id="stagnation-text">0 of 30 quiet turns</span>
+ 227 |                 </div>
+ 228 |                 <p class="meta" id="repeat-text">0 of 3 occurrences of the most repeated position</p>
+ 229 |               </div>
+ 230 |             </div>
+ 231 | 
+ 232 |             <div class="panel">
+ 233 |               <div class="panel-head"><h3>Combat preview</h3><span class="badge badge-danger" style="margin-left:auto">Resolves on Accept</span></div>
+ 234 |               <div class="panel-body">
+ 235 |                 <div class="empty" id="preview-empty">
+ 236 |                   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><path d="M12 2v6M12 16v6M2 12h6M16 12h6"/><circle cx="12" cy="12" r="3.2"/></svg>
+ 237 |                   <strong>Nothing in contact yet</strong>
+ 238 |                   <span class="meta">Move a piece next to an enemy to see what happens when you accept.</span>
+ 239 |                 </div>
+ 240 |                 <div class="list" id="preview-list"></div>
+ 241 |               </div>
+ 242 |             </div>
+ 243 | 
+ 244 |             <div class="panel panel-span">
+ 245 |               <div class="panel-head"><h3>Move log</h3><span class="meta" style="margin-left:auto">newest first</span></div>
+ 246 |               <div class="panel-body" style="padding:0">

@@ -1,0 +1,167 @@
+﻿ 134 |         <div class="play-layout">
+ 135 | 
+ 136 |           <!-- ------------------------------------------------- centre column -->
+ 137 |           <div class="cockpit">
+ 138 |             <div class="match-bar panel" aria-label="Match status">
+ 139 |               <button class="btn btn-ghost btn-sm" type="button" data-action="new">â† Back</button>
+ 140 |               <div class="match-meta grow">
+ 141 |                 <div class="meta" id="match-top-sub">15 min Â· Casual</div>
+ 142 |                 <strong id="phase-text">Move 1 of 2</strong>
+ 143 |               </div>
+ 144 |               <div class="menu-wrap">
+ 145 |                 <button class="btn btn-ghost btn-icon btn-sm" type="button" aria-label="Game menu">â‹®</button>
+ 146 |               </div>
+ 147 |             </div>
+ 148 | 
+ 149 |             <div class="player-strip player-top" id="strip-black">
+ 150 |               <span class="turn-dot" aria-hidden="true"></span>
+ 151 |               <span class="avatar avatar-md" aria-hidden="true">B</span>
+ 152 |               <div class="grow">
+ 153 |                 <div class="player-name" id="black-name">Black</div>
+ 154 |                 <div class="player-sub" id="black-sub">16 pieces</div>
+ 155 |                 <div class="captured" id="captured-black" aria-label="Black losses"></div>
+ 156 |               </div>
+ 157 |               <div class="clock" id="clock-black" role="timer" aria-label="Black clock">â€”</div>
+ 158 |             </div>
+ 159 | 
+ 160 |             <div class="stage">
+ 161 |               <div class="board-chrome">
+ 162 |                 <span class="badge badge-accent" id="board-material">Forged Steel</span>
+ 163 |                 <span class="board-hint grow truncate" id="board-cursor">Arrow keys move the cursor, Enter selects</span>
+ 164 |                 <span class="meta desktop-only">63 hexes Â· rows aâ€“i</span>
+ 165 |                 <span class="board-btns">
+ 166 |                   <button class="btn btn-ghost btn-sm tip" type="button" data-action="flip" data-tip="Flip the board">Flip</button>
+ 167 |                   <button class="btn btn-ghost btn-sm tip" type="button" data-action="coords" data-tip="Show coordinates" aria-pressed="true">Coords</button>
+ 168 |                   <button class="btn btn-ghost btn-sm tip" type="button" data-action="hints" data-tip="Show every reachable hex" aria-pressed="true">Hints</button>
+ 169 |                 </span>
+ 170 |               </div>
+ 171 |               <svg id="board" class="stage-svg" xmlns="http://www.w3.org/2000/svg" tabindex="-1" role="grid" aria-label="Fortress board"></svg>
+ 172 |             </div>
+ 173 | 
+ 174 |             <div class="player-strip player-bottom" id="strip-white">
+ 175 |               <span class="turn-dot" aria-hidden="true"></span>
+ 176 |               <span class="avatar avatar-md" aria-hidden="true">W</span>
+ 177 |               <div class="grow">
+ 178 |                 <div class="player-name" id="white-name">White</div>
+ 179 |                 <div class="player-sub" id="white-sub">16 pieces</div>
+ 180 |                 <div class="captured" id="captured-white" aria-label="White losses"></div>
+ 181 |               </div>
+ 182 |               <div class="clock" id="clock-white" role="timer" aria-label="White clock">â€”</div>
+ 183 |             </div>
+ 184 | 
+ 185 |             <div class="action-bar">
+ 186 |               <div class="grow">
+ 187 |                 <span class="phase-pill"><span class="turn-dot" aria-hidden="true"></span><span id="phase-text">Move 1</span></span>
+ 188 |                 <div class="meta" id="status-text" aria-live="polite">Pick a piece, then a highlighted hex.</div>
+ 189 |               </div>
+ 190 |               <div class="row">
+ 191 |                 <button class="btn btn-ghost btn-sm" type="button" data-action="hint">Hint</button>
+ 192 |                 <button class="btn btn-outline" type="button" data-action="undo">Undo move</button>
+ 193 |                 <button class="btn btn-primary" type="button" data-action="accept">Accept turn</button>
+ 194 |               </div>
+ 195 |             </div>
+ 196 | 
+ 197 |             <!-- Thumb zone: the same awaited action, always under the thumb. -->
+ 198 |             <div class="mobile-actions mobile-only" aria-label="Turn actions">
+ 199 |               <button class="btn btn-outline" type="button" data-action="undo">Undo</button>
+ 200 |               <button class="btn btn-primary primary-span" type="button" data-action="accept">Accept turn</button>
+ 201 |             </div>
+ 202 |           </div>
+ 203 | 
+ 204 |           <!-- ---------------------------------------------------- right rail -->
+ 205 |           <aside class="rail-right" aria-label="Turn detail">
+ 206 |             <div class="panel">
+ 207 |               <div class="panel-head"><h3>Turn</h3><span class="badge badge-live" style="margin-left:auto">Live</span></div>
+ 208 |               <div class="panel-body stack-2">
+ 209 |                 <div class="row between">
+ 210 |                   <span class="meta">Turn</span>
+ 211 |                   <span class="mono" id="move-number">1</span>
+ 212 |                 </div>
+ 213 |                 <div class="row between">
+ 214 |                   <span class="meta">To move</span>
+ 215 |                   <strong id="turn-name">White to move</strong>
+ 216 |                 </div>
+ 217 |                 <div class="row between">
+ 218 |                   <span class="meta">Phase</span>
+ 219 |                   <span id="phase-detail">Move 1</span>
+ 220 |                 </div>
+ 221 |                 <div class="field">
+ 222 |                   <span class="meta">Adjudication clock</span>
+ 223 |                   <div class="meter meter-move" role="progressbar" aria-label="Quiet turns before adjudication">
+ 224 |                     <span id="stagnation-meter" style="width:0%"></span>
+ 225 |                   </div>
+ 226 |                   <span class="hint" id="stagnation-text">0 of 30 quiet turns</span>
+ 227 |                 </div>
+ 228 |                 <p class="meta" id="repeat-text">0 of 3 occurrences of the most repeated position</p>
+ 229 |               </div>
+ 230 |             </div>
+ 231 | 
+ 232 |             <div class="panel">
+ 233 |               <div class="panel-head"><h3>Combat preview</h3><span class="badge badge-danger" style="margin-left:auto">Resolves on Accept</span></div>
+ 234 |               <div class="panel-body">
+ 235 |                 <div class="empty" id="preview-empty">
+ 236 |                   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><path d="M12 2v6M12 16v6M2 12h6M16 12h6"/><circle cx="12" cy="12" r="3.2"/></svg>
+ 237 |                   <strong>Nothing in contact yet</strong>
+ 238 |                   <span class="meta">Move a piece next to an enemy to see what happens when you accept.</span>
+ 239 |                 </div>
+ 240 |                 <div class="list" id="preview-list"></div>
+ 241 |               </div>
+ 242 |             </div>
+ 243 | 
+ 244 |             <div class="panel panel-span">
+ 245 |               <div class="panel-head"><h3>Move log</h3><span class="meta" style="margin-left:auto">newest first</span></div>
+ 246 |               <div class="panel-body" style="padding:0">
+ 247 |                 <div class="list" id="log-list"></div>
+ 248 |               </div>
+ 249 |             </div>
+ 250 | 
+ 251 |             <div class="panel">
+ 252 |               <div class="panel-head"><h3>Opponent</h3></div>
+ 253 |               <div class="panel-body stack-3">
+ 254 |                 <label class="switch">
+ 255 |                   <input type="checkbox" id="ai-toggle" checked>
+ 256 |                   <span class="switch-track"></span>
+ 257 |                   <span class="switch-text"><strong>AI opponent</strong><span class="meta" id="ai-note">The AI plays the other side.</span></span>
+ 258 |                 </label>
+ 259 |                 <div class="field">
+ 260 |                   <span class="label">Strength</span>
+ 261 |                   <div class="segmented" id="difficulty-seg" role="group" aria-label="Opponent strength"></div>
+ 262 |                   <span class="hint" id="difficulty-note">Trades evenly and shields its Keep.</span>
+ 263 |                 </div>
+ 264 |                 <div class="row wrap">
+ 265 |                   <button class="btn btn-secondary btn-sm" type="button" data-action="new">New game</button>
+ 266 |                   <button class="btn btn-outline btn-sm" type="button" data-action="draw">Offer draw</button>
+ 267 |                   <button class="btn btn-danger btn-sm" type="button" data-action="resign">Resign</button>
+ 268 |                 </div>
+ 269 |               </div>
+ 270 |             </div>
+ 271 | 
+ 272 |             <div class="panel">
+ 273 |               <div class="panel-head"><h3>Arena material</h3></div>
+ 274 |               <div class="panel-body stack-3">
+ 275 |                 <div class="row between">
+ 276 |                   <span class="meta">Board</span>
+ 277 |                   <strong id="arena-board-name">Forged Steel</strong>
+ 278 |                 </div>
+ 279 |                 <div class="row between">
+ 280 |                   <span class="meta">Background</span>
+ 281 |                   <strong id="arena-bg-name">Brushed Graphite</strong>
+ 282 |                 </div>
+ 283 |                 <div class="grid-2" id="theme-quick"></div>
+ 284 |                 <div class="row between" style="margin-top:var(--s-2)">
+ 285 |                   <span class="meta">Background shortcut</span>
+ 286 |                   <strong class="meta" id="arena-bg-quick-name">Brushed Graphite</strong>
+ 287 |                 </div>
+ 288 |                 <div class="grid-2" id="bg-quick"></div>
+ 289 |                 <div class="row">
+ 290 |                   <button class="btn btn-outline btn-sm" type="button" id="prev-btn">Previous board</button>
+ 291 |                   <button class="btn btn-outline btn-sm" type="button" id="next-btn">Next board</button>
+ 292 |                 </div>
+ 293 |                 <a class="btn btn-ghost btn-sm btn-block" href="#themes" data-nav="themes">Open the full library</a>
+ 294 |               </div>
+ 295 |             </div>
+ 296 |           </aside>
+ 297 | 
+ 298 |         </div>
+ 299 |       </div>
+ 300 |     </section>

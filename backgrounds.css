@@ -1,0 +1,330 @@
+/* ==========================================================================
+   05 · Website backgrounds — 20 materials
+   10 "TEX" industrial/architectural textures · 10 "NAT" natural stone
+   All built from gradients + one inline SVG noise plate: zero image requests,
+   works offline, and every layer re-tints automatically for dark/light because
+   the patterns reference --pat-* / --lit-* instead of literal colours.
+   ========================================================================== */
+
+/* Shared: one procedural grain plate used by every surface in the system. */
+:root{
+  --grain-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='180' height='180'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.82' numOctaves='3' stitchTiles='stitch'/></filter><rect width='180' height='180' filter='url(%23n)'/></svg>");
+  --pat-a:rgb(255 255 255 / .035);
+  --pat-b:rgb(255 255 255 / .07);
+  --pat-c:rgb(0 0 0 / .38);
+  --lit-a:rgb(255 255 255 / .070);
+  --lit-b:rgb(0 0 0 / .55);
+}
+html[data-mode="light"]{
+  --pat-a:rgb(24 22 18 / .035);
+  --pat-b:rgb(24 22 18 / .070);
+  --pat-c:rgb(255 255 255 / .55);
+  --lit-a:rgb(255 255 255 / .80);
+  --lit-b:rgb(24 22 18 / .12);
+}
+
+/* Applied to <body> and to any .bg-swatch preview chip. */
+body,.bg-swatch{
+  background-color:var(--bg-base,var(--bg-app));
+  background-image:var(--bg-image,none);
+  background-size:var(--bg-size,cover);
+  background-repeat:var(--bg-repeat,no-repeat);
+  background-position:center;
+}
+body{ background-attachment:fixed; }
+.bg-swatch{
+  background-attachment:scroll;
+  border-radius:inherit;
+  width:100%; height:100%;
+}
+
+/* ------------------------------------------------- T01 Brushed Cool Graphite
+   360-grit brush, faint directional drag, single soft overhead key light. */
+[data-bg="t01-brushed-graphite"]{
+  --bg-base:#0e1013;
+  --bg-image:
+    repeating-linear-gradient(90deg,var(--pat-a) 0 1px,transparent 1px 3px),
+    repeating-linear-gradient(90deg,var(--pat-b) 0 1px,transparent 1px 9px),
+    radial-gradient(130% 80% at 50% -15%,var(--lit-a),transparent 62%),
+    linear-gradient(180deg,transparent,var(--lit-b));
+  --bg-size:3px 100%,9px 100%,cover,cover;
+  --bg-repeat:repeat,repeat,no-repeat,no-repeat;
+  --grain:.05; --sheen:.05; --vignette:.55;
+}
+
+/* ------------------------------------------------ T02 Cold-Rolled Steel Plate
+   Coarser mill roll lines + a seam every 320px. The "shop floor" default. */
+[data-bg="t02-cold-rolled-steel"]{
+  --bg-base:#101318;
+  --bg-image:
+    repeating-linear-gradient(90deg,var(--pat-b) 0 1px,transparent 1px 6px),
+    repeating-linear-gradient(0deg,var(--pat-c) 0 1px,transparent 1px 320px),
+    linear-gradient(180deg,var(--lit-a),transparent 45%),
+    linear-gradient(160deg,#151a21,#0b0d11);
+  --bg-size:6px 100%,100% 320px,cover,cover;
+  --bg-repeat:repeat,repeat,no-repeat,no-repeat;
+  --grain:.06; --sheen:.09; --vignette:.5;
+}
+
+/* ------------------------------------------------------ T03 Basalt Column Grid
+   Hexagonal cooling cracks — the only texture that echoes the board itself. */
+[data-bg="t03-basalt-columns"]{
+  --bg-base:#0b0c0f;
+  --bg-image:
+    repeating-linear-gradient(60deg,var(--pat-c) 0 1.5px,transparent 1.5px 46px),
+    repeating-linear-gradient(-60deg,var(--pat-c) 0 1.5px,transparent 1.5px 46px),
+    repeating-linear-gradient(0deg,var(--pat-a) 0 1.5px,transparent 1.5px 46px),
+    radial-gradient(120% 90% at 50% 0%,var(--lit-a),transparent 70%);
+  --bg-size:46px 80px,46px 80px,46px 80px,cover;
+  --bg-repeat:repeat,repeat,repeat,no-repeat;
+  --grain:.045; --sheen:.04; --vignette:.6;
+}
+
+/* ------------------------------------------------------ T04 Honed Slate Quarry
+   Long horizontal striations, matte finish, no specular highlight. */
+[data-bg="t04-honed-slate"]{
+  --bg-base:#111316;
+  --bg-image:
+    repeating-linear-gradient(0deg,var(--pat-a) 0 2px,transparent 2px 11px),
+    repeating-linear-gradient(0deg,var(--pat-b) 0 1px,transparent 1px 37px),
+    linear-gradient(200deg,var(--lit-a),transparent 55%);
+  --bg-size:100% 11px,100% 37px,cover;
+  --bg-repeat:repeat,repeat,no-repeat;
+  --grain:.04; --sheen:.02; --vignette:.5;
+}
+
+/* ----------------------------------------------------------- T05 Micro-Cement
+   Trowelled blotches, even and quiet — the most neutral, most readable. */
+[data-bg="t05-micro-cement"]{
+  --bg-base:#141619;
+  --bg-image:
+    radial-gradient(38% 30% at 18% 22%,var(--pat-b),transparent 70%),
+    radial-gradient(30% 26% at 78% 68%,var(--pat-b),transparent 72%),
+    radial-gradient(46% 40% at 55% 12%,var(--pat-a),transparent 75%),
+    linear-gradient(180deg,var(--lit-a),transparent 50%);
+  --bg-size:520px 520px,420px 420px,700px 700px,cover;
+  --bg-repeat:repeat,repeat,repeat,no-repeat;
+  --grain:.055; --sheen:.02; --vignette:.45;
+}
+
+/* ------------------------------------------------------- T06 Woven Carbon Twill
+   Carbon-fibre twill: 2x2 basket weave, dark, with a wet gloss. */
+[data-bg="t06-carbon-weave"]{
+  --bg-base:#0a0b0d;
+  --bg-image:
+    repeating-linear-gradient(45deg,var(--pat-b) 0 3px,transparent 3px 6px),
+    repeating-linear-gradient(-45deg,var(--pat-a) 0 3px,transparent 3px 6px),
+    radial-gradient(90% 60% at 50% -10%,var(--lit-a),transparent 65%);
+  --bg-size:12px 12px,12px 12px,cover;
+  --bg-repeat:repeat,repeat,no-repeat;
+  --grain:.05; --sheen:.12; --vignette:.62;
+}
+
+/* --------------------------------------------------- T07 Annealed Copper Patina
+   A deliberately warm industrial material — for celebration/leaderboard pages
+   where the amber accent should feel native rather than pasted on. */
+[data-bg="t07-copper-patina"]{
+  --bg-base:#1a1310;
+  --bg-image:
+    radial-gradient(35% 32% at 22% 30%,rgb(120 210 190 / .12),transparent 70%),
+    radial-gradient(30% 34% at 74% 62%,rgb(64 160 140 / .10),transparent 72%),
+    repeating-linear-gradient(115deg,var(--pat-a) 0 1px,transparent 1px 13px),
+    linear-gradient(160deg,#2a1c14,#120c09);
+  --bg-size:540px 540px,460px 460px,13px 100%,cover;
+  --bg-repeat:repeat,repeat,repeat,no-repeat;
+  --grain:.06; --sheen:.10; --vignette:.55;
+}
+
+/* ------------------------------------------------- T08 Poured Concrete Formwork
+   Board-marked concrete: formwork joints + tie holes on a fine 1200 grid. */
+[data-bg="t08-board-concrete"]{
+  --bg-base:#171819;
+  --bg-image:
+    radial-gradient(circle at 50% 50%,var(--pat-c) 0 3px,transparent 4px),
+    repeating-linear-gradient(0deg,var(--pat-b) 0 1px,transparent 1px 200px),
+    repeating-linear-gradient(90deg,var(--pat-a) 0 1px,transparent 1px 200px),
+    linear-gradient(180deg,var(--lit-a),transparent 55%);
+  --bg-size:200px 200px,100% 200px,200px 100%,cover;
+  --bg-repeat:repeat,repeat,repeat,no-repeat;
+  --grain:.05; --sheen:.03; --vignette:.4;
+}
+
+/* ---------------------------------------------------- T09 Diamond-Plate Tread
+   Tread-plate alt-diamond relief: the board-room floor. */
+[data-bg="t09-diamond-tread"]{
+  --bg-base:#101215;
+  --bg-image:
+    repeating-linear-gradient(45deg,var(--pat-b) 0 2px,transparent 2px 16px),
+    repeating-linear-gradient(-45deg,var(--pat-c) 0 2px,transparent 2px 16px),
+    radial-gradient(120% 70% at 50% -20%,var(--lit-a),transparent 60%);
+  --bg-size:38px 38px,38px 38px,cover;
+  --bg-repeat:repeat,repeat,no-repeat;
+  --grain:.055; --sheen:.13; --vignette:.55;
+}
+
+/* ------------------------------------------------------- T10 Sand-Cast Iron
+   Orange-peel pitting, warm-dark — reads as heavy, permanent, pre-industrial. */
+[data-bg="t10-cast-iron"]{
+  --bg-base:#121110;
+  --bg-image:
+    radial-gradient(1.6px 1.6px at 30% 40%,var(--pat-b),transparent 100%),
+    radial-gradient(1.2px 1.2px at 70% 65%,var(--pat-a),transparent 100%),
+    radial-gradient(70% 50% at 50% 0%,var(--lit-a),transparent 65%),
+    linear-gradient(180deg,#181614,#0c0b0a);
+  --bg-size:23px 23px,17px 17px,cover,cover;
+  --bg-repeat:repeat,repeat,no-repeat,no-repeat;
+  --grain:.055; --sheen:.03; --vignette:.58;
+}
+
+/* ======================================================================= NAT
+   Natural stone: coarser, softer, more organic than the industrial set.
+   ======================================================================= */
+
+/* ------------------------------------------------------ N01 Granite Highland */
+[data-bg="n01-granite"]{
+  --bg-base:#131417;
+  --bg-image:
+    radial-gradient(1.5px 1.5px at 24% 18%,var(--pat-b),transparent 100%),
+    radial-gradient(1.1px 1.1px at 68% 74%,var(--pat-a),transparent 100%),
+    radial-gradient(2.4px 2.4px at 44% 56%,var(--pat-c),transparent 100%),
+    radial-gradient(120% 80% at 50% -10%,var(--lit-a),transparent 62%);
+  --bg-size:29px 29px,19px 19px,61px 61px,cover;
+  --bg-repeat:repeat,repeat,repeat,no-repeat;
+  --grain:.06; --sheen:.04; --vignette:.55; --wash:.84;
+}
+
+/* -------------------------------------------------------- N02 Obsidian Ridge */
+[data-bg="n02-obsidian"]{
+  --bg-base:#07080b;
+  --bg-image:
+    repeating-linear-gradient(105deg,var(--pat-b) 0 1px,transparent 1px 54px),
+    repeating-linear-gradient(68deg,var(--pat-c) 0 2px,transparent 2px 96px),
+    radial-gradient(80% 55% at 30% -5%,var(--lit-a),transparent 60%),
+    radial-gradient(70% 60% at 85% 100%,rgb(120 140 170 / .07),transparent 70%);
+  --bg-size:100% 100%,100% 100%,cover,cover;
+  --bg-repeat:no-repeat,no-repeat,no-repeat,no-repeat;
+  --grain:.05; --sheen:.14; --vignette:.7; --wash:.88;
+}
+
+/* -------------------------------------------------------- N03 Sandstone Mesa */
+[data-bg="n03-sandstone"]{
+  --bg-base:#1b1510;
+  --bg-image:
+    repeating-linear-gradient(0deg,var(--pat-a) 0 3px,transparent 3px 26px),
+    repeating-linear-gradient(0deg,var(--pat-c) 0 1px,transparent 1px 74px),
+    radial-gradient(120% 70% at 50% 110%,rgb(214 148 66 / .12),transparent 65%),
+    linear-gradient(180deg,var(--lit-a),transparent 55%);
+  --bg-size:100% 26px,100% 74px,cover,cover;
+  --bg-repeat:repeat,repeat,no-repeat,no-repeat;
+  --grain:.055; --sheen:.05; --vignette:.45; --wash:.80;
+}
+
+/* ----------------------------------------------------------- N04 Marble Vein */
+[data-bg="n04-marble"]{
+  --bg-base:#101215;
+  --bg-image:
+    repeating-linear-gradient(118deg,rgb(226 232 240 / .10) 0 1px,transparent 1px 88px),
+    repeating-linear-gradient(118deg,rgb(226 232 240 / .05) 0 1px,transparent 1px 34px),
+    radial-gradient(100% 70% at 20% 0%,var(--lit-a),transparent 65%),
+    linear-gradient(200deg,transparent,var(--lit-b));
+  --bg-size:100% 100%,100% 100%,cover,cover;
+  --bg-repeat:no-repeat,no-repeat,no-repeat,no-repeat;
+  --grain:.035; --sheen:.13; --vignette:.5; --wash:.86;
+}
+
+/* -------------------------------------------------------- N05 Limestone Cliff */
+[data-bg="n05-limestone"]{
+  --bg-base:#16181b;
+  --bg-image:
+    repeating-linear-gradient(0deg,var(--pat-a) 0 40px,transparent 40px 96px),
+    repeating-linear-gradient(0deg,var(--pat-b) 0 1px,transparent 1px 96px),
+    radial-gradient(90% 60% at 70% -10%,var(--lit-a),transparent 68%);
+  --bg-size:100% 96px,100% 96px,cover;
+  --bg-repeat:repeat,repeat,no-repeat;
+  --grain:.04; --sheen:.03; --vignette:.42; --wash:.78;
+}
+
+/* ---------------------------------------------------------- N06 Black Onyx */
+[data-bg="n06-onyx"]{
+  --bg-base:#0a0b0e;
+  --bg-image:
+    radial-gradient(60% 50% at 25% 30%,rgb(150 170 200 / .055),transparent 70%),
+    radial-gradient(50% 45% at 80% 75%,rgb(200 170 120 / .05),transparent 72%),
+    repeating-linear-gradient(52deg,var(--pat-c) 0 1px,transparent 1px 120px),
+    linear-gradient(180deg,var(--lit-a),transparent 60%);
+  --bg-size:cover,cover,100% 100%,cover;
+  --bg-repeat:no-repeat,no-repeat,no-repeat,no-repeat;
+  --grain:.045; --sheen:.16; --vignette:.72; --wash:.9;
+}
+
+/* -------------------------------------------------------- N07 Ironstone Strata */
+[data-bg="n07-ironstone"]{
+  --bg-base:#181110;
+  --bg-image:
+    repeating-linear-gradient(0deg,rgb(190 110 70 / .07) 0 8px,transparent 8px 31px),
+    repeating-linear-gradient(0deg,var(--pat-c) 0 1px,transparent 1px 62px),
+    radial-gradient(110% 60% at 50% 0%,var(--lit-a),transparent 62%);
+  --bg-size:100% 31px,100% 62px,cover;
+  --bg-repeat:repeat,repeat,no-repeat;
+  --grain:.06; --sheen:.05; --vignette:.5; --wash:.80;
+}
+
+/* ------------------------------------------------------- N08 Glacier Ice Core */
+[data-bg="n08-glacier"]{
+  --bg-base:#0c1216;
+  --bg-image:
+    repeating-linear-gradient(92deg,rgb(190 225 235 / .055) 0 2px,transparent 2px 41px),
+    radial-gradient(70% 80% at 15% 10%,rgb(150 210 230 / .09),transparent 65%),
+    linear-gradient(160deg,var(--lit-a),transparent 58%),
+    linear-gradient(180deg,#0e1a20,#080c10);
+  --bg-size:41px 100%,cover,cover,cover;
+  --bg-repeat:repeat,no-repeat,no-repeat,no-repeat;
+  --grain:.04; --sheen:.18; --vignette:.55; --wash:.84;
+}
+
+/* ----------------------------------------------------- N09 Volcanic Ash Field */
+[data-bg="n09-ash"]{
+  --bg-base:#141416;
+  --bg-image:
+    radial-gradient(1.3px 1.3px at 40% 30%,var(--pat-a),transparent 100%),
+    radial-gradient(60% 50% at 70% 20%,var(--pat-a),transparent 75%),
+    linear-gradient(180deg,var(--lit-a),transparent 70%);
+  --bg-size:26px 26px,cover,cover;
+  --bg-repeat:repeat,no-repeat,no-repeat;
+  --grain:.09; --sheen:.01; --vignette:.38; --wash:.82;
+}
+
+/* --------------------------------------------------------- N10 Aurora Basalt */
+[data-bg="n10-aurora"]{
+  --bg-base:#080a10;
+  --bg-image:
+    radial-gradient(70% 40% at 25% 12%,rgb(90 220 210 / .10),transparent 70%),
+    radial-gradient(60% 38% at 72% 26%,rgb(150 130 240 / .10),transparent 72%),
+    radial-gradient(1.4px 1.4px at 35% 45%,var(--pat-b),transparent 100%),
+    linear-gradient(180deg,#0b0e16,#05060a);
+  --bg-size:cover,cover,34px 34px,cover;
+  --bg-repeat:no-repeat,no-repeat,repeat,no-repeat;
+  --grain:.05; --sheen:.10; --vignette:.65; --wash:.88;
+}
+
+/* In light mode the whole page is chalked over by .theme-wash, so the preview
+   chip has to be chalked over by the same amount — otherwise it would show the
+   dark material the light theme is derived from. */
+html[data-mode="light"] .bg-chip::after{
+  content:""; position:absolute; inset:0;
+  background:rgb(246 245 240 / var(--wash,.82));
+}
+
+/* Preview chip used by the background picker (theme picker uses .swatch). It is
+   a bounded swatch, not a parent-filling one, so its plate is painted right
+   here from the material its own [data-bg] selects. */
+.bg-chip{
+  display:block; position:relative; width:100%; height:64px; border-radius:var(--r-sm);
+  background-color:var(--bg-base,var(--bg-app));
+  background-image:var(--bg-image,none);
+  background-size:var(--bg-size,cover);
+  background-repeat:var(--bg-repeat,no-repeat);
+  background-position:center;
+  background-attachment:scroll;
+  overflow:hidden; border:1px solid var(--line); box-shadow:inset 0 1px 0 var(--line-top);
+}

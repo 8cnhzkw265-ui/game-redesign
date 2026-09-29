@@ -1,0 +1,3 @@
+﻿rows=2 | names=vaultwarden/guest43 | modes=Ranked/Casual | listHidden=false | emptyHidden=true | casualRows=1 | casualFirst=guest43 | spectateBtn=2 | errors=0
+POPULATED LIST + CONSOLE OK
+EXIT=0

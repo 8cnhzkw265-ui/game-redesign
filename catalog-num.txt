@@ -1,0 +1,101 @@
+1:/* ==========================================================================
+2:   FT.catalog — the 20 website backgrounds, the 20 board themes and the
+3:   settings the game exposes. Every id here matches a [data-...] selector in
+4:   css/backgrounds.css and css/themes.css exactly; the ids are the contract
+5:   between this file and the paint.
+6:   ========================================================================== */
+7:(function (global) {
+8:  'use strict';
+9:  var FT = global.FT = global.FT || {};
+10:
+11:  var BACKGROUNDS = [
+12:    { id: 't01-brushed-graphite', name: 'Brushed Graphite', group: 'Industrial', sub: '360-grit brush, cool and even' },
+13:    { id: 't02-cold-rolled-steel', name: 'Cold-Rolled Steel', group: 'Industrial', sub: 'Mill roll lines, seam every 320px' },
+14:    { id: 't03-basalt-columns', name: 'Basalt Columns', group: 'Industrial', sub: 'Hexagonal cooling cracks' },
+15:    { id: 't04-honed-slate', name: 'Honed Slate', group: 'Industrial', sub: 'Striations, matte, no specular' },
+16:    { id: 't05-micro-cement', name: 'Micro-Cement', group: 'Industrial', sub: 'Trowelled blotches, quietest surface' },
+17:    { id: 't06-carbon-weave', name: 'Carbon Weave', group: 'Industrial', sub: '2x2 twill with a wet gloss' },
+18:    { id: 't07-copper-patina', name: 'Copper Patina', group: 'Industrial', sub: 'Verdigris bloom, warm accent host' },
+19:    { id: 't08-board-concrete', name: 'Board Concrete', group: 'Industrial', sub: 'Formwork joints and tie holes' },
+20:    { id: 't09-diamond-tread', name: 'Diamond Tread', group: 'Industrial', sub: 'Alt-diamond relief plate' },
+21:    { id: 't10-cast-iron', name: 'Cast Iron', group: 'Industrial', sub: 'Orange-peel pitting, warm dark' },
+22:    { id: 'n01-granite', name: 'Granite Highland', group: 'Natural', sub: 'Grey speckle, three grain scales' },
+23:    { id: 'n02-obsidian', name: 'Obsidian Ridge', group: 'Natural', sub: 'Volcanic glass, hard reflections' },
+24:    { id: 'n03-sandstone', name: 'Sandstone Mesa', group: 'Natural', sub: 'Bedding planes, warm and dry' },
+25:    { id: 'n04-marble', name: 'Marble Vein', group: 'Natural', sub: 'Two-tone veining on a lit face' },
+26:    { id: 'n05-limestone', name: 'Limestone Cliff', group: 'Natural', sub: 'Deep courses, chalk-soft' },
+27:    { id: 'n06-onyx', name: 'Black Onyx', group: 'Natural', sub: 'Polished, near-black, high gloss' },
+28:    { id: 'n07-ironstone', name: 'Ironstone Strata', group: 'Natural', sub: 'Oxide bands, rust sediment' },
+29:    { id: 'n08-glacier', name: 'Glacier Ice Core', group: 'Natural', sub: 'Fracture lines, cold blue' },
+30:    { id: 'n09-ash', name: 'Volcanic Ash', group: 'Natural', sub: 'Fine fallout, almost flat' },
+31:    { id: 'n10-aurora', name: 'Aurora Basalt', group: 'Natural', sub: 'Night sky over cold stone' }
+32:  ];
+33:
+34:  /* Board themes: each row is one material input set. The light-mode palette
+35:     and every interaction colour are derived from these five values. */
+36:  var BOARDS = [
+37:    { id: 'tex01-forged-steel', name: 'Forged Steel', group: 'Industrial', sub: 'Shop-floor default', a: '#23272d', b: '#2d333b', line: '#3d444e', coord: '#8f96a1' },
+38:    { id: 'tex02-cold-rolled', name: 'Cold-Rolled', group: 'Industrial', sub: 'Coarser grain, harder seam', a: '#1f2429', b: '#2a3037', line: '#39414a', coord: '#8792a0' },
+39:    { id: 'tex03-basalt-column', name: 'Basalt Column', group: 'Industrial', sub: 'Darkest industrial plate', a: '#191c20', b: '#23272c', line: '#33383f', coord: '#7d858e' },
+40:    { id: 'tex04-honed-slate', name: 'Honed Slate', group: 'Industrial', sub: 'Neutral grey, low contrast', a: '#262a2e', b: '#2f3439', line: '#3f454b', coord: '#939aa1' },
+41:    { id: 'tex05-micro-cement', name: 'Micro-Cement', group: 'Industrial', sub: 'Lightest industrial plate', a: '#2b2e31', b: '#34383c', line: '#43484d', coord: '#999fa5' },
+42:    { id: 'tex06-carbon-weave', name: 'Carbon Weave', group: 'Industrial', sub: 'Competition black', a: '#14161a', b: '#1e2126', line: '#2c3037', coord: '#79808a' },
+43:    { id: 'tex07-copper-patina', name: 'Copper Patina', group: 'Industrial', sub: 'Warm board, remapped selection', a: '#6d4526', b: '#7c5230', line: '#8f6338', coord: '#dcb68c' },
+44:    { id: 'tex08-board-concrete', name: 'Board Concrete', group: 'Industrial', sub: 'Poured slab, mid grey', a: '#3a3d40', b: '#44484c', line: '#54595e', coord: '#a3a8ad' },
+45:    { id: 'tex09-diamond-tread', name: 'Diamond Tread', group: 'Industrial', sub: 'Blue-steel tread plate', a: '#232830', b: '#2e343d', line: '#414852', coord: '#8b93a0' },
+46:    { id: 'tex10-cast-iron', name: 'Cast Iron', group: 'Industrial', sub: 'Warm dark, sand-cast', a: '#2a2624', b: '#332e2b', line: '#443d38', coord: '#9a918a' },
+47:    { id: 'nat01-granite', name: 'Granite', group: 'Natural', sub: 'Speckled field stone', a: '#2f3235', b: '#3a3d41', line: '#4a4e53', coord: '#a0a5aa' },
+48:    { id: 'nat02-obsidian', name: 'Obsidian', group: 'Natural', sub: 'Glass-black, max contrast', a: '#131519', b: '#1c1f24', line: '#2a2e34', coord: '#7c848e' },
+49:    { id: 'nat03-sandstone', name: 'Sandstone', group: 'Natural', sub: 'Warm stone, remapped selection', a: '#7a5f3c', b: '#8a6c45', line: '#9d7c51', coord: '#e6d0ab' },
+50:    { id: 'nat04-marble', name: 'Marble', group: 'Natural', sub: 'High key, most legible light', a: '#3c4046', b: '#484d54', line: '#585e66', coord: '#aeb5bd' },
+51:    { id: 'nat05-limestone', name: 'Limestone', group: 'Natural', sub: 'Brightest board in the set', a: '#55585a', b: '#606365', line: '#717477', coord: '#c2c5c8' },
+52:    { id: 'nat06-onyx', name: 'Onyx', group: 'Natural', sub: 'Deep gloss, subtle grain', a: '#17181c', b: '#212227', line: '#33343a', coord: '#8a8b93' },
+53:    { id: 'nat07-ironstone', name: 'Ironstone', group: 'Natural', sub: 'Oxide red, remapped selection', a: '#4a2f28', b: '#573a30', line: '#6a473a', coord: '#d3a795' },
+54:    { id: 'nat08-glacier', name: 'Glacier', group: 'Natural', sub: 'Cold blue cast', a: '#2b3842', b: '#35434e', line: '#465663', coord: '#a8bac7' },
+55:    { id: 'nat09-volcanic-ash', name: 'Volcanic Ash', group: 'Natural', sub: 'Flat neutral grey', a: '#2c2d2e', b: '#363738', line: '#464748', coord: '#9b9c9d' },
+56:    { id: 'nat10-aurora', name: 'Aurora', group: 'Natural', sub: 'Board carries its own colour cast', a: '#1a1e2a', b: '#242a38', line: '#343c4d', coord: '#8f9ab2' }
+57:  ];
+58:
+59:  var DIFFICULTIES = [
+60:    { id: 'recruit', name: 'Recruit', sub: 'One move ahead, takes the free shot', depth: 1, noise: 30, keepWatch: 0.2, greedy: 0 },
+61:    { id: 'veteran', name: 'Veteran', sub: 'Trades evenly and shields its Keep', depth: 2, noise: 9, keepWatch: 0.7, greedy: 1 },
+62:    { id: 'marshal', name: 'Marshal', sub: 'Plans the whole turn, hunts the Keep', depth: 2, noise: 0, keepWatch: 1.4, greedy: 1 }
+63:  ];
+64:
+65:  var TIME_CONTROLS = [
+66:    { id: 'untimed', name: 'No clock', sub: 'Think as long as you like', base: 0, inc: 0 },
+67:    { id: 'blitz', name: 'Blitz', sub: '3 minutes + 2s per turn', base: 180, inc: 2 },
+68:    { id: 'rapid', name: 'Rapid', sub: '10 minutes + 5s per turn', base: 600, inc: 5 },
+69:    { id: 'classic', name: 'Classic', sub: '30 minutes + 10s per turn', base: 1800, inc: 10 }
+70:  ];
+71:
+72:  var DEFAULTS = {
+73:    mode: 'dark',
+74:    board: 'tex01-forged-steel',
+75:    background: 't01-brushed-graphite',
+76:    difficulty: 'veteran',
+77:    timeControl: 'untimed',
+78:    flip: false,
+79:    coords: true,
+80:    hints: true,
+81:    rail: 'full'
+82:  };
+83:
+84:  function byId(list, id) {
+85:    for (var i = 0; i < list.length; i++) { if (list[i].id === id) return list[i]; }
+86:    return null;
+87:  }
+88:
+89:  FT.catalog = {
+90:    BACKGROUNDS: BACKGROUNDS,
+91:    BOARDS: BOARDS,
+92:    DIFFICULTIES: DIFFICULTIES,
+93:    TIME_CONTROLS: TIME_CONTROLS,
+94:    DEFAULTS: DEFAULTS,
+95:    PREF_KEY: 'fortress.prefs.v1',
+96:    board: function (id) { return byId(BOARDS, id) || BOARDS[0]; },
+97:    background: function (id) { return byId(BACKGROUNDS, id) || BACKGROUNDS[0]; },
+98:    difficulty: function (id) { return byId(DIFFICULTIES, id) || DIFFICULTIES[1]; },
+99:    timeControl: function (id) { return byId(TIME_CONTROLS, id) || TIME_CONTROLS[0]; }
+100:  };
+101:})(window);

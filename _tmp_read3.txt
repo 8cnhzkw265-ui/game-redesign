@@ -1,0 +1,162 @@
+﻿  80 |   text-decoration:none; white-space:nowrap;
+  81 |   transition:color var(--t-fast) var(--ease),background-color var(--t-fast) var(--ease);
+  82 | }
+  83 | .side-nav a svg{ width:24px; height:24px; flex:0 0 auto; }
+  84 | .side-nav a:hover{ color:var(--text-1); background:var(--line-soft); text-decoration:none; }
+  85 | /* The active destination is a filled plate rather than an edge marker: on a
+  86 |    blurred, translucent rail a 3px bar reads as a border artefact, while a
+  87 |    tinted pill with an amber glyph reads at a glance from across a table. The
+  88 |    tint is warm and slightly stronger than a token accent-soft, because the
+  89 |    plate has to survive being laid over a photograph of a forest. */
+  90 | .side-nav a[aria-current="page"]{
+  91 |   color:var(--accent); font-weight:600;
+  92 |   background:color-mix(in srgb, var(--accent) 15%, transparent);
+  93 | }
+  94 | .side-nav a[aria-current="page"] svg{ opacity:1; color:var(--accent); }
+  95 | .topbar-actions{ display:flex; align-items:center; gap:var(--s-2); justify-self:end; }
+  96 | 
+  97 | /* --- foot: the two non-destinations, then the session block at the bottom --- */
+  98 | .sidebar-foot{
+  99 |   margin-top:auto; flex:0 0 auto;
+ 100 |   display:flex; flex-direction:column; gap:6px;
+ 101 |   padding:var(--s-3); border-top:1px solid var(--line);
+ 102 | }
+ 103 | .sidebar-foot .hairline{ margin:var(--s-2) 2px; }
+ 104 | .side-link{
+ 105 |   display:flex; align-items:center; gap:14px; width:100%;
+ 106 |   min-height:48px; padding:0 14px;
+ 107 |   border:0; border-radius:var(--r-md);
+ 108 |   background:transparent; color:var(--text-2);
+ 109 |   font-size:16px; font-weight:500; text-align:left; cursor:pointer;
+ 110 |   transition:color var(--t-fast) var(--ease),background-color var(--t-fast) var(--ease);
+ 111 | }
+ 112 | .side-link svg{ width:22px; height:22px; flex:0 0 auto; }
+ 113 | .side-link:hover{ color:var(--text-1); background:var(--line-soft); text-decoration:none; }
+ 114 | /* The footer carries <a> destinations alongside the <button> controls, so the
+ 115 |    anchor has to opt out of the global link underline. */
+ 116 | a.side-link{ text-decoration:none; }
+ 117 | /* The session block is a row, not a card. A bordered panel here would compete
+ 118 |    with the content it sits beside; the avatar and the name are enough. */
+ 119 | .side-user{
+ 120 |   display:flex; align-items:center; gap:12px; width:100%;
+ 121 |   margin-top:var(--s-2); padding:10px 6px;
+ 122 |   border:0; border-radius:var(--r-md);
+ 123 |   background:transparent; color:inherit;
+ 124 |   font:inherit; text-align:left; cursor:pointer;
+ 125 |   transition:background-color var(--t-fast) var(--ease);
+ 126 | }
+ 127 | .side-user:hover{ background:var(--line-soft); }
+ 128 | /* The avatar is a person, not a board piece: round reads as identity at a
+ 129 |    glance, and it is the only circle in a column of squares. */
+ 130 | .side-user .avatar{ border-radius:50%; }
+ 131 | .side-user-text{
+ 132 |   display:flex; flex-direction:column; align-items:flex-start; gap:2px;
+ 133 |   min-width:0; flex:1 1 auto;
+ 134 | }
+ 135 | .side-user-name{ display:flex; align-items:center; gap:8px; min-width:0; }
+ 136 | .side-user-name b{ font-size:15px; font-weight:600; letter-spacing:0; }
+ 137 | /* The caret points up: the session menu opens above this row, so the arrow
+ 138 |    names the direction the panel travels rather than the only horizontal one. */
+ 139 | .side-user-caret{
+ 140 |   width:18px; height:18px; flex:0 0 auto; color:var(--text-3);
+ 141 |   transform:rotate(-90deg);
+ 142 | }
+ 143 | 
+ 144 | /* Drawer scrim: inert until the mobile layer sets .is-drawer-open. */
+ 145 | .scrim{
+ 146 |   position:fixed; inset:0; z-index:55;
+ 147 |   background:var(--scrim);
+ 148 |   opacity:0; pointer-events:none;
+ 149 |   transition:opacity var(--t-mid) var(--ease);
+ 150 | }
+ 151 | html.is-drawer-open .scrim{ opacity:1; pointer-events:auto; }
+ 152 | 
+ 153 | /* The compact bar only exists once the sidebar has left the flow. */
+ 154 | .topbar{ display:none; }
+ 155 | 
+ 156 | /* --- collapsed rail: icons carry the menu, tooltips carry the names ------- */
+ 157 | html[data-rail="mini"] .sidebar-head{
+ 158 |   flex-direction:column; gap:6px; padding:10px 0; min-height:0;
+ 159 | }
+ 160 | html[data-rail="mini"] .sidebar-head .brand{ flex:0 0 auto; }
+ 161 | html[data-rail="mini"] .brand-name,
+ 162 | html[data-rail="mini"] .side-nav a span,
+ 163 | html[data-rail="mini"] .side-link span,
+ 164 | html[data-rail="mini"] .side-user-text,
+ 165 | html[data-rail="mini"] .side-user-caret{ display:none; }
+ 166 | html[data-rail="mini"] .side-nav a,
+ 167 | html[data-rail="mini"] .side-link,
+ 168 | html[data-rail="mini"] .side-user{ justify-content:center; padding:0; }
+ 169 | html[data-rail="mini"] .side-user{ padding:8px; }
+ 170 | /* Collapsed, the icons ARE the menu, so they are drawn at a readable size
+ 171 |    rather than shrunk to fit. Anything smaller reads as a stray glyph floating
+ 172 |    in an empty column. Sizes stay above the 44px touch floor. */
+ 173 | html[data-rail="mini"] .side-nav a{ min-height:48px; }
+ 174 | html[data-rail="mini"] .side-nav a svg{ width:23px; height:23px; }
+ 175 | html[data-rail="mini"] .side-link{ min-height:46px; }
+ 176 | html[data-rail="mini"] .side-link svg{ width:22px; height:22px; }
+ 177 | html[data-rail="mini"] .side-toggle{ width:var(--tap-lg); height:var(--tap-lg); }
+ 178 | html[data-rail="mini"] .side-toggle svg{ width:21px; height:21px; }
+ 179 | /* The rail is one column of icons now, so tighten the rhythm to keep the whole
+ 180 |    column inside one viewport â€” a rail that scrolls is a rail you lose items in. */
+ 181 | html[data-rail="mini"] .side-nav,
+ 182 | html[data-rail="mini"] .sidebar-foot{ gap:4px; padding:var(--s-2); }
+ 183 | html[data-rail="mini"] .sidebar-foot .hairline{ margin:var(--s-1) 2px; }
+ 184 | html[data-rail="mini"] .side-user{ padding:6px; }
+ 185 | /* The collapsed tooltip is the ONLY thing that names these icons, and it is
+ 186 |    positioned to the right of the rail. A scroll container here would clip it
+ 187 |    and add a horizontal scrollbar, so the column is allowed to be plain. */
+ 188 | html[data-rail="mini"] .side-nav{ overflow:visible; }
+ 189 | /* With no label to read, the tooltip becomes the label. */
+ 190 | html[data-rail="mini"] .side-nav a.tip::after,
+ 191 | html[data-rail="mini"] .side-link.tip::after,
+ 192 | html[data-rail="mini"] .side-user.tip::after{
+ 193 |   bottom:auto; top:50%; left:calc(100% + 10px);
+ 194 |   transform:translateY(-50%);
+ 195 | }
+ 196 | 
+ 197 | /* ------------------------------------------------------------------- content */
+ 198 | main{ position:relative; z-index:1; }
+ 199 | .wrap{ width:100%; max-width:1560px; margin:0 auto; padding:var(--s-6) var(--s-5) var(--s-8); }
+ 200 | .wrap-tight{ width:100%; max-width:1080px; margin:0 auto; padding:var(--s-6) var(--s-5) var(--s-8); }
+ 201 | 
+ 202 | .page-head{ margin-bottom:var(--s-5); }
+ 203 | .page-head h1{ margin-bottom:6px; }
+ 204 | .title-rule{
+ 205 |   display:flex; align-items:center; gap:var(--s-3); margin-top:var(--s-3);
+ 206 |   color:var(--text-3); font-size:12px; letter-spacing:.1em; text-transform:uppercase;
+ 207 | }
+ 208 | .title-rule::after{ content:""; flex:1; height:1px; background:var(--line); }
+ 209 | 
+ 210 | .view{ display:none; }
+ 211 | .view.is-active{ display:block; animation:ft-rise var(--t-slow) var(--ease-out) both; }
+ 212 | 
+ 213 | /* ------------------------------------------------------------ play cockpit
+ 214 |    The menu rail owns navigation, so the cockpit itself is only two columns:
+ 215 |    the board, and the rail that holds everything a turn needs. */
+ 216 | .play-layout{
+ 217 |   display:grid;
+ 218 |   grid-template-columns:minmax(0,1fr) 340px;
+ 219 |   gap:var(--s-5);
+ 220 |   align-items:start;
+ 221 | }
+ 222 | #view-play .wrap{ max-width:1680px; }
+ 223 | #view-play .page-head{ margin-bottom:var(--s-4); }
+ 224 | #view-play .page-head .lede{ max-width:110ch; }
+ 225 | @media (min-width:1400px){
+ 226 |   .play-layout{ grid-template-columns:minmax(0,1fr) 372px; }
+ 227 | }
+ 228 | .rail-right{ display:flex; flex-direction:column; gap:var(--s-4); min-width:0; }
+ 229 | 
+ 230 | /* Match header: who is playing, and the one menu the turn needs. */
+ 231 | .match-bar{ display:flex; align-items:center; gap:var(--s-3); padding:10px var(--s-3); }
+ 232 | .match-meta{ min-width:0; }
+ 233 | .match-meta strong{ display:block; font-size:14px; line-height:1.25; }
+ 234 | 
+ 235 | /* Player strip â€” one identity block, two changeable numbers. */
+ 236 | .player-strip{
+ 237 |   display:flex; align-items:center; gap:var(--s-3);
+ 238 |   padding:12px var(--s-4);
+ 239 |   border:1px solid var(--line);
+ 240 |   border-radius:var(--r-md);
+ 241 |   background:linear-gradient(180deg,var(--surface-2),var(--surface-1));

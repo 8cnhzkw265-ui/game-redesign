@@ -1,0 +1,699 @@
+/* ==========================================================================
+   03 · Layout — app shell, navigation, view system, play cockpit
+   Breakpoints:  >=1400 desktop cockpit · 1101-1399 desktop · 861-1100 tablet
+                 <=860 compact/mobile (see 07-mobile.css)
+   ========================================================================== */
+
+.skip{
+  position:absolute; left:-9999px; top:var(--s-2); z-index:100;
+  background:var(--accent); color:var(--on-accent); padding:10px 14px;
+  border-radius:var(--r-sm); font-weight:600;
+}
+.skip:focus{ left:var(--s-4); }
+
+/* ------------------------------------------------------------------ app shell
+   The menu is a column, not a bar, and it sits on the LEFT of the arena so
+   navigation is in the same place on every page and the right-hand column is
+   free for everything the turn itself needs. One sticky rail owns the
+   navigation; it collapses to icons (html[data-rail="mini"]) and leaves the
+   flow entirely below 860px, where it becomes an off-canvas drawer. */
+.shell{
+  display:grid;
+  grid-template-columns:var(--rail-w) minmax(0,1fr);
+  min-height:100dvh;
+}
+html[data-rail="mini"] .shell{ grid-template-columns:var(--rail-mini) minmax(0,1fr); }
+.shell-main{ min-width:0; display:flex; flex-direction:column; }
+
+.sidebar{
+  position:sticky; top:0; align-self:start; z-index:45;
+  display:flex; flex-direction:column; min-width:0;
+  height:100dvh;
+  border-right:1px solid var(--line);
+  background:color-mix(in srgb, var(--bg-app) 86%, transparent);
+  backdrop-filter:blur(var(--panel-blur)) saturate(140%);
+  -webkit-backdrop-filter:blur(var(--panel-blur)) saturate(140%);
+  box-shadow:1px 0 0 var(--line-top);
+}
+.brand{ display:flex; align-items:center; gap:11px; min-width:0; }
+.brand-mark{ width:32px; height:32px; flex:0 0 auto; }
+/* Title case, not a stamped wordmark: the wordmark sits beside a mark that
+   already carries the weight, so tracking and caps only make it shout. */
+.brand-name{
+  font-family:var(--font-display); font-weight:700; font-size:20px;
+  line-height:1.1; letter-spacing:0;
+}
+
+/* --- head: wordmark + the collapse chevron -------------------------------
+   Padded with the tighter value on the right, because the chevron sits at the
+   rail's inner edge next to the board — the seam that has to stay quiet. */
+.sidebar-head{
+  display:flex; align-items:center; gap:var(--s-2);
+  padding:12px var(--s-3) 12px var(--s-4);
+  min-height:64px; flex:0 0 auto;
+  border-bottom:1px solid var(--line);
+}
+.sidebar-head .brand{ flex:1 1 auto; }
+/* The collapse control is the only way in or out of the rail, so it holds the
+   44px touch floor rather than the 36px it used to sit at. */
+.side-toggle{
+  display:grid; place-items:center; flex:0 0 auto;
+  width:var(--tap); height:var(--tap); padding:0;
+  border:1px solid var(--line); border-radius:var(--r-pill);
+  background:var(--surface-2); color:var(--text-2); cursor:pointer;
+  transition:background-color var(--t-fast) var(--ease),
+             color var(--t-fast) var(--ease),
+             transform var(--t-mid) var(--ease);
+}
+.side-toggle svg{ width:19px; height:19px; }
+.side-toggle:hover{ background:var(--surface-3); color:var(--text-1); }
+html[data-rail="mini"] .side-toggle svg{ transform:rotate(180deg); }
+
+/* --- primary destinations ------------------------------------------------
+   A stacked list, not a tab strip. The rail is a menu column on the left, so
+   each destination is a full-width row: icon on the left, name on the right,
+   exactly where a hand expects to find it. Five icons across the top of a
+   vertical menu reads as a toolbar that belongs to no particular destination. */
+.side-nav{
+  display:grid; grid-template-columns:minmax(0,1fr);
+  gap:2px; padding:var(--s-3);
+  border-bottom:1px solid var(--line);
+}
+.side-nav a{
+  position:relative;
+  display:flex; align-items:center; gap:14px;
+  min-height:var(--tap); padding:0 var(--s-3);
+  border-radius:var(--r-md);
+  color:var(--text-2); font-size:15px; font-weight:500;
+  text-decoration:none; white-space:nowrap;
+  transition:color var(--t-fast) var(--ease),background-color var(--t-fast) var(--ease);
+}
+.side-nav a svg{ width:21px; height:21px; flex:0 0 auto; }
+.side-nav a:hover{ color:var(--text-1); background:var(--line-soft); text-decoration:none; }
+/* The active destination is a filled plate rather than an edge marker: on a
+   blurred, translucent rail a 3px bar reads as a border artefact, while a
+   tinted pill with an amber glyph reads at a glance from across a table. The
+   tint is warm and slightly stronger than a token accent-soft, because the
+   plate has to survive being laid over a photograph of a forest. */
+.side-nav a[aria-current="page"]{
+  color:var(--accent); font-weight:600;
+  background:color-mix(in srgb, var(--accent) 15%, transparent);
+}
+.side-nav a[aria-current="page"] svg{ opacity:1; color:var(--accent); }
+.topbar-actions{ display:flex; align-items:center; gap:var(--s-2); justify-self:end; }
+
+/* --- foot: the two non-destinations, then the session block at the bottom --- */
+.sidebar-foot{
+  margin-top:auto; flex:0 0 auto;
+  display:flex; flex-direction:column; gap:6px;
+  padding:var(--s-3); border-top:1px solid var(--line);
+}
+.sidebar-foot .hairline{ margin:var(--s-2) 2px; }
+.side-link{
+  display:flex; align-items:center; gap:14px; width:100%;
+  min-height:48px; padding:0 14px;
+  border:0; border-radius:var(--r-md);
+  background:transparent; color:var(--text-2);
+  font-size:16px; font-weight:500; text-align:left; cursor:pointer;
+  transition:color var(--t-fast) var(--ease),background-color var(--t-fast) var(--ease);
+}
+.side-link svg{ width:22px; height:22px; flex:0 0 auto; }
+.side-link:hover{ color:var(--text-1); background:var(--line-soft); text-decoration:none; }
+/* The footer carries <a> destinations alongside the <button> controls, so the
+   anchor has to opt out of the global link underline. */
+a.side-link{ text-decoration:none; }
+/* The session block is a row, not a card. A bordered panel here would compete
+   with the content it sits beside; the avatar and the name are enough. It is
+   the one control in the rail that opens something, so it is wrapped in a
+   positioned anchor and carries the menu's expanded state. */
+.user-menu{ position:relative; margin-top:var(--s-2); }
+.side-user{
+  display:flex; align-items:center; gap:12px; width:100%;
+  padding:10px 6px;
+  border:0; border-radius:var(--r-md);
+  background:transparent; color:inherit;
+  font:inherit; text-align:left; cursor:pointer;
+  transition:background-color var(--t-fast) var(--ease);
+}
+.side-user:hover,
+.side-user[aria-expanded="true"]{ background:var(--line-soft); }
+/* The avatar is a person, not a board piece: round reads as identity at a
+   glance, and it is the only circle in a column of squares. */
+.side-user .avatar{ border-radius:50%; }
+.side-user-text{
+  display:flex; flex-direction:column; align-items:flex-start; gap:2px;
+  min-width:0; flex:1 1 auto;
+}
+.side-user-name{ display:flex; align-items:center; gap:8px; min-width:0; }
+.side-user-name b{ font-size:15px; font-weight:600; letter-spacing:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+/* The caret points up: the session menu opens above this row, so the arrow
+   names the direction the panel travels rather than the only horizontal one. */
+.side-user-caret{
+  width:18px; height:18px; flex:0 0 auto; color:var(--text-3);
+  transform:rotate(-90deg);
+  transition:transform var(--t-fast) var(--ease);
+}
+.side-user[aria-expanded="true"] .side-user-caret{ transform:rotate(90deg); }
+
+/* --- the session menu ------------------------------------------------------
+   It opens UPWARD, because the row it belongs to is pinned to the bottom of
+   the rail and there is nothing below it to open into. It is a plate rather
+   than a bare list: it floats over the board, so without a surface and a
+   shadow it would read as more rail rather than as something that arrived on
+   top of it. Every surface is a token, so light mode repaints it for free. */
+.user-pop{
+  position:absolute; left:0; right:0; bottom:calc(100% + 8px); z-index:60;
+  padding:6px;
+  border:1px solid var(--line-strong); border-radius:var(--r-md);
+  background:linear-gradient(180deg,var(--surface-1),var(--surface-2));
+  box-shadow:var(--e3);
+  animation:ft-rise var(--t-fast) var(--ease-out) both;
+}
+.user-pop[hidden]{ display:none; }
+.user-item{
+  display:flex; align-items:center; gap:12px; width:100%;
+  min-height:var(--tap); padding:0 10px;
+  border:0; border-radius:var(--r-xs); background:transparent;
+  color:var(--text-1); font-size:14px; font-weight:500; text-align:left; cursor:pointer;
+  transition:background-color var(--t-fast) var(--ease), color var(--t-fast) var(--ease);
+}
+.user-item:hover{ background:var(--line-soft); }
+.user-item:focus-visible{ outline:2px solid var(--accent); outline-offset:-2px; }
+.user-item svg{ width:18px; height:18px; flex:0 0 auto; color:var(--text-2); }
+.user-item:hover svg{ color:var(--text-1); }
+/* The current value rides at the end of the row rather than inside the label,
+   so the label can keep naming the ACTION ("Light mode") while the chip says
+   what is actually in force ("Dark"). Naming the state instead would force the
+   reader to invert it before acting. */
+.user-item-state{
+  margin-left:auto; flex:0 0 auto;
+  font-size:11.5px; color:var(--text-3); font-variant-numeric:tabular-nums;
+}
+.user-sep{ height:1px; margin:5px 6px; background:var(--line); }
+
+/* A menuitem is a toggle, not a checkbox, so the state is carried by the label
+   and the icon: one glyph per mode, and only the live one is drawn. Which
+   glyph is live is a fact about the theme, so it is decided in CSS off the
+   same data-mode attribute that paints the page — the menu can never disagree
+   with the page it is floating over. */
+.icon-moon,.icon-volume,.icon-user,.icon-log-out{ display:none; }
+html[data-mode="light"] .icon-sun{ display:none; }
+html[data-mode="light"] .icon-moon{ display:block; }
+.user-pop.is-muted .icon-volume-x{ display:none; }
+.user-pop.is-muted .icon-volume{ display:block; }
+.user-pop.is-signed-in .icon-user-plus{ display:none; }
+.user-pop.is-signed-in .icon-user{ display:block; }
+.user-pop.is-signed-in .icon-log-in{ display:none; }
+.user-pop.is-signed-in .icon-log-out{ display:block; }
+
+/* Signing out is the one destructive verb in the menu, so it is the one row
+   that is allowed to be red — and it is red only once there is something to
+   sign out of. As a guest the same row is the way IN, which is the opposite
+   intent, so it takes the accent instead. */
+.user-item.is-danger{ color:var(--danger); }
+.user-item.is-danger svg{ color:var(--danger); }
+.user-item.is-danger:hover{ background:var(--danger-soft); }
+.user-pop:not(.is-signed-in) .user-item[data-user-session]{ color:var(--accent); }
+.user-pop:not(.is-signed-in) .user-item[data-user-session] svg{ color:var(--accent); }
+.user-pop:not(.is-signed-in) .user-item[data-user-session]:hover{ background:var(--accent-soft); }
+
+/* In light mode the plate sits on a chalked-out page, where a black ambient
+   shadow reads as a smudge rather than as lift. */
+html[data-mode="light"] .user-pop{
+  box-shadow:var(--e2), 0 1px 2px rgb(27 28 30 / .08);
+}
+
+/* Drawer scrim: inert until the mobile layer sets .is-drawer-open. */
+.scrim{
+  position:fixed; inset:0; z-index:55;
+  background:var(--scrim);
+  opacity:0; pointer-events:none;
+  transition:opacity var(--t-mid) var(--ease);
+}
+html.is-drawer-open .scrim{ opacity:1; pointer-events:auto; }
+
+/* The compact bar only exists once the sidebar has left the flow. */
+.topbar{ display:none; }
+
+/* --- collapsed rail: icons carry the menu, tooltips carry the names ------- */
+html[data-rail="mini"] .sidebar-head{
+  flex-direction:column; gap:6px; padding:10px 0; min-height:0;
+}
+html[data-rail="mini"] .sidebar-head .brand{ flex:0 0 auto; }
+html[data-rail="mini"] .brand-name,
+html[data-rail="mini"] .side-nav a span,
+html[data-rail="mini"] .side-link span,
+html[data-rail="mini"] .side-user-text,
+html[data-rail="mini"] .side-user-caret{ display:none; }
+html[data-rail="mini"] .side-nav a,
+html[data-rail="mini"] .side-link,
+html[data-rail="mini"] .side-user{ justify-content:center; padding:0; }
+html[data-rail="mini"] .side-user{ padding:8px; }
+/* Collapsed, the icons ARE the menu, so they are drawn at a readable size
+   rather than shrunk to fit. Anything smaller reads as a stray glyph floating
+   in an empty column. Sizes stay above the 44px touch floor. */
+html[data-rail="mini"] .side-nav a{ min-height:48px; }
+html[data-rail="mini"] .side-nav a svg{ width:23px; height:23px; }
+html[data-rail="mini"] .side-link{ min-height:46px; }
+html[data-rail="mini"] .side-link svg{ width:22px; height:22px; }
+html[data-rail="mini"] .side-toggle{ width:var(--tap-lg); height:var(--tap-lg); }
+html[data-rail="mini"] .side-toggle svg{ width:21px; height:21px; }
+/* The rail is one column of icons now, so tighten the rhythm to keep the whole
+   column inside one viewport — a rail that scrolls is a rail you lose items in. */
+html[data-rail="mini"] .side-nav{ grid-template-columns:minmax(0,1fr); }
+html[data-rail="mini"] .side-nav,
+html[data-rail="mini"] .sidebar-foot{ gap:4px; padding:var(--s-2); }
+html[data-rail="mini"] .sidebar-foot .hairline{ margin:var(--s-1) 2px; }
+html[data-rail="mini"] .side-user{ padding:6px; }
+/* The collapsed tooltip is the ONLY thing that names these icons, and it is
+   positioned to the right of the rail. A scroll container here would clip it
+   and add a horizontal scrollbar, so the column is allowed to be plain. */
+html[data-rail="mini"] .side-nav{ overflow:visible; }
+/* With no label to read, the tooltip becomes the label. It now opens to the
+   RIGHT of the rail, because the rail is the left-hand column. */
+html[data-rail="mini"] .side-nav a.tip::after,
+html[data-rail="mini"] .side-link.tip::after,
+html[data-rail="mini"] .side-user.tip::after{
+  bottom:auto; top:50%; right:auto; left:calc(100% + 10px);
+  transform:translateY(-50%);
+}
+/* Collapsed, the rail is an 88px column, so a full-width panel opened upward
+   would be narrower than the labels inside it. It moves to the RIGHT of the
+   rail instead — the same side the tooltips already use — and takes a width
+   that fits its own content. The rise animation is dropped because its
+   transform is what positions the panel here. */
+html[data-rail="mini"] .user-pop{
+  left:calc(100% + 10px); right:auto; bottom:auto; top:50%;
+  transform:translateY(-50%);
+  width:236px; animation:none;
+}
+
+/* ------------------------------------------------------------------- content */
+main{ position:relative; z-index:1; }
+.wrap{ width:100%; max-width:1560px; margin:0 auto; padding:var(--s-6) var(--s-5) var(--s-8); }
+.wrap-tight{ width:100%; max-width:1080px; margin:0 auto; padding:var(--s-6) var(--s-5) var(--s-8); }
+
+.page-head{ margin-bottom:var(--s-5); }
+.page-head h1{ margin-bottom:6px; }
+.title-rule{
+  display:flex; align-items:center; gap:var(--s-3); margin-top:var(--s-3);
+  color:var(--text-3); font-size:12px; letter-spacing:.1em; text-transform:uppercase;
+}
+.title-rule::after{ content:""; flex:1; height:1px; background:var(--line); }
+
+.view{ display:none; }
+.view.is-active{ display:block; animation:ft-rise var(--t-slow) var(--ease-out) both; }
+
+/* ------------------------------------------------------------------- hero
+   The arena's front door. Copy on the left, a still of the real board on the
+   right, and one button that stands between the visitor and the game: until
+   it is pressed the cockpit below is display:none, so the playable board is
+   literally behind the button rather than above it. */
+.hero{
+  display:grid; gap:var(--s-5);
+  grid-template-columns:minmax(0,1fr);
+  align-content:center;
+  padding:var(--s-4) 0 var(--s-6);
+}
+@media (min-width:900px){
+  /* Two columns side by side: the copy centres against the still rather than
+     hanging off the top of it, so the two halves read as one poster. */
+  .hero{
+    grid-template-columns:minmax(0,0.92fr) minmax(0,1.08fr);
+    gap:var(--s-7); align-items:center;
+  }
+}
+.hero-copy{ min-width:0; display:flex; flex-direction:column; gap:var(--s-3); }
+.hero-copy .eyebrow{ margin:0; }
+.hero-title{
+  font-size:clamp(30px,4.4vw,52px); line-height:1.06; letter-spacing:-.03em;
+  margin:0; text-wrap:balance;
+}
+/* "Accept" is the whole verb of the game, so it is the one word in the
+   headline that wears the accent. */
+.hero-title em{ font-style:normal; color:var(--accent); }
+.hero-copy .lede{ max-width:52ch; margin:0; }
+.hero-actions{ display:flex; flex-wrap:wrap; gap:var(--s-3); margin-top:var(--s-2); }
+.hero-play{ padding-left:26px; }
+/* Play now opens a setup sheet, so the button says what will happen next.
+   Sitting under the two actions it reads as a footnote to the press, not as
+   another thing to click. */
+.hero-note{ margin:calc(-1 * var(--s-2)) 0 0; font-size:12.5px; color:var(--text-3); max-width:46ch; }
+
+.hero-facts{
+  display:flex; flex-wrap:wrap; gap:var(--s-3) var(--s-6);
+  margin:var(--s-3) 0 0; padding:var(--s-3) 0 0;
+  border-top:1px solid var(--line);
+}
+.hero-facts > div{ display:flex; flex-direction:column; gap:2px; }
+.hero-facts dt{
+  font-size:10.5px; letter-spacing:.14em; text-transform:uppercase; color:var(--text-3);
+}
+.hero-facts dd{ margin:0; font-size:13.5px; font-weight:600; color:var(--text-1); }
+
+.hero-stage{ min-width:0; display:flex; flex-direction:column; gap:var(--s-2); }
+/* The still is a board, so it is a board: same stage, same plate, same
+   backdrop shadow. Only the interaction affordances are absent, and those
+   come from the decorative mount rather than from here. */
+.hero .stage{ max-width:min(100%,520px); margin:0 auto; }
+.hero .stage-svg{ min-height:0; }
+.hero-caption{ margin:0; font-size:12px; color:var(--text-3); text-align:center; }
+.hero .board-chrome{ border-bottom:1px solid var(--line); }
+
+/* The swap. `display:none` rather than a collapsed height, so the cockpit's
+   buttons are out of the tab order and the arena cannot be reached or read
+   while the hero is still up. */
+#view-play[data-stage="hero"] .play-layout{ display:none; }
+#view-play[data-stage="game"] .hero{ display:none; }
+
+/* ------------------------------------------------------------ play cockpit
+   The menu rail owns navigation on the left, so the cockpit itself is two
+   columns: the board, and the rail on the right that holds the mode chooser
+   and everything a turn needs. */
+.play-layout{
+  display:grid;
+  grid-template-columns:minmax(0,1fr) 340px;
+  gap:var(--s-5);
+  align-items:start;
+}
+#view-play .wrap{ max-width:1680px; }
+@media (min-width:1400px){
+  .play-layout{ grid-template-columns:minmax(0,1fr) 372px; }
+}
+.rail-right{ display:flex; flex-direction:column; gap:var(--s-4); min-width:0; }
+/* Panels keep their natural height and the rail scrolls. Without this they are
+   flex items in a height-constrained column, so a long move log would squash
+   the turn readout instead of scrolling past it. */
+.rail-right > *{ flex:0 0 auto; }
+
+/* --- the turn rail is one column, not four stacked cards ---------------------
+   The menu rail beside it is a single flat column split by hairlines, so the
+   turn rail borrows the same grammar: no per-panel border, radius, plate or
+   shadow, and no gap between sections — just one hairline between them. Fewer
+   edges means the eye lands on the board instead of on four boxes. Only while
+   the rail is a single column; below 1120px it is a two-up grid under the
+   board, where separate cards are what keeps the pairs readable. */
+@media (min-width:1121px){
+  .rail-right{ gap:0; }
+  .rail-right > .panel{
+    border:0; border-radius:0;
+    background:none; box-shadow:none; overflow:visible;
+  }
+  .rail-right > .panel::before{ content:none; }
+  .rail-right > .panel + .panel{ border-top:1px solid var(--line); }
+}
+
+/* Match header: who is playing, and the one menu the turn needs. It also
+   carries the page's h1, so a narrow column can let the title take its own
+   line and a wide one keeps the whole header on a single row. */
+.match-bar{
+  display:flex; align-items:center; gap:var(--s-3);
+  padding:10px var(--s-3); flex-wrap:wrap;
+}
+.match-title{
+  flex:1 1 100%; order:-1; margin:0 0 2px;
+  font-size:22px; letter-spacing:-.015em;
+}
+.match-meta{ min-width:0; }
+.match-meta strong{ display:block; font-size:14px; line-height:1.25; }
+
+/* Player strip — one identity block, two changeable numbers. */
+.player-strip{
+  display:flex; align-items:center; gap:var(--s-3);
+  padding:12px var(--s-4);
+  border:1px solid var(--line);
+  border-radius:var(--r-md);
+  background:linear-gradient(180deg,var(--surface-2),var(--surface-1));
+  box-shadow:var(--e1);
+  min-height:64px;
+}
+.player-strip.is-turn{ border-color:var(--accent-line); box-shadow:0 0 0 1px var(--accent-soft),var(--e2); }
+.player-strip.is-turn .turn-dot{ background:var(--accent); box-shadow:0 0 10px var(--accent-glow); }
+.turn-dot{
+  width:8px; height:8px; border-radius:50%; flex:0 0 auto;
+  background:var(--n-500); transition:background var(--t-fast) var(--ease);
+}
+.player-strip .avatar{ width:34px; height:34px; border-radius:9px; flex:0 0 auto; }
+.player-name{ font-weight:600; font-size:14px; }
+.player-sub{ font-size:11.5px; color:var(--text-3); }
+.captured{ display:flex; align-items:center; gap:3px; min-height:18px; flex-wrap:wrap; }
+.captured .chip{
+  width:17px; height:17px; border-radius:4px; flex:0 0 auto;
+  background:var(--surface-3); border:1px solid var(--line);
+  display:grid; place-items:center; font-size:9px; font-weight:700;
+  color:var(--text-2); font-family:var(--font-mono);
+}
+
+/* Board stage: the arena the whole system is built around.
+   Wide and touch-first: the stage fills the cockpit column, hexes stay
+   >=44px touch targets, and the svg scales to the column width. */
+.cockpit{ min-width:0; display:flex; flex-direction:column; gap:10px; }
+.stage{
+  position:relative; margin:0; width:100%; max-width:100%;
+  border:1px solid var(--line);
+  border-radius:var(--r-lg);
+  background:var(--surface-inset);
+  box-shadow:var(--e2), inset 0 1px 0 var(--line-top);
+  overflow:hidden;
+}
+.stage-svg{ display:block; width:100%; height:auto; min-height:420px; touch-action:manipulation; }
+@media (min-width:1000px){ .stage{ margin:0 auto; } }
+/* Cap height so the full board + action bar stay usable on short screens;
+   the svg letterboxes (meet) instead of pushing the cockpit off-screen. */
+.stage{ max-width:min(100%, 760px); }
+.stage-svg{ max-height:74vh; }
+@media (max-height:699px){ .stage-svg{ max-height:82vh; } }
+
+/* --- the arena, and the two identity bars that ride its edges --------------
+   .board-frame owns the stage plus the opponent and player strips. In flow it
+   is just a column, which is what narrow screens want. */
+.board-frame{
+  position:relative; min-width:0;
+  display:flex; flex-direction:column; gap:10px;
+}
+
+/* --- wide-screen cockpit: the board IS the screen -------------------------
+   Past the tablet breakpoint the play view stops being a scrolling page and
+   becomes a cockpit. The page title collapses to one line, the arena claims
+   every pixel left over, and the turn rail keeps its own scroll so a long
+   move log can never push the board off the display. The svg letterboxes
+   (preserveAspectRatio is "meet"), so the board stays whole and centred.
+
+   The two identity cards DO float over the board here — they are absolutely
+   positioned over the stage's top and bottom edges, and the stage reserves
+   exactly their height as padding so the hexes letterbox clear of them. An
+   earlier version put them in flow and reserved a fixed 78px for them, but the
+   real strips were 112px tall, so the reservation was always short and the
+   bottom row of hexes sat under the player's bar. The reservation is now
+   measured against the card that actually renders. */
+@media (min-width:1121px){
+  #view-play{ height:100dvh; }
+  #view-play .wrap{
+    max-width:none; height:100%;
+    display:flex; flex-direction:column;
+    /* base.css ships a .wrap{flex-wrap:wrap} utility meant for .row. On a
+       COLUMN container that wraps the page head and the cockpit into separate
+       side-by-side columns, so the title's width pushes the turn rail out past
+       the wrap and under the navigation rail. One column, no wrap. */
+    flex-wrap:nowrap;
+    padding:var(--s-3);
+  }
+  /* The page's h1 and lede moved into the hero, which the wide cockpit swaps
+     out for the arena on Play — so there is nothing left up here to hide. */
+  /* On the cockpit the play view is one fixed-height column, so the hero has
+     to be the flex child that fills it and the still has to live inside that
+     rather than pushing the page taller. The hero scrolls itself when a short
+     window cannot hold it. */
+  #view-play[data-stage="hero"] .hero{
+    flex:1 1 auto; min-height:0; overflow-y:auto;
+    padding:var(--s-3) 0;
+  }
+  #view-play[data-stage="hero"] .hero .stage{ max-width:min(100%,560px); }
+  #view-play .play-layout{ flex:1 1 auto; min-height:0; align-items:stretch; }
+  #view-play .cockpit{ min-height:0; gap:var(--s-2); }
+  .rail-right{ min-height:0; overflow-y:auto; padding-right:4px; }
+
+  /* The frame is now only the arena. Both identity cards float over its top and
+     bottom edges instead of sitting in flow, so the grid is one row and the
+     stage inherits every pixel the strips used to hold — about a third more
+     board out of the same window. */
+  .board-frame{
+    flex:1 1 auto; min-height:0; position:relative;
+    display:grid; grid-template-rows:minmax(0,1fr);
+  }
+
+  /* Identity cards: glass plates laid over the edges of the board, the way a
+     table carries the two scorecards. Translucent, blurred and inset, so they
+     read as resting ON the arena rather than cut out of the page. */
+  .board-frame > .player-strip{
+    position:absolute; left:var(--s-3); right:var(--s-3); z-index:3;
+    min-height:0; padding:6px var(--s-4); gap:var(--s-4);
+    border:1px solid var(--line); border-radius:var(--r-lg);
+    background:color-mix(in srgb, var(--surface-1) 74%, transparent);
+    backdrop-filter:blur(18px) saturate(150%);
+    -webkit-backdrop-filter:blur(18px) saturate(150%);
+    box-shadow:0 20px 44px -26px rgb(0 0 0 / .85);
+  }
+  .board-frame > .player-top{ top:var(--s-3); }
+  .board-frame > .player-bottom{ bottom:var(--s-3); }
+  /* Whose turn it is is the one thing that must never be ambiguous, so the
+     active card takes an amber edge and a soft lift — not a filled plate,
+     which would out-shout the board it is sitting on. */
+  .board-frame > .player-strip.is-turn{
+    border-color:var(--accent-line);
+    box-shadow:0 20px 44px -26px rgb(0 0 0 / .85), 0 0 26px -8px var(--accent-glow);
+  }
+  .board-frame .player-strip .grow{
+    display:flex; align-items:baseline; gap:var(--s-3); flex-wrap:wrap;
+  }
+  .board-frame .player-strip .turn-dot{ width:9px; height:9px; }
+  /* A person, not a piece: the avatar is the only circle in the cockpit. */
+  .board-frame .player-strip .avatar{
+    width:36px; height:36px; border-radius:50%; font-size:14px; font-weight:700;
+  }
+  .board-frame .player-name{ font-size:15px; }
+  .board-frame .player-sub{ font-size:12px; }
+  .board-frame .captured{ min-height:0; }
+  /* The clock is the loudest number on the card, so it gets a real plate —
+     but it is also the tallest thing in it, and this card's height is charged
+     straight to the board twice over. Hence the tight leading. */
+  .board-frame .player-strip .clock{
+    font-size:19px; line-height:1.25; min-width:86px; padding:4px 10px;
+    border-radius:var(--r-md);
+    background:color-mix(in srgb, var(--surface-inset) 72%, transparent);
+  }
+
+  /* The stage stops being a box: the board carries its own plate, so the svg
+     letterboxes onto the page background instead of into an empty panel. The
+     padding is the standing reservation for the two floating identity cards —
+     the grid is fitted inside it, so a card can never come to rest on a hex. */
+  .board-frame > .stage{
+    min-height:0; height:100%; width:100%;
+    max-width:none; margin:0; padding:62px var(--s-3);
+    display:block;
+    border:0; border-radius:0; background:transparent; box-shadow:none;
+  }
+  /* One warm pool of light on the floor around the arena. The board plate is
+     deliberately near black — the same value the page uses — so without a
+     light source of its own it reads as a hole cut in the wall rather than a
+     table under a lamp. The plate is opaque, so the centre of this gradient
+     never shows: what reaches the eye is the halo around the board, which is
+     exactly the part that has to stop the arena floating. One gradient. */
+  .board-frame > .stage::before{
+    content:"";
+    position:absolute; inset:0; z-index:0;
+    background:radial-gradient(72% 64% at 50% 44%,
+              color-mix(in srgb, var(--accent) 30%, transparent),
+              color-mix(in srgb, var(--accent) 9%, transparent) 46%,
+              transparent 74%);
+    pointer-events:none;
+  }
+  .board-frame > .stage > *{ position:relative; z-index:1; }
+  /* Fill the reserved box and let preserveAspectRatio do the fitting: the board
+     is then as large as the window allows, and the slack always lands in the
+     padding the identity cards sit on. */
+  .board-frame .stage-svg{
+    display:block; width:100%; height:100%;
+    min-height:0; max-height:none;
+  }
+  /* The board toggles moved up onto the match row, so a whole band of hexes is
+     no longer spent on a toolbar sitting inside the arena. The row is a single
+     line with no plate of its own: it lives on the page, and the board is the
+     only object in this column that gets a surface. */
+  #view-play .match-bar{
+    flex:0 0 auto; min-height:40px; padding:0 var(--s-1) 0 var(--s-2);
+    gap:var(--s-3); flex-wrap:nowrap;
+    border:0; border-radius:0; background:none; box-shadow:none; overflow:visible;
+  }
+  #view-play .match-bar::before{ content:none; }
+  /* One line carries the title, the phase and the toggles. */
+  #view-play .match-title{
+    flex:0 0 auto; order:0; margin:0;
+    font-size:18px; line-height:1.2; white-space:nowrap;
+  }
+  /* Time control and phase read as one sentence — "15 min · Casual — Move 1 of
+     2". Stacked they cost a whole line of board and say nothing extra. */
+  #view-play .match-meta{
+    display:flex; align-items:baseline; gap:var(--s-3);
+    flex:1 1 auto; min-width:0; flex-wrap:wrap;
+  }
+  #view-play .match-meta .meta{ font-size:12.5px; }
+  #view-play .match-meta strong{ display:inline; font-size:14px; }
+  #view-play .match-bar .board-chrome{
+    flex:0 0 auto; margin:0 0 0 auto; padding:0; min-height:0;
+    gap:var(--s-2); flex-wrap:nowrap;
+    border:0; border-radius:0; background:none;
+    backdrop-filter:none; -webkit-backdrop-filter:none;
+  }
+  #view-play .match-bar .board-chrome .board-btns{ margin-left:0; gap:2px; }
+  #view-play .match-bar .board-chrome .board-btns .btn{
+    min-height:32px; padding:0 12px; font-size:12.5px;
+  }
+  /* The material name and the cursor readout are page furniture, not board
+     controls — the turn rail and the action bar already carry both. */
+  #view-play .match-bar .board-chrome .meta,
+  #view-play .match-bar .board-chrome .badge,
+  #view-play .match-bar .board-chrome .board-hint{ display:none; }
+
+  /* The status rail keeps its place but loses a few pixels: every one of them
+     now lands on the board instead. The 52px touch height was for thumbs on a
+     phone; on a cockpit the mouse does the aiming, and 40px still clears the
+     44px floor minus the padding the bar already gives it. */
+  #view-play .action-bar{ min-height:48px; padding:6px var(--s-4); }
+  #view-play .action-bar .row .btn{ min-height:40px; padding:0 18px; }
+  #view-play .action-bar .meta{ line-height:1.35; }
+}
+
+/* The turn prompt is guidance, not a log line: two lines is the most a narrow
+   cockpit column can carry without the bar growing taller than the buttons. */
+@media (min-width:1121px){
+  .action-bar .grow{ min-width:0; }
+  .action-bar .meta{
+    display:-webkit-box; -webkit-box-orient:vertical; -webkit-line-clamp:2;
+    overflow:hidden;
+  }
+}
+
+/* Status rail under the board: phase + prompt + primary action, one line. */
+.action-bar{
+  display:grid; grid-template-columns:1fr auto; align-items:center;
+  gap:var(--s-3); padding:10px var(--s-4);
+  border:1px solid var(--line);
+  border-radius:var(--r-md);
+  background:linear-gradient(180deg,var(--surface-2),var(--surface-1));
+  box-shadow:var(--e1);
+  min-height:64px;
+}
+.action-bar .row .btn{ min-height:var(--tap-lg); padding:0 22px; }
+.phase-pill{
+  display:inline-flex; align-items:center; gap:8px;
+  font-size:12px; font-weight:600; letter-spacing:.08em; text-transform:uppercase;
+  color:var(--text-2);
+}
+
+/* Tablet: the right rail drops under the board, two-up. */
+@media (max-width:1120px){
+  .play-layout{ grid-template-columns:minmax(0,1fr); }
+  .rail-right{ display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); align-items:start; }
+  .rail-right > .panel-span{ grid-column:1 / -1; }
+  /* The lobby is one decision, not two: it keeps the full width so its tab
+     strip and its cards stay a single readable block above the two-up grid. */
+  .rail-right > .lobby{ grid-column:1 / -1; }
+}
+@media (max-width:860px){
+  .wrap,.wrap-tight{ padding:var(--s-4) var(--s-3) 96px; }
+  .rail-right{ grid-template-columns:minmax(0,1fr); }
+}
+
+/* Two-column documentation pages (system, rules, mobile). */
+.doc-grid{ display:grid; gap:var(--s-4); grid-template-columns:repeat(auto-fit,minmax(280px,1fr)); }
+.doc-grid-wide{ display:grid; gap:var(--s-4); grid-template-columns:minmax(0,1fr) minmax(0,1fr); }
+@media (max-width:980px){ .doc-grid-wide{ grid-template-columns:minmax(0,1fr); } }
+
+/* Sticky section nav used on long documentation pages. */
+.section-nav{
+  display:flex; gap:var(--s-1); flex-wrap:wrap; padding:var(--s-1);
+  border:1px solid var(--line); border-radius:var(--r-pill);
+  background:var(--surface-2); width:max-content; max-width:100%;
+}
+

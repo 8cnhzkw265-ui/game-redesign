@@ -1,0 +1,7 @@
+﻿      html.setAttribute('data-board', C.board(prefs.board).id);
+      html.setAttribute('data-bg', C.background(prefs.background).id);
+>     /* The menu rail is part of the look: set it here so a saved "mini"
+>        preference never flashes a full-width sidebar on first paint. */
+>     html.setAttribute('data-rail', prefs.rail === 'mini' ? 'mini' : 'full');
+      renderTokens(doc.getElementById('token-grid'));
+      renderContrastTable(doc.getElementById('contrast-body'));

@@ -1,0 +1,30 @@
+﻿ 134 |             </div>
+ 135 |           </div>
+ 136 | 
+ 137 |           <!-- ---------------------------------------------------- right rail -->
+ 138 |           <aside class="rail-right" aria-label="Turn detail">
+ 139 |             <div class="panel">
+ 140 |               <div class="panel-head"><h3>Turn</h3><span class="badge badge-live" style="margin-left:auto">Live</span></div>
+ 141 |               <div class="panel-body stack-2">
+ 142 |                 <div class="row between">
+ 143 |                   <span class="meta">Turn</span>
+ 144 |                   <span class="mono" id="move-number">1</span>
+ 145 |                 </div>
+ 146 |                 <div class="row between">
+ 147 |                   <span class="meta">To move</span>
+ 148 |                   <strong id="turn-name">White to move</strong>
+ 149 |                 </div>
+ 150 |                 <div class="row between">
+ 151 |                   <span class="meta">Phase</span>
+ 152 |                   <span id="phase-detail">Move 1</span>
+ 153 |                 </div>
+ 154 |                 <div class="field">
+ 155 |                   <span class="meta">Adjudication clock</span>
+ 156 |                   <div class="meter meter-move" role="progressbar" aria-label="Quiet turns before adjudication">
+ 157 |                     <span id="stagnation-meter" style="width:0%"></span>
+ 158 |                   </div>
+ 159 |                   <span class="hint" id="stagnation-text">0 of 30 quiet turns</span>
+ 160 |                 </div>
+ 161 |                 <p class="meta" id="repeat-text">0 of 3 occurrences of the most repeated position</p>
+ 162 |               </div>
+ 163 |             </div>

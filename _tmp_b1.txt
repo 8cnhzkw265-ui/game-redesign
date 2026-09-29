@@ -1,0 +1,123 @@
+    var cursor = null, tabbable = null;
+
+    /* ------------------------------------------------------------ the cells */
+    H.paintOrder(H.allHexes()).forEach(function (h) {
+      var k = H.key(h);
+      if (limit && !limit[k]) { return; }
+      var pos = H.toPixel(h, radius, flip);
+      /* A decorative cell carries no role and no tabindex: without a role it is
+         not a gridcell, and without a tabindex it never joins the roving
+         cursor, so Tab walks past the hero exactly as it walks past a picture. */
+      var g = node('g', { class: 'b-hex', 'data-k': k });
+      if (!decorative) {
+        g.setAttribute('role', 'gridcell');
+        g.setAttribute('tabindex', '-1');
+      }
+      g.setAttribute('transform', 'translate(' + pos.x.toFixed(2) + ',' + pos.y.toFixed(2) + ')');
+      var cell = node('path', { class: 'cell', d: polygon(radius, 1) });
+      var inner = node('path', { class: 'cell-inner', d: polygon(radius, CELL_IN) });
+      var coord = node('text', { class: 'coord', x: 0, y: (radius * 0.78).toFixed(1), 'text-anchor': 'middle' });
+      coord.textContent = H.square(h);
+      coord.style.display = showCoords ? '' : 'none';
+      g.appendChild(cell); g.appendChild(inner); g.appendChild(coord);
+      cellsLayer.appendChild(g);
+
+      var rec = { h: h, k: k, g: g, cell: cell, inner: inner, coord: coord, pos: pos };
+      cells[k] = rec;
+      order.push(rec);
+    });
+
+    /* ----------------------------------------------------------- the pieces */
+    function createPiece(id) {
+      var g = node('g', { class: 'p-piece' });
+      var plate = node('path', { class: 'p-plate', d: polygon(radius * PLATE, 1) });
+      var inner = node('path', { class: 'p-inner', d: polygon(radius * PLATE, INNER) });
+      var glyph = node('text', {
+        class: 'p-glyph', x: 0, y: (radius * 0.10).toFixed(1),
+        'text-anchor': 'middle', 'font-size': (radius * 0.40).toFixed(1)
+      });
+      var strBg = node('circle', {
+        class: 'p-str-bg', cx: 0, cy: (radius * 0.30).toFixed(1), r: (radius * STR_R).toFixed(1)
+      });
+      var str = node('text', {
+        class: 'p-str', x: 0, y: (radius * 0.30 + radius * 0.10).toFixed(1),
+        'font-size': (radius * 0.26).toFixed(1)
+      });
+      g.appendChild(plate); g.appendChild(inner);
+      g.appendChild(glyph); g.appendChild(strBg); g.appendChild(str);
+      g.style.transition = 'transform var(--dur-move) var(--ease)';
+      piecesLayer.appendChild(g);
+      return { g: g, plate: plate, inner: inner, glyph: glyph, strBg: strBg, str: str };
+    }
+
+    function clear(node) { while (node.firstChild) { node.removeChild(node.firstChild); } }
+
+    function at(h) { return H.toPixel(h, radius, flip); }
+
+    /* ------------------------------------------------------------- painting */
+    function paint(view) {
+      var v = view || {};
+      var state = v.state;
+      var legal = v.legal || [];
+      var legalSet = {};
+      legal.forEach(function (h) { legalSet[H.key(h)] = true; });
+      var doomedSet = {}, collapseSet = {};
+      if (v.preview) {
+        doomedSet = v.preview.doomed || {};
+        collapseSet = v.preview.collapsed || {};
+      }
+
+      order.forEach(function (rec) {
+        rec.g.classList.remove('is-legal', 'is-last', 'is-selected', 'is-promo',
+          'is-check', 'is-doomed', 'is-collapsing', 'is-hinted', 'is-clickable', 'is-cursor');
+        var occ = state ? state.hexOccupant[rec.k] : null;
+        var piece = occ ? state.pieces[occ] : null;
+        /* "is-clickable" is a promise — a pointer cursor and a hover ring. The
+           hero board makes no such promise, so it never gets the class. */
+        if (!decorative && piece && piece.color === state.turn) { rec.g.classList.add('is-clickable'); }
+        if (legalSet[rec.k]) { rec.g.classList.add('is-legal', 'is-clickable'); }
+      });
+
+      clear(overlayLayer);
+
+      /* Last move trail — the two hexes a player must be able to name. */
+      if (v.lastMove) {
+        [v.lastMove.from, v.lastMove.to].forEach(function (h) {
+          if (h && cells[H.key(h)]) { cells[H.key(h)].g.classList.add('is-last'); }
+        });
+      }
+      /* Promotion squares announce themselves before anything lands on them. */
+      if (state && !state.result && FT.rules) {
+        FT.rules.promotionHexes(state.turn).forEach(function (h) {
+          if (cells[H.key(h)]) { cells[H.key(h)].g.classList.add('is-promo'); }
+        });
+      }
+      (v.hinted || []).forEach(function (h) {
+        if (cells[H.key(h)]) { cells[H.key(h)].g.classList.add('is-hinted'); }
+      });
+
+      /* Pieces are matched by id, so a move is a transform transition. */
+      var seen = {};
+      if (state) {
+        Object.keys(state.pieces).forEach(function (id) {
+          var piece = state.pieces[id], pos = state.positions[id];
+          if (!piece || !pos) { return; }
+          seen[id] = true;
+          var rec = pieces[id] || (pieces[id] = createPiece(id));
+          var px = at(pos);
+          rec.g.setAttribute('transform', 'translate(' + px.x.toFixed(2) + ',' + px.y.toFixed(2) + ')');
+          rec.g.setAttribute('class', 'p-piece ' + (piece.color === 'white' ? 'p-light' : 'p-dark') +
+            (doomedSet[id] ? ' is-doomed' : '') + (collapseSet[id] ? ' is-collapsing' : ''));
+          rec.g.setAttribute('data-id', id);
+          rec.glyph.textContent = FT.rules.KIND_LETTER[piece.kind] || '?';
+          var ink = piece.color === 'white' ? 'var(--p-w-ink)' : 'var(--p-b-ink)';
+          rec.glyph.setAttribute('fill', ink);
+          rec.str.setAttribute('fill', ink);
+          rec.str.textContent = FT.rules.strength(state, id);
+        });
+      }
+      Object.keys(pieces).forEach(function (id) {
+        if (!seen[id]) { piecesLayer.removeChild(pieces[id].g); delete pieces[id]; }
+      });
+
+      paintOverlay(v);

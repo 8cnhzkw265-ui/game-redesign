@@ -1,0 +1,57 @@
+﻿  
+    function node(name, attrs) {
+      var e = document.createElementNS(NS, name);
+>     if (attrs) { Object.keys(attrs).forEach(function (k) { e.setAttribute(k, attrs[k]); }); }
+      return e;
+    }
+  
+      var limit = opts.playable || null;          /* optional hex allow-list   */
+  
+      var bounds = H.bounds(radius, flip);
+>     svg.setAttribute('viewBox', '0 0 ' + bounds.width.toFixed(1) + ' ' + bounds.height.toFixed(1));
+>     svg.setAttribute('preserveAspectRatio', 'xMidYMid meet');
+>     svg.setAttribute('role', 'grid');
+>     svg.setAttribute('aria-label', 'Fortress board, 9 rows of hexes');
+      svg.classList.add('stage-svg');
+      while (svg.firstChild) { svg.removeChild(svg.firstChild); }
+  
+        if (limit && !limit[k]) { return; }
+        var pos = H.toPixel(h, radius, flip);
+        var g = node('g', { class: 'b-hex', 'data-k': k, role: 'gridcell', tabindex: '-1' });
+>       g.setAttribute('transform', 'translate(' + pos.x.toFixed(2) + ',' + pos.y.toFixed(2) + ')');
+        var cell = node('path', { class: 'cell', d: polygon(radius, 1) });
+        var inner = node('path', { class: 'cell-inner', d: polygon(radius, CELL_IN) });
+        var coord = node('text', { class: 'coord', x: 0, y: (radius * 0.78).toFixed(1), 'text-anchor': 'middle' });
+            seen[id] = true;
+            var rec = pieces[id] || (pieces[id] = createPiece(id));
+            var px = at(pos);
+>           rec.g.setAttribute('transform', 'translate(' + px.x.toFixed(2) + ',' + px.y.toFixed(2) + ')');
+>           rec.g.setAttribute('class', 'p-piece ' + (piece.color === 'white' ? 'p-light' : 'p-dark') +
+              (doomedSet[id] ? ' is-doomed' : '') + (collapseSet[id] ? ' is-collapsing' : ''));
+>           rec.g.setAttribute('data-id', id);
+            rec.glyph.textContent = FT.rules.KIND_LETTER[piece.kind] || '?';
+            var ink = piece.color === 'white' ? 'var(--p-w-ink)' : 'var(--p-b-ink)';
+>           rec.glyph.setAttribute('fill', ink);
+>           rec.str.setAttribute('fill', ink);
+            rec.str.textContent = FT.rules.strength(state, id);
+          });
+        }
+        if (v.cursor) { cursor = v.cursor; }
+        paintCursor();
+  
+>       svg.setAttribute('aria-label', state
+          ? 'Fortress board. ' + FT.rules.statusText(state) + '. ' +
+            (state.turn === 'white' ? 'White' : 'Black') + ' to move, move ' + state.moveNumber + '.'
+          : 'Fortress board');
+      function paintCursor() {
+        order.forEach(function (rec) {
+          rec.g.classList.remove('is-cursor');
+>         rec.g.setAttribute('tabindex', '-1');
+        });
+        if (!cursor) { tabbable = order[0] || null; }
+        var rec = cursor ? cells[H.key(cursor)] : null;
+        if (rec) { rec.g.classList.add('is-cursor'); tabbable = rec; }
+>       if (tabbable) { tabbable.g.setAttribute('tabindex', '0'); }
+      }
+  
+      function setCursor(h, focus) {

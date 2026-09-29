@@ -1,0 +1,26 @@
+﻿ 849 |                 <b>One gesture language</b>
+ 850 |                 <p class="meta">Tap a piece, then tap a destination. Mouse, touch and pen all arrive through a single delegated listener, every control is a real button with a visible focus ring, and pinch zoom and text zoom stay available.</p>
+ 851 |               </div>
+ 852 |             </div>
+ 853 |           </div>
+ 854 |         </div>
+ 855 |       </div>
+ 856 |     </section>
+ 857 | 
+ 858 |     </main>
+ 859 |   </div>
+ 860 | 
+ 861 |   <!-- ===================================================================
+ 862 |        SIDEBAR â€” the whole menu lives in one column on the RIGHT of the
+ 863 |        board: the wordmark and its collapse chevron, the five
+ 864 |        destinations, then the session block pinned to the bottom. It is a
+ 865 |        sibling of the content rather than a child of a view, so the menu is
+ 866 |        the same on every page and never scrolls away from the thumb.
+ 867 |        =================================================================== -->
+ 868 |   <aside class="sidebar" id="sidebar" aria-label="Main menu">
+ 869 |     <div class="sidebar-head">
+ 870 |       <a class="brand" href="#play" data-nav="play">
+ 871 |         <svg class="brand-mark" viewBox="-16 -16 32 32" aria-hidden="true">
+ 872 |           <path d="M12.99 -7.5L12.99 7.5L0 15L-12.99 7.5L-12.99 -7.5L0 -15Z" fill="var(--surface-3)" stroke="var(--line-strong)" stroke-width="1.2"/>
+ 873 |           <path d="M6.5 -3.8L6.5 3.8L0 7.5L-6.5 3.8L-6.5 -3.8L0 -7.5Z" fill="var(--accent)"/>
+ 874 |           <path d="M-1.7 -3.4h3.4v6.8h-3.4z" fill="var(--on-accent)"/>
